@@ -10,6 +10,9 @@
 *.userosscache
 *.sln.docstates
 
+# Bot Memory
+[Mm]emory/
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

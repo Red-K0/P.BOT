@@ -1,21 +1,20 @@
-﻿#region Boilerplate (DO NOT TOUCH)
-#pragma warning disable CA2211
-
-namespace P_BOT;
-#endregion
+﻿namespace P_BOT;
 
 /// <summary> Contains methods and variables used for basic message functionality and parsing. </summary>
-public static class MessageFunctions
+public static partial class MessageFunctions
 {
 	#region Variables
 	/// <summary> The ID of the last logged user. </summary>
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "There can only ever be one author")]
 	public static ulong? LastAuthor = 0;
 
 	/// <summary> The number of messages starred by P.BOT. </summary>
-	public static int StarCount = Convert.ToInt32(DiskData.ReadMemory(1, DiskData.Pages.Counter));
+	private static int StarCount = Convert.ToInt32(DiskData.ReadMemory(1, DiskData.Pages.Counter));
+
 	#endregion
 
 	/// <summary> Logs a given <paramref name="message"/> in the console, using <see cref="HighlightMessage(in Message, out string)"/>. </summary>
+	/// <param name="message"> The <see cref="Message"/> object to log. </param>
 	public static void LogMessage(in Message message)
 	{
 		if (LastAuthor != message.Author.Id)
@@ -35,6 +34,9 @@ public static class MessageFunctions
 		Console.ForegroundColor = ConsoleColor.Gray;
 	}
 
+	/// <summary> Responsible for setting text color in P.BOT's console log and annotating it. </summary>
+	/// <param name="message"> The <see cref="Message"/> object to highlight in the console. </param>
+	/// <param name="Annotation"> The <see cref="string"/> to annotate at the end of the log entry. </param>
 	private static void HighlightMessage(in Message message, out string Annotation)
 	{
 		Annotation = "";
@@ -52,7 +54,8 @@ public static class MessageFunctions
 	}
 
 	/// <summary> Parses a given <paramref name="message"/> to check for message links, and displays their content if possible. </summary>
-	public static void ParseMessageLink(in Message message, in GatewayClient client)
+	/// <param name="message"> The <see cref="Message"/> object to check for and parse links in. </param>
+	public static void ParseMessageLink(in Message message)
 	{
 		//HACK | The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
 		if (message.Author.Id != BOT_ID)
@@ -89,10 +92,8 @@ public static class MessageFunctions
 		}
 	}
 
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="message"></param>
+	/// <summary> Parses the contents of a given <see cref="MessageReactionAddEventArgs"/> and adds the result to the starboard. </summary>
+	/// <param name="message"> The <see cref="MessageReactionAddEventArgs"/> containing the message to add to the starboard. </param>
 	public static async void AddToStarBoard(MessageReactionAddEventArgs message)
 	{
 		RestMessage StarredMessage = await client.Rest.GetMessageAsync(message.ChannelId, message.MessageId).ConfigureAwait(true);
@@ -137,6 +138,8 @@ public static class MessageFunctions
 	}
 
 	/// <summary> Writes the string <paramref name="content"/> to the console in the color specified by <paramref name="color"/>. </summary>
+	/// <param name="content"> The <see cref="string"/> to write to the console. </param>
+	/// <param name="color"> The color to write the <paramref name="content"/> in. </param>
 	public static void WriteColor(string content, ConsoleColor color)
 	{
 		Console.ForegroundColor = color;

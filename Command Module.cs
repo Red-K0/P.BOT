@@ -104,8 +104,7 @@ public class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 				_ = DefineData.Definitions.TryGetValue(term, out definition);
 				msg_prop = EmbedHelpers.CreateEmbed(
 				definition,
-				"PPP Encyclopedia",
-				URL_RULESICON,
+				EmbedComponent.CreateAuthorObject("PPP Encyclopedia", URL_RULESICON),
 				DateTimeOffset.UtcNow);
 
 				msg_prop.MessageReference = new(Context.User.Id);
@@ -116,8 +115,7 @@ public class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 				_ = DefineData.Definitions.TryGetValue(term, out definition);
 				msg_prop = EmbedHelpers.CreateEmbed(
 				definition,
-				"PPP Encyclopedia",
-				URL_RULESICON,
+				EmbedComponent.CreateAuthorObject("PPP Encyclopedia", URL_RULESICON),
 				DateTimeOffset.UtcNow);
 
 				msg_prop.MessageReference = new(Context.User.Id);
@@ -135,10 +133,15 @@ public class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 	{
 		user ??= Context.User;
 		MessageProperties msg_prop = EmbedHelpers.CreateEmbed(
-		user.HasAvatar ? $"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar " : $"Sorry, <@{user.Id}> does not currently have an avatar set, [here]({user.DefaultAvatarUrl}) is the default discord avatar",
-		$"{user.Username}'s Avatar",
-		user.GetAvatarUrl(ImageFormat.Png).ToString(),
-		DateTimeOffset.UtcNow, ImageURL: new(user.GetAvatarUrl(format).ToString()));
+		
+		user.HasAvatar ?
+		$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar " : 
+		$"Sorry, <@{user.Id}> does not currently have an avatar set, [here]({user.DefaultAvatarUrl}) is the default discord avatar",
+
+		EmbedComponent.CreateAuthorObject($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
+		DateTimeOffset.UtcNow,
+		ImageURL: new(user.GetAvatarUrl(format).ToString())
+		);
 
 		msg_prop.MessageReference = new(Context.User.Id);
 		msg_prop.AllowedMentions = null;
@@ -160,11 +163,9 @@ public class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 
 			Translated Text: {Translation.GetTranslation(input, source_lang, target_lang)}
 			""",
-			"Translation Completed",
-			URL_TLICON,
+			EmbedComponent.CreateAuthorObject("Translation Completed", URL_TLICON),
 			DateTime.Now,
-			$"Translation requested by {Context.User.Username}",
-			Context.User.GetAvatarUrl().ToString(),
+			EmbedComponent.CreateFooterObject($"Translation requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			0x72767D
 		);
 		return Context.Client.Rest.SendMessageAsync(Context.Channel.Id, msg_prop);

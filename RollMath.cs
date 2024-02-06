@@ -1,6 +1,4 @@
 ﻿using System.Globalization;
-using System.Runtime.ExceptionServices;
-using System.Text;
 
 namespace P_BOT;
 
@@ -184,12 +182,12 @@ public static class RollMath
 		}
 		catch (Exception ex) when (ex is FormatException or ArgumentOutOfRangeException)
 		{
-			MessageProperties response = new();
-			MessageReferenceProperties response_ref = new(CurrentMessage!.Id);
-			response.MessageReference = response_ref;
-			response.Content = string.Format(CultureInfo.InvariantCulture, ERROR_DND_FORMAT, CurrentMessage.Content, "dx");
-			client.Rest.SendMessageAsync(CurrentMessage!.ChannelId, response);
-			Reset();
+			MessageProperties response = new()
+			{
+				MessageReference = new(CurrentMessage!.Id),
+				Content = string.Format(CultureInfo.InvariantCulture, ERROR_DND_FORMAT, CurrentMessage.Content, "dx")
+			};
+			_ = client.Rest.SendMessageAsync(CurrentMessage!.ChannelId, response);
 		}
 		finally
 		{

@@ -13,6 +13,8 @@
     <Trimming>full</Trimming>
     <PublishAot>True</PublishAot>
     <UserSecretsId>00fd273c-e691-4c01-8d8e-f6afd8339d21</UserSecretsId>
+    <ApplicationIcon>Bot Icon.ico</ApplicationIcon>
+    <PackageIcon>Bot Icon.png</PackageIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -34,6 +36,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Bot Icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
     <PackageReference Include="NetCord" Version="1.0.0-alpha.243" />
     <PackageReference Include="NetCord.Services" Version="1.0.0-alpha.143" />
@@ -46,6 +52,13 @@
     <Using Include="P_BOT.Constants">
       <Static>True</Static>
     </Using>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Bot Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

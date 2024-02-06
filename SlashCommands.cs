@@ -1,5 +1,6 @@
 ﻿using NetCord.Services.ApplicationCommands;
 namespace P_BOT;
+
 /// <summary> Contains the commands used by P.BOT and their associated tasks. </summary>
 public class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 {
@@ -98,7 +99,7 @@ public class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 		string? definition;
 		MessageProperties msg_prop;
 		InteractionMessageProperties imessageprop;
-		switch (term)
+		switch (term) //TODO | Refactor to Method
 		{
 			case DefineData.DefineChoices.MeaningOf_PPP:
 				_ = DefineData.Definitions.TryGetValue(term, out definition);
@@ -133,9 +134,9 @@ public class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 	{
 		user ??= Context.User;
 		MessageProperties msg_prop = EmbedHelpers.CreateEmbed(
-		
+
 		user.HasAvatar ?
-		$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar " : 
+		$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar " :
 		$"Sorry, <@{user.Id}> does not currently have an avatar set, [here]({user.DefaultAvatarUrl}) is the default discord avatar",
 
 		EmbedComponent.CreateAuthorObject($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
@@ -150,11 +151,19 @@ public class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 		return RespondAsync(InteractionCallback.Message(imessageprop));
 	}
 
-	/// <summary> Unimplemented. </summary>
+	/// <summary> Translates a given <see cref="string"/> from the <paramref name="source_lang"/> to the <paramref name="target_lang"/>, and responds with the output. </summary>
+	/// <param name="input"> The <see cref="string"/> to translate. </param>
+	/// <param name="source_lang"> The language to translate the <paramref name="input"/> from. </param>
+	/// <param name="target_lang"> The language to translate the <paramref name="input"/> to. </param>
 	[SlashCommand(CMD_HTTPTL_NAME, CMD_HTTPTL_DESC)]
-	public Task Translate([SlashCommandParameter(Name = CMD_HTTPTL_PR1N, Description = CMD_HTTPTL_PR1D)] string input,
-						  [SlashCommandParameter(Name = CMD_HTTPTL_PR2N, Description = CMD_HTTPTL_PR2D)] Translation.SupportedLanguages source_lang = Translation.SupportedLanguages.en,
-						  [SlashCommandParameter(Name = CMD_HTTPTL_PR3N, Description = CMD_HTTPTL_PR3D)] Translation.SupportedLanguages target_lang = Translation.SupportedLanguages.ja)
+	public Task Translate([SlashCommandParameter(Name = CMD_HTTPTL_PR1N, Description = CMD_HTTPTL_PR1D)]
+						  string input,
+
+						  [SlashCommandParameter(Name = CMD_HTTPTL_PR2N, Description = CMD_HTTPTL_PR2D)]
+						  Translation.SupportedLanguages source_lang = Translation.SupportedLanguages.en,
+
+						  [SlashCommandParameter(Name = CMD_HTTPTL_PR3N, Description = CMD_HTTPTL_PR3D)]
+						  Translation.SupportedLanguages target_lang = Translation.SupportedLanguages.ja)
 	{
 		_ = RespondAsync(InteractionCallback.Message("Translating your input, please wait..."));
 		MessageProperties msg_prop = EmbedHelpers.CreateEmbed(

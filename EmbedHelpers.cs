@@ -46,34 +46,6 @@ internal static class EmbedHelpers
 		return msg_prop;
 	}
 
-	public static MessageProperties CeateEmbed(
-	string? Description = null, EmbedAuthorProperties? AuthorObject = null, DateTimeOffset? Timestamp = null, EmbedFooterProperties? FooterObject = null,
-	int RGB = -1, ulong ReplyTo = 0, string? ImageURL = null, string? ThumbnailURL = null, string? Title = null,
-	string? TitleURL = null, bool Ephemeral = false)
-	{
-		EmbedProperties embed_prop = new()
-		{
-			Author = AuthorObject,
-			Color = CreateColorObject(RGB),
-			Description = Description,
-			Footer = FooterObject,
-			Image = new(ImageURL),
-			Timestamp = Timestamp,
-			Title = Title,
-			Thumbnail = new(ThumbnailURL),
-			Url = TitleURL
-		};
-		MessageProperties msg_prop = new()
-		{
-			Embeds = new[] { embed_prop },
-			MessageReference = (ReplyTo != 0) ? new(ReplyTo) : null,
-			Flags = Ephemeral ? MessageFlags.Ephemeral : null
-		};
-
-		return msg_prop;
-	}
-
-
 	/// <summary>
 	/// Similar to <see cref="CreateEmbed(string?, EmbedAuthorProperties?, DateTimeOffset?, EmbedFooterProperties?, int, ulong, string?, string?, string?, string?, bool)"/>, instead filling in most parameters automatically from a given <see cref="RestMessage"/>.
 	/// </summary>
@@ -84,7 +56,7 @@ internal static class EmbedHelpers
 	/// <param name="ReplyTo"> The ID of the message being replied to with the embed. </param>
 	/// <param name="Title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="TitleURL"/>, has a 256 character limit. </param>
 	/// <returns> <see cref="MessageProperties"/> containing the created embed. </returns>
-	public static MessageProperties ToEmbed( RestMessage TargetMessage, string TitleURL, string? Footer = null, string? FooterIconURL = null, ulong? ReplyTo = null, string? Title = null)
+	public static MessageProperties ToEmbed(RestMessage TargetMessage, string TitleURL, string? Footer = null, string? FooterIconURL = null, ulong? ReplyTo = null, string? Title = null)
 	{
 		MessageProperties msg_prop = new();
 		for (int i = 0; i < Math.Clamp(TargetMessage.Attachments.Count, 1, 10); i++)

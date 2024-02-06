@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Microsoft.Extensions.Configuration;
 
-
 namespace P_BOT;
 
 /// <summary> Contains the various constants used throughout the bot. </summary>
@@ -96,7 +95,7 @@ internal static class Constants
 	#endregion
 
 	#region Error Strings
-	
+
 	//DnD Text Module
 	public static readonly CompositeFormat ERROR_DND_FORMAT = CompositeFormat.Parse(
 	"""
@@ -119,10 +118,10 @@ internal static class Constants
 	#region URL Locations
 	/// <summary> The URL of the translation API used by <see cref="SlashCommands.Translate(string, Translation.SupportedLanguages, Translation.SupportedLanguages)"/>. </summary>
 	public const string URL_TRANSLATE = "https://655.mtis.workers.dev/translate";
-	
+
 	/// <summary> The URL of the translation icon used by <see cref="SlashCommands.Translate(string, Translation.SupportedLanguages, Translation.SupportedLanguages)"/> </summary>
 	public const string URL_TLICON = "https://i.ibb.co/GV149Px/iamvector-download-1.png";
-	
+
 	/// <summary> The URL of the rulebook emoji used by discord. Used by <see cref="SlashCommands.Define(DefineData.DefineChoices)"/>. </summary>
 	public const string URL_RULESICON = "https://emoji.discadia.com/emojis/2ae224b9-e6d5-40c2-aa41-791939fbd113.PNG";
 	#endregion

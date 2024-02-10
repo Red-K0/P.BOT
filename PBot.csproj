@@ -32,12 +32,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="!Data\**" />
-    <EmbeddedResource Remove="!Data\**" />
-    <None Remove="!Data\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Remove="CommonFunctions.cs" />
   </ItemGroup>
 

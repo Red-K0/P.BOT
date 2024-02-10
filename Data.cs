@@ -22,27 +22,32 @@ public static class DiskData
 	public static void AppendMemory(Pages Page, string NewLine)
 	{
 		string Path = PageSwitch(Page);
-
 		string[] OriginalContent = [.. File.ReadAllLines(Path), NewLine];
 		File.WriteAllLines(Path, OriginalContent);
 	}
+
 	/// <summary> Reads the content at a specific <paramref name="Line"/>, from the specified <paramref name="Page"/>. </summary>
+	/// <param name="Line"> The number of the line to read the contents of. </param>
+	/// <param name="Page"> The memory page to read the <paramref name="Line"/> from. </param>
 	public static string ReadMemory(int Line, Pages Page)
 	{
 		string Path = PageSwitch(Page);
-
 		string[] STR = File.ReadAllLines(Path);
 		return STR[Line];
 	}
+
 	/// <summary> Overwrites the data at <paramref name="Line"/> with the given <paramref name="NewValue"/>, at the specified <paramref name="Page"/>. </summary>
+	/// <param name="Line"> The number of the line to overwrite with the given <paramref name="NewValue"/>. </param>
+	/// <param name="Page"> The memory page to modify. </param>
+	/// <param name="NewValue"> The <see cref="string"/> to overwrite the given <paramref name="Line"/> with. </param>
 	public static void WriteMemory(int Line, Pages Page, string NewValue)
 	{
 		string Path = PageSwitch(Page);
-
 		string[] STR = [.. File.ReadAllLines(Path)];
 		STR.SetValue(NewValue, Line);
 		File.WriteAllLines(Path, STR);
 	}
+
 	private static string PageSwitch(Pages Page)
 	{
 		return Page switch

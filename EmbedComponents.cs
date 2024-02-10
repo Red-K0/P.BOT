@@ -1,7 +1,7 @@
 ﻿namespace P_BOT;
 
 /// <summary> Contains methods to contain and simplify the creation of <see cref="Embed"/> components. </summary>
-internal static class EmbedComponent
+internal static class EmbedComponents
 {
 	#region Color Object
 	/// <summary> Creates a <see cref="Color"/> object for use in an <see cref="Embed"/>. </summary>

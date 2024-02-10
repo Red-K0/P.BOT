@@ -6,12 +6,12 @@
     <RootNamespace>P_BOT</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AnalysisLevel>preview-all</AnalysisLevel>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>x64</PlatformTarget>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Trimming>full</Trimming>
-    <PublishAot>True</PublishAot>
+    <PublishAot>False</PublishAot>
     <UserSecretsId>00fd273c-e691-4c01-8d8e-f6afd8339d21</UserSecretsId>
     <ApplicationIcon>Bot Icon.ico</ApplicationIcon>
     <PackageIcon>Bot Icon.png</PackageIcon>
@@ -40,9 +40,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
-    <PackageReference Include="NetCord" Version="1.0.0-alpha.243" />
-    <PackageReference Include="NetCord.Services" Version="1.0.0-alpha.143" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+    <PackageReference Include="NetCord" Version="1.0.0-alpha.258" />
+    <PackageReference Include="NetCord.Hosting" Version="1.0.0-alpha.27" />
+    <PackageReference Include="NetCord.Hosting.Services" Version="1.0.0-alpha.35" />
+    <PackageReference Include="NetCord.Services" Version="1.0.0-alpha.158" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.10.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.CodeFixes" Version="4.10.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using static P_BOT.EmbedComponent;
+﻿using static P_BOT.EmbedComponents;
 namespace P_BOT;
 
 /// <summary> Contains functions for the creation of embeds. </summary>

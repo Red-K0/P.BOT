@@ -11,16 +11,16 @@ internal static class Constants
 
 	#region Bot
 	/// <summary> The intents passed to the <see cref="GatewayClient"/>. </summary>
-	public const GatewayIntents BOT_INTENTS = GatewayIntents.All | GatewayIntents.MessageContent;
+	public const GatewayIntents BOT_INTENTS = GatewayIntents.All;
 
 	/// <summary> P.BOT's main client. </summary>
-	public static GatewayClient client = new(new Token(0, config.GetSection("Bot")["Token"]), new GatewayClientConfiguration() { Intents = BOT_INTENTS });
+	public static GatewayClient client = new(new BotToken(config.GetSection("Discord")["Token"]!), new GatewayClientConfiguration() { Intents = BOT_INTENTS });
 
 	/// <summary> P.BOT's HTTP client </summary>
 	public static HttpClient client_h = new();
 
 	/// <summary> The bot's User ID. Not so secret. </summary>
-	public const ulong BOT_ID = 700796664276844612;
+	public const ulong BOT_ID = 1169031557848252516;
 	#endregion
 
 	#region Server
@@ -113,16 +113,17 @@ internal static class Constants
 
 	public const string ERROR_CODE_NODEV = "Unimplemented.";
 	public const string ERROR_DEFINEFAIL = "Sorry, the given term couldn't be defined.";
+	public const string ERRORLOG_NOWRITE = "\"at System.Linq.Enumerable.ToDictionary[TSource,TKey,TElement](IEnumerable`1 source, Func`2 keySelector, Func`2 elementSelector)\"";
 	#endregion
 
 	#region URL Locations
-	/// <summary> The URL of the translation API used by <see cref="SlashCommands.Translate(string, Translation.SupportedLanguages, Translation.SupportedLanguages)"/>. </summary>
+	/// <summary> The URL of the translation API used by <see cref="SlashCommand.Translate(string, Translation.Options, Translation.Options)"/>. </summary>
 	public const string URL_TRANSLATE = "https://655.mtis.workers.dev/translate";
 
-	/// <summary> The URL of the translation icon used by <see cref="SlashCommands.Translate(string, Translation.SupportedLanguages, Translation.SupportedLanguages)"/> </summary>
+	/// <summary> The URL of the translation icon used by <see cref="SlashCommand.Translate(string, Translation.Options, Translation.Options)"/> </summary>
 	public const string URL_TLICON = "https://i.ibb.co/GV149Px/iamvector-download-1.png";
 
-	/// <summary> The URL of the rulebook emoji used by discord. Used by <see cref="SlashCommands.Define(DefineData.DefineChoices)"/>. </summary>
+	/// <summary> The URL of the rulebook emoji used by discord. Used by <see cref="SlashCommand.Define(DefineData.DefineChoices)"/>. </summary>
 	public const string URL_RULESICON = "https://emoji.discadia.com/emojis/2ae224b9-e6d5-40c2-aa41-791939fbd113.PNG";
 	#endregion
 

@@ -1,24 +1,23 @@
 ﻿using NetCord.Services.ApplicationCommands;
 namespace P_BOT;
 
-/// <summary> Contains data involving dictionaries and the <see cref="SlashCommands.Define(P_BOT.DefineData.DefineChoices)"/> command. </summary>
+/// <summary> Contains data involving dictionaries and the <see cref="SlashCommand.Define(DefineChoices)"/> command. </summary>
 public static class DefineData
 {
-	/// <summary> A list of possible choices for the <see cref="SlashCommands.Define(DefineChoices)"/> command. </summary>
+	/// <summary> Contains definitions used for the <see cref="SlashCommand.Define(DefineChoices)"/> command. </summary>
+	public static readonly Dictionary<DefineChoices, string> Definitions = new([DICT_MEANOF_PPP, DICT_WHATIS_PPP]);
+
+	/// <summary> A list of possible choices for the <see cref="SlashCommand.Define(DefineChoices)"/> command. </summary>
 	public enum DefineChoices
 	{
 		/// <summary> The meaning of the PPP Abbreviation. </summary>
-		[SlashCommandChoice(Name = "What does 'PPP' stand for?")]
-		MeaningOf_PPP,
+		[SlashCommandChoice(Name = "What does 'PPP' stand for?")] MeaningOf_PPP,
 
 		/// <summary> The history of the PPP. </summary>
-		[SlashCommandChoice(Name = "What is the PPP?")]
-		WhatIs_ThePPP
+		[SlashCommandChoice(Name = "What is the PPP?")] WhatIs_ThePPP
 	}
 
-	/// <summary>
-	/// The meaning of the PPP Abbreviation.
-	/// </summary>
+	/// <summary> The meaning of the PPP Abbreviation. </summary>
 	public static readonly KeyValuePair<DefineChoices, string> DICT_MEANOF_PPP = new(DefineChoices.MeaningOf_PPP, """
 		'PPP' stands for \"Perfect Protection Polygon\".
 
@@ -26,9 +25,7 @@ public static class DefineData
 		>>> Originally, the PPP was called the 'Protection Triangle', as it consisted of three members. This was then expanded to the 'Protection Square', 'Protection Hexagon', and upon people's unawareness of what a heptagon is, the 'Protection Polygon'. The 'Perfect' prefix was added for alliteration, resulting in the 'Perfect Protection Polygon' or as its more commonly known, 'The PPP'.
 		""");
 
-	/// <summary>
-	/// The history of the PPP.
-	/// </summary>
+	/// <summary> The history of the PPP. </summary>
 	public static readonly KeyValuePair<DefineChoices, string> DICT_WHATIS_PPP = new(DefineChoices.WhatIs_ThePPP, """
 		*The PPP has had a fairly long history, documented here. For a summary, look up 'What does 'PPP' stand for?' instead*
 
@@ -55,9 +52,4 @@ public static class DefineData
 
 		At a point in time, @Kira☆Kira decided to leave discord for personal reasons. This put the server in a tough spot, given that the central idea revolved around her. However, due to the server having grown large enough to be capable of sustaining itself, the server instead transformed into more of a hangout spot, rather than its original intent, bringing us to the present state of the server.
 		""");
-
-	/// <summary>
-	/// Contains definitions used for the <see cref="SlashCommands.Define(DefineChoices)"/> command.
-	/// </summary>
-	public static readonly Dictionary<DefineChoices, string> Definitions = new([DICT_MEANOF_PPP, DICT_WHATIS_PPP]);
 }

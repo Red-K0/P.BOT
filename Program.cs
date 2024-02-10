@@ -25,31 +25,24 @@ client.MessageCreate += MessageLogging.Create;
 Console.CursorVisible = false;
 Console.OutputEncoding = System.Text.Encoding.Unicode;
 
-await client.StartAsync().ConfigureAwait(true);
-await client.ReadyAsync.ConfigureAwait(true);
+await client.StartAsync();
+await client.ReadyAsync;
 
 #region Slash Command Handler
 
-#pragma warning disable IL2026
 ApplicationCommandService<SlashCommandContext> applicationCommandService = new();
 applicationCommandService.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);
-#pragma warning restore
 
-await applicationCommandService.CreateCommandsAsync(client.Rest, client.ApplicationId).ConfigureAwait(true);
+await applicationCommandService.CreateCommandsAsync(client.Rest, client.Id);
 client.InteractionCreate += async interaction =>
 {
-#pragma warning disable CA1031
 	if (interaction is SlashCommandInteraction slashCommandInteraction)
 	{
-		try { _ = await applicationCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client)).ConfigureAwait(true); }
-
-		catch (Exception ex) { await interaction.SendResponseAsync(InteractionCallback.Message($"Error: {ex.Message}")).ConfigureAwait(true); }
+		_ = await applicationCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client));
 	}
-#pragma warning restore CA1031
 };
 #endregion
 
-await Task.Delay(-1).ConfigureAwait(true);
-client.Dispose();
+await Task.Delay(Timeout.Infinite);
 
 #endregion

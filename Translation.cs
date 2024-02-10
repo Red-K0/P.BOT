@@ -1,12 +1,86 @@
 ﻿namespace P_BOT;
 
-/// <summary> Contains the <see cref="SupportedLanguages"/> <see cref="Enum"/> and <see cref="GetTranslation(string, Translation.SupportedLanguages, Translation.SupportedLanguages)"/> method, for use in the <see cref="SlashCommands.Translate(string, Translation.SupportedLanguages, Translation.SupportedLanguages)"/> command.</summary>
+/// <summary> Contains the <see cref="Options"/> <see cref="Enum"/> and <see cref="GetTranslation(string, Translation.Options, Translation.Options)"/> method, for use in the <see cref="SlashCommand.Translate(string, Translation.Options, Translation.Options)"/> command.</summary>
 public static class Translation
 {
-	#region Full Language List
-#if false
-#pragma warning disable CS1591
-	/// <summary>  </summary>
+	/// <summary> A list of languages supported by the translation server. </summary>
+	public enum Options
+	{
+		/// <summary> The language Arabic. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Arabic")] ar,
+		/// <summary> The language Chinese. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Chinese")] zh,
+		/// <summary> The language Dutch. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Dutch")] nl,
+		/// <summary> The language English. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "English")] en,
+		/// <summary> The language Finnish. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Finnish")] fi,
+		/// <summary> The language French. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "French")] fr,
+		/// <summary> The language German. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "German")] de,
+		/// <summary> The language Greek. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Greek")] el,
+		/// <summary> The language Hindi. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Hindi")] hi,
+		/// <summary> The language Italian. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Italian")] it,
+		/// <summary> The language Japanese. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Japanese")] ja,
+		/// <summary> The language Korean. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Korean")] ko,
+		/// <summary> The language Polish. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Polish")] pl,
+		/// <summary> The language Portuguese. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Portuguese")] pt,
+		/// <summary> The language Russian. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Russian")] ru,
+		/// <summary> The language Spanish. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Spanish")] es,
+		/// <summary> The language Swedish. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Swedish")] sv,
+		/// <summary> The language Turkish. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Turkish")] tr,
+		/// <summary> The language Vietnamese. </summary>
+		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Vietnamese")] vi,
+	}
+
+	/// <summary> Sends a GET request to the translation API defined at <see cref="URL_TRANSLATE"/> with the specified parameters. </summary>
+	/// <param name="input"> The <see cref="string"/> of text to pass to the translator. Limited to 623 characters. </param>
+	/// <param name="source_lang"> The original language of the <paramref name="input"/> string. </param>
+	/// <param name="target_lang"> The language to translate the <paramref name="input"/> string to. </param>
+	public static string GetTranslation(string input, Options source_lang, Options target_lang)
+	{
+		if (input.Length > 623)
+		{
+			return "Sorry, inputs longer than 623 characters aren't supported by the translation API, please try a shorter input." +
+				  $"\n>>> \"{input}\" - Length : {input.Length} Characters";
+		}
+
+		HttpRequestMessage request = new()
+		{
+			Method = HttpMethod.Get,
+			Version = new Version(1, 1),
+			RequestUri = new Uri($"{URL_TRANSLATE}?text={input}&source_lang={source_lang}&target_lang={target_lang}")
+		};
+		HttpResponseMessage response = client_h.Send(request);
+		_ = response.EnsureSuccessStatusCode();
+
+		string output = response.Content.ReadAsStringAsync().Result;
+		output = output.Remove(output.Length - 3)[(output.IndexOf("\"translated_text\":") + 19)..];
+		request.Dispose();
+
+		return
+		$"""
+		Original Text: {input}
+
+		Translated Text: {output}
+		""";
+	}
+}
+
+#if false //Unsupported by translation API
 	public enum Languages
 	{
 		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Afar")] aa,
@@ -194,77 +268,4 @@ public static class Translation
 		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Zhuang")] za,
 		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Zulu")] zu
 	}
-#pragma warning restore CS1591
 #endif
-	#endregion
-
-	/// <summary> A list of languages supported by the translation server. </summary>
-	public enum SupportedLanguages
-	{
-		/// <summary> The language Arabic. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Arabic")] ar,
-		/// <summary> The language Chinese. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Chinese")] zh,
-		/// <summary> The language Dutch. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Dutch")] nl,
-		/// <summary> The language English. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "English")] en,
-		/// <summary> The language Finnish. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Finnish")] fi,
-		/// <summary> The language French. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "French")] fr,
-		/// <summary> The language German. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "German")] de,
-		/// <summary> The language Greek. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Greek")] el,
-		/// <summary> The language Hindi. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Hindi")] hi,
-		/// <summary> The language Italian. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Italian")] it,
-		/// <summary> The language Japanese. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Japanese")] ja,
-		/// <summary> The language Korean. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Korean")] ko,
-		/// <summary> The language Polish. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Polish")] pl,
-		/// <summary> The language Portuguese. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Portuguese")] pt,
-		/// <summary> The language Russian. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Russian")] ru,
-		/// <summary> The language Spanish. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Spanish")] es,
-		/// <summary> The language Swedish. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Swedish")] sv,
-		/// <summary> The language Turkish. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Turkish")] tr,
-		/// <summary> The language Vietnamese. </summary>
-		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Vietnamese")] vi,
-	}
-
-	/// <summary> Sends a GET request to the translation API defined at <see cref="URL_TRANSLATE"/> with the specified parameters. </summary>
-	/// <param name="input"> The <see cref="string"/> of text to pass to the translator. Limited to 623 characters. </param>
-	/// <param name="source_lang"> The original language of the <paramref name="input"/> string. </param>
-	/// <param name="target_lang"> The language to translate the <paramref name="input"/> string to. </param>
-	public static string GetTranslation(string input, SupportedLanguages source_lang, SupportedLanguages target_lang)
-	{
-		if (input.Length > 623)
-		{
-			return $"Sorry, inputs longer than 623 characters aren't supported by the translation API, please try a shorter input.\n>>> \"{input}\" - Length : {input.Length} Characters";
-		}
-
-		HttpRequestMessage request = new()
-		{
-			Method = HttpMethod.Get,
-			Version = new Version(1, 1),
-			RequestUri = new Uri($"{URL_TRANSLATE}?text={input}&source_lang={source_lang}&target_lang={target_lang}")
-		};
-		HttpResponseMessage response = client_h.Send(request);
-		_ = response.EnsureSuccessStatusCode();
-
-		string output = response.Content.ReadAsStringAsync().Result;
-		output = output.Remove(output.Length - 3)[(output.IndexOf("\"translated_text\":") + 19)..];
-		request.Dispose();
-
-		return output;
-	}
-}

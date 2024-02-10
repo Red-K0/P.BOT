@@ -9,7 +9,7 @@ public static class RollMath
 	/// <summary> The literal used as a separator in the nXn roll format. </summary>
 	private const char ROLL_SEPERATOR = 'd';
 
-	/// <summary> <code>U+0020 SPACE [SP]</code> </summary>
+	/// <summary> <c>U+0020 SPACE [SP]</c> </summary>
 	private const char SPACE_CHAR = ' ';
 
 	/// <summary> The prefix used to trigger a basic roll using <see cref="BasicDieLogic()"/>. </summary>
@@ -139,23 +139,39 @@ public static class RollMath
 	/// <summary> Performs a dice roll operation based on the given parameters and responds with a result. Does not call <see cref="PrintOutput(bool)"/>. </summary>
 	private static void BasicDieLogic()
 	{
-		str = CurrentMessage!.Content[1..].Trim()[2..];
-		Temp = str[(str.IndexOf(ROLL_SEPERATOR) + 1)..];
-		RollCount = int.Parse(str[..str.IndexOf(ROLL_SEPERATOR)]);
-
-		if (Temp.Contains(SPACE_CHAR))
+		try
 		{
-			Mod = int.Parse(str[(str.IndexOf(SPACE_CHAR) + 1)..]);
-			str = Temp.Remove(Temp.IndexOf(SPACE_CHAR));
-		}
-		else
-		{
-			str = str[(str.IndexOf(ROLL_SEPERATOR) + 1)..];
-		}
+			str = CurrentMessage!.Content[1..].Trim()[2..];
+			Temp = str[(str.IndexOf(ROLL_SEPERATOR) + 1)..];
+			RollCount = int.Parse(str[..str.IndexOf(ROLL_SEPERATOR)]);
 
-		FaceCount = int.Parse(str); RollDie(false);
-		Output = Output.Replace("`", "||");
-		_ = CurrentMessage!.ReplyAsync($"{Output[..^2]}|| with a total of: {Result}"); Reset();
+			if (Temp.Contains(SPACE_CHAR))
+			{
+				Mod = int.Parse(str[(str.IndexOf(SPACE_CHAR) + 1)..]);
+				str = Temp.Remove(Temp.IndexOf(SPACE_CHAR));
+			}
+			else
+			{
+				str = str[(str.IndexOf(ROLL_SEPERATOR) + 1)..];
+			}
+
+			FaceCount = int.Parse(str); RollDie(false);
+			Output = Output.Replace("`", "||");
+			_ = CurrentMessage!.ReplyAsync($"{Output[..^2]}|| with a total of: {Result}"); Reset();
+		}
+		catch (Exception ex) when (ex is FormatException or ArgumentOutOfRangeException)
+		{
+			MessageProperties response = new()
+			{
+				MessageReference = new(CurrentMessage!.Id),
+				Content = string.Format(CultureInfo.InvariantCulture, ERROR_DND_FORMAT, CurrentMessage.Content, "dx")
+			};
+			_ = client.Rest.SendMessageAsync(CurrentMessage!.ChannelId, response);
+		}
+		finally
+		{
+			Reset();
+		}
 	}
 
 	/// <summary> Performs a dice roll operation based on the given parameters and responds with a result, providing additional statistics about the roll as well. </summary>
@@ -202,7 +218,7 @@ public static class RollMath
 		Temp = str[(str.IndexOf(ROLL_SEPERATOR) + 1)..];
 		RollCount = int.Parse(str[..str.IndexOf(ROLL_SEPERATOR)]);
 
-		if (Temp.Contains(SPACE_CHAR))
+		if (Temp.Contains(SPACE_CHAR)) // Check for presence of roll modifier at NdN X<---
 		{
 			Mod = int.Parse(str[(str.IndexOf(SPACE_CHAR) + 1)..]);
 			str = Temp.Remove(Temp.IndexOf(SPACE_CHAR));
@@ -218,25 +234,24 @@ public static class RollMath
 
 	/// <summary> Rolls die using the variables available. </summary>
 	/// <param name="Advanced"> Whether the call was initiated from <see cref="AdvancedDieLogic()"/> or not. </param>
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "While Random is slow, security isn't necessary here")]
 	private static void RollDie(bool Advanced)
 	{
 		Rolls = new int[RollCount];
 		Output = "Rolled `";
 
-		for (int i = 0; i < RollCount; i++)
+		for (int i = 0; i < RollCount; i++) // Dice rolling loop
 		{
 			Rolls[i] = RNG.Next(FaceCount - 1) + 1 + Mod;
-			if (Rolls[i] != FaceCount + Mod && Rolls[i] != 1 + Mod)
+			if (Rolls[i] != FaceCount + Mod && Rolls[i] != 1 + Mod) // If the roll is a normal roll. (Not maximum or 1 + Mod)
 			{
 				Output += $"{Rolls[i]}, ";
 			}
-			else if (Rolls[i] != 1 + Mod)
+			else if (Rolls[i] != 1 + Mod) // If the roll is a critical (Not 1 + Mod)
 			{
 				Output += Advanced ? $"{Rolls[i]}*, " : $"**{Rolls[i]}**, ";
 				JesusCount++;
 			}
-			else
+			else // If the roll is a failure (Failure of other cases)
 			{
 				Output += Advanced ? $"{Rolls[i]}!, " : $"~~{Rolls[i]}~~, ";
 				MinCount++;

@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1050
+﻿namespace P_BOT;
 #pragma warning disable CA2211
 
 /// <summary> Contains methods and variables for storage and modification of bot settings. </summary>

@@ -11,7 +11,7 @@
 *.sln.docstates
 
 # Bot Memory
-[Mm]emory/
+!Data/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

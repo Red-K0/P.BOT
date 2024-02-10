@@ -128,9 +128,10 @@ internal static class Constants
 	#endregion
 
 	#region Memory Locations
-	public const string MEMORY_COUNTERS = @"F:\!PBOT\memory\Counters.txt";
-	public const string MEMORY_SECRETSANTA_RECIEVER = @"F:\!PBOT\memory\Secret Santa Recipient List.txt";
-	public const string MEMORY_SECRETSANTA_SENDER = @"F:\!PBOT\memory\Secret Santa Sender List.txt";
-	public const string MEMORY_STARRED_MESSAGES = @"F:\!PBOT\memory\Starred Message List.txt";
+	public const string MEMORY = @"F:\!PBOT\memory\";
+	public const string MEMORY_COUNTERS = MEMORY + "Counters.txt";
+	public const string MEMORY_SECRETSANTA_RECIEVER = MEMORY + "Secret Santa Recipient List.txt";
+	public const string MEMORY_SECRETSANTA_SENDER = MEMORY + "Secret Santa Sender List.txt";
+	public const string MEMORY_STARRED_MESSAGES = MEMORY + "Starred Message List.txt";
 	#endregion
 }

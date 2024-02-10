@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-namespace P_BOT.Command_Processing_Helpers;
+namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary> Contains methods and variables used for dice probability calculations and roll result output. </summary>
 internal static class RollsModule

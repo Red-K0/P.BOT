@@ -1,4 +1,4 @@
-﻿namespace P_BOT.Command_Processing_Helpers;
+﻿namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary> Contains methods and variables for storage and modification of bot settings. </summary>
 internal static class Options

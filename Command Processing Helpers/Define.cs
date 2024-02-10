@@ -1,5 +1,5 @@
 ﻿using NetCord.Services.ApplicationCommands;
-namespace P_BOT.Command_Processing_Helpers;
+namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary> Contains data involving dictionaries and the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
 internal static class Define

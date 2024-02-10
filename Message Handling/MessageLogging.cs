@@ -51,9 +51,9 @@ internal static partial class MessageLogging
 		}
 
 		// Modular Message Parsing
-		if (Command_Processing_Helpers.Options.DnDTextModule && message.Content.StartsWith('.'))
+		if (Command_Processing.Helpers.Options.DnDTextModule && message.Content.StartsWith('.'))
 		{
-			Command_Processing_Helpers.RollsModule.LogicSelect(message);
+			Command_Processing.Helpers.RollsModule.LogicSelect(message);
 		}
 
 		await ValueTask.CompletedTask;

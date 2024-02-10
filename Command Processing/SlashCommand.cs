@@ -1,8 +1,8 @@
 ﻿using NetCord.Services.ApplicationCommands;
-using P_BOT.Command_Processing_Helpers;
+using P_BOT.Command_Processing.Helpers;
 
-namespace P_BOT;
-internal partial class SlashCommand : ApplicationCommandModule<SlashCommandContext>
+namespace P_BOT.Command_Processing;
+internal sealed partial class SlashCommand : ApplicationCommandModule<SlashCommandContext>
 {
 	[SlashCommand(CMD_STPOLL_NAME, CMD_STPOLL_DESC)]
 	public partial Task CreatePoll();

@@ -1,9 +1,9 @@
-﻿using P_BOT.Command_Processing_Helpers;
+﻿using P_BOT.Command_Processing.Helpers;
 using static P_BOT.EmbedComponents;
 using static P_BOT.EmbedHelpers;
-namespace P_BOT;
+namespace P_BOT.Command_Processing;
 
-internal partial class SlashCommand
+internal sealed partial class SlashCommand
 {
 	/// <summary> Creates a post, experimental. </summary>
 	public partial Task CreatePost(string content, bool anonymous, bool draft)
@@ -29,14 +29,7 @@ internal partial class SlashCommand
 		{
 			client.Rest.SendMessageAsync(SERVER_POSTFEED, msg_prop);
 
-			// Reserve the ID.
-			DataBackend.WriteMemory(3, DataBackend.Pages.Counter, InternalPostID.ToString());
-
-			// Gets the message ID of the last sent message in the feed channel, almost always the post created by this method.
-			RestMessage ExternalPostID = client.Rest.GetMessagesAsync(SERVER_POSTFEED, new() { Limit = 1 }).ToBlockingEnumerable().First();
-
-			// Store the Internal ID and its relevant external ID in the ID List.
-			DataBackend.AppendMemory(DataBackend.Pages.PostDatabaseIDList, $"{InternalPostID}, {ExternalPostID}");
+			ulong ExternalPostID = PostFunctions.StoreID(InternalPostID);
 
 			return RespondAsync(InteractionCallback.Message(new()
 			{

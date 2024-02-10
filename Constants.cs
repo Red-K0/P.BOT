@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
-using P_BOT.Command_Processing_Helpers;
+using P_BOT.Command_Processing;
+using P_BOT.Command_Processing.Helpers;
 using System.Text;
 
 namespace P_BOT;

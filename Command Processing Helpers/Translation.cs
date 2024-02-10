@@ -1,4 +1,4 @@
-﻿namespace P_BOT.Command_Processing_Helpers;
+﻿namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary> Contains the <see cref="Options"/> <see cref="Enum"/> and <see cref="GetTranslation(string, Translation.Options, Translation.Options)"/> method, for use in the <see cref="SlashCommand.Translate(string, Translation.Options, Translation.Options)"/> command.</summary>
 internal static class Translation

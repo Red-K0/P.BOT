@@ -1,10 +1,10 @@
-﻿using P_BOT.Command_Processing_Helpers;
+﻿using P_BOT.Command_Processing.Helpers;
 using static P_BOT.EmbedComponents;
 using static P_BOT.EmbedHelpers;
-namespace P_BOT;
+namespace P_BOT.Command_Processing;
 
 /// <summary> Contains the commands used by P.BOT and their associated tasks. </summary>
-internal partial class SlashCommand
+internal sealed partial class SlashCommand
 {
 	/// <summary> Command task. Checks if P.BOT's system is active. </summary>
 	public partial Task SystemsCheck()

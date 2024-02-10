@@ -5,7 +5,6 @@ internal static class MessageFunctions
 {
 	#region Variables
 	/// <summary> The ID of the last logged user. </summary>
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "There can only ever be one author")]
 	public static ulong? LastAuthor = 0;
 
 	/// <summary> The number of messages starred by P.BOT. </summary>
@@ -43,8 +42,8 @@ internal static class MessageFunctions
 
 		if (content.StartsWith('.'))
 		{
-			Console.ForegroundColor = Command_Processing_Helpers.Options.DnDTextModule ? ConsoleColor.Green : ConsoleColor.Red;
-			return $"Call to DnDTextModule {(Command_Processing_Helpers.Options.DnDTextModule ? "(Processed)" : "(Ignored)")}";
+			Console.ForegroundColor = Command_Processing.Helpers.Options.DnDTextModule ? ConsoleColor.Green : ConsoleColor.Red;
+			return $"Call to DnDTextModule {(Command_Processing.Helpers.Options.DnDTextModule ? "(Processed)" : "(Ignored)")}";
 		}
 
 		return "";

@@ -36,14 +36,12 @@ internal static class EmbedHelpers
 			Thumbnail = new(ThumbnailURL),
 			Url = TitleURL
 		};
-		MessageProperties msg_prop = new()
+		return new()
 		{
 			Embeds = new[] { embed_prop },
 			MessageReference = (ReplyTo != 0) ? new(ReplyTo) : null,
 			Flags = Ephemeral ? MessageFlags.Ephemeral : null
 		};
-
-		return msg_prop;
 	}
 
 	/// <summary>
@@ -72,6 +70,12 @@ internal static class EmbedHelpers
 			TitleURL: TitleURL
 			).Embeds!);
 		}
+
+		if (msg_prop.Embeds!.Count() > 10)
+		{
+			msg_prop.Embeds = msg_prop.Embeds!.Take(10);
+		}
+
 		return msg_prop;
 	}
 }

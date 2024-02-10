@@ -13,44 +13,41 @@ public static class MessageFunctions
 
 	#endregion
 
-	/// <summary> Logs a given <paramref name="message"/> in the console, using <see cref="HighlightMessage(in Message, out string)"/>. </summary>
+	/// <summary> Logs a given <paramref name="message"/> in the console, using <see cref="GetAnnotation(string)"/>. </summary>
 	/// <param name="message"> The <see cref="Message"/> object to log. </param>
 	public static void LogMessage(in Message message)
 	{
-		if (LastAuthor != message.Author.Id)
-		{
-			Console.WriteLine($"\n{message.CreatedAt} {message.Author,-22} - {message.Author.Username}");
-		}
-
-		HighlightMessage(message, out string Annotation);
-
 		if (!string.IsNullOrWhiteSpace(message.Content))
 		{
+			if (LastAuthor != message.Author.Id)
+			{
+				Console.WriteLine($"\n{message.CreatedAt} {message.Author,-22} - {message.Author.Username}");
+			}
+			
+			string Annotation = GetAnnotation(message.Content);
 			Console.WriteLine($"{message.Content} {(string.IsNullOrWhiteSpace(Annotation) ? '\0' : "< ")}{Annotation}");
+			LastAuthor = message.Author.Id;
 		}
-
-		LastAuthor = message.Author.Id;
-
-		Console.ForegroundColor = ConsoleColor.Gray;
 	}
 
 	/// <summary> Responsible for setting text color in P.BOT's console log and annotating it. </summary>
-	/// <param name="message"> The <see cref="Message"/> object to highlight in the console. </param>
-	/// <param name="Annotation"> The <see cref="string"/> to annotate at the end of the log entry. </param>
-	private static void HighlightMessage(in Message message, out string Annotation)
+	/// <param name="content"> The <see cref="Message"/> object to highlight in the console. </param>
+	private static string GetAnnotation(string content)
 	{
-		Annotation = "";
 		//Message Highlighting
-		if (message.Content.Contains(SERVER_LINK))
+		if (content.Contains(SERVER_LINK))
 		{
 			Console.ForegroundColor = ConsoleColor.Blue;
-			Annotation = "Discord Message Link";
+			return "Discord Message Link";
 		}
-		if (message.Content.StartsWith('.'))
+
+		if (content.StartsWith('.'))
 		{
 			Console.ForegroundColor = Options.DnDTextModule ? ConsoleColor.Green : ConsoleColor.Red;
-			Annotation = $"Call to DnDTextModule {(Options.DnDTextModule ? "(Processed)" : "(Ignored)")}";
+			return $"Call to DnDTextModule {(Options.DnDTextModule ? "(Processed)" : "(Ignored)")}";
 		}
+
+		return "";
 	}
 
 	/// <summary> Parses a given <paramref name="message"/> to check for message links, and displays their content if possible. </summary>
@@ -93,24 +90,26 @@ public static class MessageFunctions
 	/// <param name="message"> The <see cref="MessageReactionAddEventArgs"/> containing the message to add to the starboard. </param>
 	public static async void AddToStarBoard(MessageReactionAddEventArgs message)
 	{
-		RestMessage StarredMessage = await client.Rest.GetMessageAsync(message.ChannelId, message.MessageId);
+		RestMessage Message = await client.Rest.GetMessageAsync(message.ChannelId, message.MessageId);
 		MessageProperties msg_prop = new();
-		if (StarredMessage.ReferencedMessage != null)
+		if (Message.ReferencedMessage != null)
 		{
-			RestMessage Reply = client.Rest.GetMessageAsync(StarredMessage.ReferencedMessage.ChannelId, StarredMessage.ReferencedMessage.Id).Result;
+			RestMessage Reply = client.Rest.GetMessageAsync(Message.ReferencedMessage.ChannelId, Message.ReferencedMessage.Id).Result;
 			EmbedAuthorProperties Author = new()
 			{
-				Name = $"Replying to: {StarredMessage.ReferencedMessage.Author.Username}",
-				IconUrl = StarredMessage.ReferencedMessage.Author.GetAvatarUrl().ToString()
+				Name = $"Replying to: {Message.ReferencedMessage.Author.Username}",
+				IconUrl = Message.ReferencedMessage.Author.GetAvatarUrl().ToString()
 			};
 
-			_ = msg_prop.AddEmbeds(
+			_ = msg_prop.AddEmbeds
+			(
 				EmbedHelpers.ToEmbed(Reply,
-				$"{SERVER_LINK}{StarredMessage.ReferencedMessage.ChannelId}/{StarredMessage.ReferencedMessage.Id}"
+				$"{SERVER_LINK}{Message.ReferencedMessage.ChannelId}/{Message.ReferencedMessage.Id}"
 			).Embeds!.First().WithAuthor(Author));
 		}
-		_ = msg_prop.AddEmbeds(EmbedHelpers.ToEmbed(
-			StarredMessage,
+		_ = msg_prop.AddEmbeds(EmbedHelpers.ToEmbed
+		(
+			Message,
 			$"{SERVER_LINK}{message.ChannelId}/{message.MessageId}",
 			$"Message starred by {message.User!.Username}",
 			message.User.GetAvatarUrl().ToString(),
@@ -122,16 +121,7 @@ public static class MessageFunctions
 		DiskData.AppendMemory(DiskData.Pages.StarredMessageList, message.MessageId.ToString());
 		DiskData.WriteMemory(1, DiskData.Pages.Counter, StarCount.ToString());
 
-		if (msg_prop.Embeds!.Count() > 10)
-		{
-			msg_prop.Embeds = msg_prop.Embeds!.Take(10);
-			msg_prop.Content = "# " + new string('⭐', Math.Clamp(StarredMessage.Attachments.Count, 1, 10)) + "\n(Some attachments were trimmed due to the 10 attachment limit)";
-		}
-		else
-		{
-			msg_prop.Content = "# " + new string('⭐', Math.Clamp(StarredMessage.Attachments.Count, 1, 10));
-		}
-		_ = await client.Rest.SendMessageAsync(SERVER_STARBOARD, msg_prop);
+		_ = await client.Rest.SendMessageAsync(SERVER_STARBOARD, msg_prop.WithContent("# " + new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10))));
 	}
 
 	/// <summary> Writes the string <paramref name="content"/> to the console in the color specified by <paramref name="color"/>. </summary>

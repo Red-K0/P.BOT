@@ -13,7 +13,7 @@
     <Trimming>full</Trimming>
     <PublishAot>False</PublishAot>
     <UserSecretsId>00fd273c-e691-4c01-8d8e-f6afd8339d21</UserSecretsId>
-    <ApplicationIcon>Bot Icon.ico</ApplicationIcon>
+    <ApplicationIcon>~Data\Bot Icon.ico</ApplicationIcon>
     <PackageIcon>Bot Icon.png</PackageIcon>
   </PropertyGroup>
 

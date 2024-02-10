@@ -1,7 +1,7 @@
 ﻿namespace P_BOT;
 
 /// <summary> Contains methods and variables used for basic message functionality and parsing. </summary>
-public static class MessageFunctions
+internal static class MessageFunctions
 {
 	#region Variables
 	/// <summary> The ID of the last logged user. </summary>
@@ -9,7 +9,7 @@ public static class MessageFunctions
 	public static ulong? LastAuthor = 0;
 
 	/// <summary> The number of messages starred by P.BOT. </summary>
-	private static int StarCount = Convert.ToInt32(DiskData.ReadMemory(1, DiskData.Pages.Counter));
+	private static int StarCount = Convert.ToInt32(DataBackend.ReadMemory(1, DataBackend.Pages.Counter));
 
 	#endregion
 
@@ -23,7 +23,7 @@ public static class MessageFunctions
 			{
 				Console.WriteLine($"\n{message.CreatedAt} {message.Author,-22} - {message.Author.Username}");
 			}
-			
+
 			string Annotation = GetAnnotation(message.Content);
 			Console.WriteLine($"{message.Content} {(string.IsNullOrWhiteSpace(Annotation) ? '\0' : "< ")}{Annotation}");
 			LastAuthor = message.Author.Id;
@@ -43,8 +43,8 @@ public static class MessageFunctions
 
 		if (content.StartsWith('.'))
 		{
-			Console.ForegroundColor = Options.DnDTextModule ? ConsoleColor.Green : ConsoleColor.Red;
-			return $"Call to DnDTextModule {(Options.DnDTextModule ? "(Processed)" : "(Ignored)")}";
+			Console.ForegroundColor = Command_Processing_Helpers.Options.DnDTextModule ? ConsoleColor.Green : ConsoleColor.Red;
+			return $"Call to DnDTextModule {(Command_Processing_Helpers.Options.DnDTextModule ? "(Processed)" : "(Ignored)")}";
 		}
 
 		return "";
@@ -70,8 +70,8 @@ public static class MessageFunctions
 				CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
 			}
 
-			try { ChannelID = ulong.Parse(CurrentScan.Remove(CurrentScan.IndexOf('/'))); } catch (ArgumentOutOfRangeException) { return; }
-			try { MessageID = ulong.Parse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..]); } catch (ArgumentOutOfRangeException) { return; }
+			try { ChannelID = ulong.Parse(CurrentScan.Remove(CurrentScan.IndexOf('/'))); } catch (Exception) { return; }
+			try { MessageID = ulong.Parse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..].Replace('/','\0')); } catch (Exception) { return; }
 			LinkedMessage = client.Rest.GetMessageAsync(ChannelID, MessageID, null).Result;
 
 			MessageProperties msg_prop = EmbedHelpers.ToEmbed(
@@ -118,8 +118,8 @@ public static class MessageFunctions
 		).Embeds!);
 		StarCount++;
 
-		DiskData.AppendMemory(DiskData.Pages.StarredMessageList, message.MessageId.ToString());
-		DiskData.WriteMemory(1, DiskData.Pages.Counter, StarCount.ToString());
+		DataBackend.AppendMemory(DataBackend.Pages.StarredMessageList, message.MessageId.ToString());
+		DataBackend.WriteMemory(1, DataBackend.Pages.Counter, StarCount.ToString());
 
 		_ = await client.Rest.SendMessageAsync(SERVER_STARBOARD, msg_prop.WithContent("# " + new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10))));
 	}

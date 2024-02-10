@@ -1,13 +1,13 @@
 ﻿using NetCord.Services.ApplicationCommands;
-namespace P_BOT;
+namespace P_BOT.Command_Processing_Helpers;
 
-/// <summary> Contains data involving dictionaries and the <see cref="SlashCommand.Define(DefineChoices)"/> command. </summary>
-public static class DefineData
+/// <summary> Contains data involving dictionaries and the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
+internal static class Define
 {
-	/// <summary> Contains definitions used for the <see cref="SlashCommand.Define(DefineChoices)"/> command. </summary>
+	/// <summary> Contains definitions used for the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
 	public static readonly Dictionary<DefineChoices, string> Definitions = new([DICT_MEANOF_PPP, DICT_WHATIS_PPP]);
 
-	/// <summary> A list of possible choices for the <see cref="SlashCommand.Define(DefineChoices)"/> command. </summary>
+	/// <summary> A list of possible choices for the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
 	public enum DefineChoices
 	{
 		/// <summary> The meaning of the PPP Abbreviation. </summary>

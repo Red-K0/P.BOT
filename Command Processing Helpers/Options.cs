@@ -1,8 +1,7 @@
-﻿namespace P_BOT;
-#pragma warning disable CA2211
+﻿namespace P_BOT.Command_Processing_Helpers;
 
 /// <summary> Contains methods and variables for storage and modification of bot settings. </summary>
-public static class Options
+internal static class Options
 {
 	/// <summary> A list of optional modules used by P.BOT. </summary>
 	public enum Modules

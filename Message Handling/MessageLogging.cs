@@ -2,7 +2,7 @@
 using static MessageFunctions;
 
 /// <summary> Contains methods responsible for handling message events in the console. </summary>
-public static partial class MessageLogging
+internal static partial class MessageLogging
 {
 	private const ulong AUTHORID_SYSTEM = 0;
 	private const ulong AUTHORID_CLIENT = 1;
@@ -51,9 +51,9 @@ public static partial class MessageLogging
 		}
 
 		// Modular Message Parsing
-		if (Options.DnDTextModule && message.Content.StartsWith('.'))
+		if (Command_Processing_Helpers.Options.DnDTextModule && message.Content.StartsWith('.'))
 		{
-			RollMath.LogicSelect(message);
+			Command_Processing_Helpers.RollsModule.LogicSelect(message);
 		}
 
 		await ValueTask.CompletedTask;

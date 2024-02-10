@@ -1,7 +1,10 @@
-﻿namespace P_BOT;
+﻿using P_BOT.Command_Processing_Helpers;
+using static P_BOT.EmbedComponents;
+using static P_BOT.EmbedHelpers;
+namespace P_BOT;
 
 /// <summary> Contains the commands used by P.BOT and their associated tasks. </summary>
-public partial class SlashCommand
+internal partial class SlashCommand
 {
 	/// <summary> Command task. Checks if P.BOT's system is active. </summary>
 	public partial Task SystemsCheck()
@@ -22,13 +25,13 @@ public partial class SlashCommand
 	}
 
 	/// <summary> Command task. Gets the definition of the term specified in the <paramref name="term"/> parameter.</summary>
-	public partial Task Define(DefineData.DefineChoices term)
+	public partial Task GetDefinition(Define.DefineChoices term)
 	{
-		_ = DefineData.Definitions.TryGetValue(term, out string? definition);
-		MessageProperties msg_prop = EmbedHelpers.CreateEmbed
+		_ = Define.Definitions.TryGetValue(term, out string? definition);
+		MessageProperties msg_prop = CreateEmbed
 		(
 			definition,
-			EmbedComponents.CreateAuthorObject("PPP Encyclopedia", URL_RULESICON),
+			CreateAuthorObject("PPP Encyclopedia", URL_RULESICON),
 			DateTimeOffset.UtcNow,
 			ReplyTo: Context.User.Id
 		);
@@ -40,16 +43,16 @@ public partial class SlashCommand
 	public partial Task GetAvatar(User user, ImageFormat format)
 	{
 		user ??= Context.User;
-		MessageProperties msg_prop = EmbedHelpers.CreateEmbed
+		MessageProperties msg_prop = CreateEmbed
 		(
 			user.HasAvatar ?
 			$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar " :
 			$"Sorry, <@{user.Id}> does not currently have an avatar set, [here]({user.DefaultAvatarUrl}) is the default discord avatar",
 
-			EmbedComponents.CreateAuthorObject($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
+			CreateAuthorObject($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
 			DateTimeOffset.UtcNow,
-			ImageURL: new(user.GetAvatarUrl(format).ToString()),
-			ReplyTo: Context.User.Id
+			ReplyTo: Context.User.Id,
+			ImageURL: new(user.GetAvatarUrl(format).ToString())
 		);
 
 		return RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds, AllowedMentions = AllowedMentionsProperties.None }));
@@ -59,12 +62,12 @@ public partial class SlashCommand
 	public partial Task Translate(string input, Translation.Options source_lang, Translation.Options target_lang)
 	{
 		_ = RespondAsync(InteractionCallback.Message("Translating your input, please wait..."));
-		MessageProperties msg_prop = EmbedHelpers.CreateEmbed
+		MessageProperties msg_prop = CreateEmbed
 		(
 			Translation.GetTranslation(input, source_lang, target_lang),
-			EmbedComponents.CreateAuthorObject("Translation Processed", URL_TLICON),
+			CreateAuthorObject("Translation Processed", URL_TLICON),
 			DateTime.Now,
-			EmbedComponents.CreateFooterObject($"Translation requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			CreateFooterObject($"Translation requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			0x72767D
 		);
 		return Context.Client.Rest.SendMessageAsync(Context.Channel.Id, msg_prop);

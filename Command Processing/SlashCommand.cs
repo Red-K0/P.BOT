@@ -1,15 +1,16 @@
 ﻿using NetCord.Services.ApplicationCommands;
-namespace P_BOT;
+using P_BOT.Command_Processing_Helpers;
 
-public partial class SlashCommand : ApplicationCommandModule<SlashCommandContext>
+namespace P_BOT;
+internal partial class SlashCommand : ApplicationCommandModule<SlashCommandContext>
 {
 	[SlashCommand(CMD_STPOLL_NAME, CMD_STPOLL_DESC)]
 	public partial Task CreatePoll();
 
 	[SlashCommand(CMD_DEFINE_NAME, CMD_DEFINE_DESC)]
-	public partial Task Define
+	public partial Task GetDefinition
 	(
-		  [SlashCommandParameter(Name = CMD_DEFINE_PR1N, Description = CMD_DEFINE_PR1D)] DefineData.DefineChoices term
+		  [SlashCommandParameter(Name = CMD_DEFINE_PR1N, Description = CMD_DEFINE_PR1D)] Define.DefineChoices term
 	);
 
 	[SlashCommand(CMD_AVATAR_NAME, CMD_AVATAR_DESC)]
@@ -18,6 +19,9 @@ public partial class SlashCommand : ApplicationCommandModule<SlashCommandContext
 		  [SlashCommandParameter(Name = CMD_AVATAR_PR1N, Description = CMD_AVATAR_PR1D)] User user
 		, [SlashCommandParameter(Name = CMD_AVATAR_PR2N, Description = CMD_AVATAR_PR2D)] ImageFormat format = ImageFormat.Png
 	);
+
+	[SlashCommand(CMD_PPPOST_NAME, CMD_PPPOST_DESC)]
+	public partial Task CreatePost(string content, bool anonymous = false, bool draft = false);
 
 	[SlashCommand(CMD_NTPING_NAME, CMD_NTPING_DESC)]
 	public partial Task SystemsCheck();

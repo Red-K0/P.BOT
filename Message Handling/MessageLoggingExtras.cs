@@ -1,7 +1,7 @@
 ﻿namespace P_BOT;
 using static MessageFunctions;
 
-public static partial class MessageLogging
+internal static partial class MessageLogging
 {
 	private static void LogAsSystem(ref LogMessage message) // ref used to avoid unnecessary overhead
 	{
@@ -11,7 +11,7 @@ public static partial class MessageLogging
 		}
 
 		WriteColor("System: ", ConsoleColor.Green);
-		Console.WriteLine(message);
+		Console.WriteLine(message.Message);
 
 		LastAuthor = AUTHORID_SYSTEM;
 	}

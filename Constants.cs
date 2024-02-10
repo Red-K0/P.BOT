@@ -1,5 +1,6 @@
-﻿using System.Text;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using P_BOT.Command_Processing_Helpers;
+using System.Text;
 
 namespace P_BOT;
 
@@ -32,18 +33,19 @@ internal static class Constants
 
 	/// <summary> The starboard channel's Channel ID. </summary>
 	public const ulong SERVER_STARBOARD = 1133836713194696744;
+
+	/// <summary> The channel to send posts and other data to. </summary>
+	public const ulong SERVER_POSTFEED = 1202863821543182356;
 	#endregion
 
 	#region Commands
 
-	#region Ping
-	public const string CMD_NTPING_NAME = "syscheck";
-	public const string CMD_NTPING_DESC = "Check if the system's online";
-	#endregion
+	#region Define
+	public const string CMD_DEFINE_NAME = "define";
+	public const string CMD_DEFINE_DESC = "Define a given term";
 
-	#region Secret Santa
-	public const string CMD_SSANTA_NAME = "secretsanta";
-	public const string CMD_SSANTA_DESC = "Merry Christmas";
+	public const string CMD_DEFINE_PR1N = "term";
+	public const string CMD_DEFINE_PR1D = "The term to define";
 	#endregion
 
 	#region GetAvatar
@@ -56,17 +58,9 @@ internal static class Constants
 	public const string CMD_AVATAR_PR2D = "The image file type (GIF and Lottie are currently unsupported)";
 	#endregion
 
-	#region Define
-	public const string CMD_DEFINE_NAME = "define";
-	public const string CMD_DEFINE_DESC = "Define a given term";
-
-	public const string CMD_DEFINE_PR1N = "term";
-	public const string CMD_DEFINE_PR1D = "The term to define";
-	#endregion
-
-	#region Poll
-	public const string CMD_STPOLL_NAME = "poll";
-	public const string CMD_STPOLL_DESC = "Start a poll (WIP)";
+	#region Ping
+	public const string CMD_NTPING_NAME = "syscheck";
+	public const string CMD_NTPING_DESC = "Check if the system's online";
 	#endregion
 
 	#region Module Toggle
@@ -75,6 +69,16 @@ internal static class Constants
 
 	public const string CMD_TOGGLE_PR1N = "module";
 	public const string CMD_TOGGLE_PR1D = "The name of the module to modify";
+	#endregion
+
+	#region P_Post
+	public const string CMD_PPPOST_NAME = "post";
+	public const string CMD_PPPOST_DESC = "WIP";
+	#endregion
+
+	#region Poll
+	public const string CMD_STPOLL_NAME = "poll";
+	public const string CMD_STPOLL_DESC = "Start a poll (WIP)";
 	#endregion
 
 	#region Translate
@@ -123,15 +127,18 @@ internal static class Constants
 	/// <summary> The URL of the translation icon used by <see cref="SlashCommand.Translate(string, Translation.Options, Translation.Options)"/> </summary>
 	public const string URL_TLICON = "https://i.ibb.co/GV149Px/iamvector-download-1.png";
 
-	/// <summary> The URL of the rulebook emoji used by discord. Used by <see cref="SlashCommand.Define(DefineData.DefineChoices)"/>. </summary>
+	/// <summary> The URL of the rulebook emoji used by discord. Used by <see cref="SlashCommand.GetDefinition(Define.DefineChoices)"/>. </summary>
 	public const string URL_RULESICON = "https://emoji.discadia.com/emojis/2ae224b9-e6d5-40c2-aa41-791939fbd113.PNG";
+
+	public const string URL_ANONUSER = "https://i.ibb.co/qBQXBg0/svgviewer-png-output.png";
 	#endregion
 
 	#region Memory Locations
-	public const string MEMORY = @"F:\!PBOT\memory\";
+	public const string MEMORY = @"F:\!PBOT\~Data\";
 	public const string MEMORY_COUNTERS = MEMORY + "Counters.txt";
 	public const string MEMORY_SECRETSANTA_RECIEVER = MEMORY + "Secret Santa Recipient List.txt";
 	public const string MEMORY_SECRETSANTA_SENDER = MEMORY + "Secret Santa Sender List.txt";
 	public const string MEMORY_STARRED_MESSAGES = MEMORY + "Starred Message List.txt";
+	public const string MEMORY_POSTDATABASE_IDLIST = MEMORY + @"PostDB\ID.txt";
 	#endregion
 }

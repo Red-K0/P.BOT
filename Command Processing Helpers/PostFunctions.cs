@@ -1,7 +1,7 @@
 ﻿namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary> Contains methods and variables related to the post system. </summary>
-internal static class PostFunctions
+public static class PostFunctions
 {
 	/// <summary> Gets the ExternalID tied to the given <paramref name="InternalID"/>. </summary>
 	public static ulong ToExternal(ulong InternalID) => Convert.ToUInt64(DataBackend.ReadMemory((int)InternalID, DataBackend.Pages.PostDatabaseIDList));

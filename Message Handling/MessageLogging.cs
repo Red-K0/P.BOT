@@ -43,6 +43,7 @@ internal static partial class MessageLogging
 		if (!message.Author.IsBot)
 		{
 			LogMessage(message);
+			SpamFilter(message);
 		}
 
 		if (message.Content.Contains("https://discord.com/channels/") && message.Author.Id != BOT_ID)

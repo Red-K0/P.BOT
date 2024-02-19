@@ -8,17 +8,16 @@ namespace P_BOT;
 /// <summary> Contains the various constants used throughout the bot. </summary>
 internal static class Constants
 {
-	/// <summary> Secret configuration. </summary>
-	private static readonly IConfiguration config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
-
 	#region Bot
-	/// <summary> The intents passed to the <see cref="GatewayClient"/>. </summary>
-	public const GatewayIntents BOT_INTENTS = GatewayIntents.All;
 
 	/// <summary> P.BOT's main client. </summary>
-	public static GatewayClient client = new(new BotToken(config.GetSection("Discord")["Token"]!), new GatewayClientConfiguration() { Intents = BOT_INTENTS });
+	public static GatewayClient client = new
+	(
+		new BotToken(new ConfigurationBuilder().AddUserSecrets<Program>().Build().GetSection("Discord")["Token"]!),
+		new GatewayClientConfiguration() { Intents = GatewayIntents.All }
+	);
 
-	/// <summary> P.BOT's HTTP client </summary>
+	/// <summary> P.BOT's HTTP client, used for external network requests. </summary>
 	public static HttpClient client_h = new();
 
 	/// <summary> The bot's User ID. Not so secret. </summary>
@@ -26,77 +25,18 @@ internal static class Constants
 	#endregion
 
 	#region Server
-	/// <summary> The start of the server's URL. </summary>
-	public const string SERVER_LINK = "https://discord.com/channels/1131100534250680433/";
 
 	/// <summary> The server's Guild ID. </summary>
 	public const ulong SERVER_ID = 1131100534250680433;
+
+	/// <summary> The start of the server's URL. </summary>
+	public const string SERVER_LINK = "https://discord.com/channels/1131100534250680433/";
 
 	/// <summary> The starboard channel's Channel ID. </summary>
 	public const ulong SERVER_STARBOARD = 1133836713194696744;
 
 	/// <summary> The channel to send posts and other data to. </summary>
-	public const ulong SERVER_POSTFEED = 1202863821543182356;
-	#endregion
-
-	#region Commands
-
-	#region Define
-	public const string CMD_DEFINE_NAME = "define";
-	public const string CMD_DEFINE_DESC = "Define a given term";
-
-	public const string CMD_DEFINE_PR1N = "term";
-	public const string CMD_DEFINE_PR1D = "The term to define";
-	#endregion
-
-	#region GetAvatar
-	public const string CMD_AVATAR_NAME = "getavatar";
-	public const string CMD_AVATAR_DESC = "Get a user's avatar";
-
-	public const string CMD_AVATAR_PR1N = "user";
-	public const string CMD_AVATAR_PR1D = "The UID to pull an avatar from";
-	public const string CMD_AVATAR_PR2N = "format";
-	public const string CMD_AVATAR_PR2D = "The image file type (GIF and Lottie are currently unsupported)";
-	#endregion
-
-	#region Ping
-	public const string CMD_NTPING_NAME = "syscheck";
-	public const string CMD_NTPING_DESC = "Check if the system's online";
-	#endregion
-
-	#region Module Toggle
-	public const string CMD_TOGGLE_NAME = "togglemodule";
-	public const string CMD_TOGGLE_DESC = "Toggle the status of a module";
-
-	public const string CMD_TOGGLE_PR1N = "module";
-	public const string CMD_TOGGLE_PR1D = "The name of the module to modify";
-	#endregion
-
-	#region P_Post
-	public const string CMD_PPPOST_NAME = "post";
-	public const string CMD_PPPOST_DESC = "WIP";
-	#endregion
-
-	#region Poll
-	public const string CMD_STPOLL_NAME = "poll";
-	public const string CMD_STPOLL_DESC = "Start a poll (WIP)";
-	#endregion
-
-	#region Translate
-	public const string CMD_HTTPTL_NAME = "translate";
-	public const string CMD_HTTPTL_DESC = "Translate (WIP)";
-
-	public const string CMD_HTTPTL_PR1N = "input";
-	public const string CMD_HTTPTL_PR1D = "The text to translate";
-
-	public const string CMD_HTTPTL_PR2N = "original_language";
-	public const string CMD_HTTPTL_PR2D = "The language of the original text";
-
-	public const string CMD_HTTPTL_PR3N = "target_language";
-	public const string CMD_HTTPTL_PR3D = "The language to translate the text to";
-
-	#endregion
-
+	public const ulong SERVER_POSTFEED = 1208068312487960606;
 	#endregion
 
 	#region Error Strings
@@ -124,6 +64,9 @@ internal static class Constants
 	#region URL Locations
 	/// <summary> The URL of the translation API used by <see cref="SlashCommand.Translate(string, Translation.Options, Translation.Options)"/>. </summary>
 	public const string URL_TRANSLATE = "https://655.mtis.workers.dev/translate";
+
+	// TODO | Work on this
+	public const string URL_WIKIPEDIA = "https://en.wikipedia.org/w/api.php?action=query&generator=prefixsearch&redirects=1&gpslimit=1&explaintext=0&format=json&prop=extracts&";
 
 	/// <summary> The URL of the translation icon used by <see cref="SlashCommand.Translate(string, Translation.Options, Translation.Options)"/> </summary>
 	public const string URL_TLICON = "https://i.ibb.co/GV149Px/iamvector-download-1.png";

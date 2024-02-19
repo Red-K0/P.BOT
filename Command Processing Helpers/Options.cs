@@ -1,7 +1,7 @@
 ﻿namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary> Contains methods and variables for storage and modification of bot settings. </summary>
-internal static class Options
+public static class Options
 {
 	/// <summary> A list of optional modules used by P.BOT. </summary>
 	public enum Modules
@@ -10,5 +10,6 @@ internal static class Options
 		DnDTextModule
 	}
 	/// <summary> The current status of the module. </summary>
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "<Pending>")]
 	public static bool DnDTextModule;
 }

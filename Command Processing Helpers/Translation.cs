@@ -1,7 +1,7 @@
 ﻿namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary> Contains the <see cref="Options"/> <see cref="Enum"/> and <see cref="GetTranslation(string, Translation.Options, Translation.Options)"/> method, for use in the <see cref="SlashCommand.Translate(string, Translation.Options, Translation.Options)"/> command.</summary>
-internal static class Translation
+public static class Translation
 {
 	/// <summary> A list of languages supported by the translation server. </summary>
 	public enum Options

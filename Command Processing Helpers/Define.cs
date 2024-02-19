@@ -2,21 +2,9 @@
 namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary> Contains data involving dictionaries and the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
-internal static class Define
+public static class Define
 {
-	/// <summary> Contains definitions used for the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
-	public static readonly Dictionary<DefineChoices, string> Definitions = new([DICT_MEANOF_PPP, DICT_WHATIS_PPP]);
-
-	/// <summary> A list of possible choices for the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
-	public enum DefineChoices
-	{
-		/// <summary> The meaning of the PPP Abbreviation. </summary>
-		[SlashCommandChoice(Name = "What does 'PPP' stand for?")] MeaningOf_PPP,
-
-		/// <summary> The history of the PPP. </summary>
-		[SlashCommandChoice(Name = "What is the PPP?")] WhatIs_ThePPP
-	}
-
+	#region Key-Value pair defintions
 	/// <summary> The meaning of the PPP Abbreviation. </summary>
 	public static readonly KeyValuePair<DefineChoices, string> DICT_MEANOF_PPP = new(DefineChoices.MeaningOf_PPP, """
 		'PPP' stands for \"Perfect Protection Polygon\".
@@ -52,4 +40,19 @@ internal static class Define
 
 		At a point in time, @Kira☆Kira decided to leave discord for personal reasons. This put the server in a tough spot, given that the central idea revolved around her. However, due to the server having grown large enough to be capable of sustaining itself, the server instead transformed into more of a hangout spot, rather than its original intent, bringing us to the present state of the server.
 		""");
+	#endregion
+
+	/// <summary> Contains definitions used for the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
+	public static readonly Dictionary<DefineChoices, string> Definitions = new([DICT_MEANOF_PPP, DICT_WHATIS_PPP]);
+
+	/// <summary> A list of possible choices for the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
+	public enum DefineChoices
+	{
+		/// <summary> The meaning of the PPP Abbreviation. </summary>
+		[SlashCommandChoice(Name = "What does 'PPP' stand for?")] MeaningOf_PPP,
+
+		/// <summary> The history of the PPP. </summary>
+		[SlashCommandChoice(Name = "What is the PPP?")] WhatIs_ThePPP
+	}
+
 }

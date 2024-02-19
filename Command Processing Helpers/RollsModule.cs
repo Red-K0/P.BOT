@@ -2,7 +2,7 @@
 namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary> Contains methods and variables used for dice probability calculations and roll result output. </summary>
-internal static class RollsModule
+public static class RollsModule
 {
 	#region Constants
 	/// <summary> The literal used as a separator in the nXn roll format. </summary>

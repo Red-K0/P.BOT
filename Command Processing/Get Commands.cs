@@ -1,4 +1,9 @@
-﻿using NetCord.Services.ApplicationCommands;
+﻿// Get Commands Extension File
+// This file contains commands that are relevant to the bot's getter functions, local and online.
+// An example of these commands is the GetAvatar() command, which gets a user's avatar.
+// Commands in this file rely frequently on web requests, and the related mess there.
+
+using NetCord.Services.ApplicationCommands;
 using P_BOT.Command_Processing.Helpers;
 using static P_BOT.EmbedComponents;
 using static P_BOT.EmbedHelpers;
@@ -61,11 +66,53 @@ public sealed partial class SlashCommand
 		return RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds }));
 	}
 
-	/// <summary>
-	/// test
-	/// </summary>
+	#region Attributes
+	[SlashCommand("translate", "Translate a given input from one language to another.")]
+	public partial Task GetTranslation
+	(
+		[SlashCommandParameter(Name = "text", Description = "The text to translate, limited to 623 characters.", MaxLength = 623)]
+		string input,
+
+		[SlashCommandParameter(Name = "original_language", Description = "The language of the original text, defaults to English (en).")]
+		Translation.Options source_lang = Translation.Options.en,
+
+		[SlashCommandParameter(Name = "target_language", Description = "The language to translate the text to, defaults to Japanese (ja).")]
+		Translation.Options target_lang = Translation.Options.ja
+	);
+
+	#endregion
+
+	/// <summary> Translates a given <see cref="string"/> from the <paramref name="source_lang"/> to the <paramref name="target_lang"/>, and responds with the output. </summary>
+	public partial Task GetTranslation(string input, Translation.Options source_lang, Translation.Options target_lang)
+	{
+		// Make sure the interaction doesn't time out
+		Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
+
+		MessageProperties msg_prop = CreateEmbed
+		(
+			Translation.GetTranslation(input, source_lang, target_lang),
+			CreateAuthorObject("Translation Processed", URL_TLICON),
+			DateTime.Now,
+			CreateFooterObject($"Translation requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			0x72767D
+		);
+		return Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
+	}
+
+	#region Attributes
 	[SlashCommand("wikidefine", "Define a given term via Wikipedia.")]
-	public Task GetWikiResult(string search_term, bool long_format = false)
+	public partial Task GetWikiResult
+	(
+		[SlashCommandParameter(Name = "search_term", Description = "The term to find a page for if possible.")]
+		string search_term,
+
+		[SlashCommandParameter(Name = "full_page", Description = "Should the full page's contents be fetched?")]
+		bool long_format = false
+	);
+	#endregion
+
+	/// <summary> Searches for a Wikipedia page similar to the given <paramref name="search_term"/>, and gets its content if a page is found. </summary>
+	public partial Task GetWikiResult(string search_term, bool long_format)
 	{
 		// Make sure the interaction doesn't time out
 		Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
@@ -166,39 +213,6 @@ public sealed partial class SlashCommand
 			0x72767D
 		);
 
-		return Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
-	}
-
-	#region Attributes
-	[SlashCommand("translate", "Translate a given input from one language to another.")]
-	public partial Task Translate
-	(
-		[SlashCommandParameter(Name = "text", Description = "The text to translate, limited to 623 characters.", MaxLength = 623)]
-		string input,
-
-		[SlashCommandParameter(Name = "original_language", Description = "The language of the original text, defaults to English (en).")]
-		Translation.Options source_lang = Translation.Options.en,
-
-		[SlashCommandParameter(Name = "target_language", Description = "The language to translate the text to, defaults to Japanese (ja).")]
-		Translation.Options target_lang = Translation.Options.ja
-	);
-
-	#endregion
-
-	/// <summary> Translates a given <see cref="string"/> from the <paramref name="source_lang"/> to the <paramref name="target_lang"/>, and responds with the output. </summary>
-	public partial Task Translate(string input, Translation.Options source_lang, Translation.Options target_lang)
-	{
-		// Make sure the interaction doesn't time out
-		Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
-
-		MessageProperties msg_prop = CreateEmbed
-		(
-			Translation.GetTranslation(input, source_lang, target_lang),
-			CreateAuthorObject("Translation Processed", URL_TLICON),
-			DateTime.Now,
-			CreateFooterObject($"Translation requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
-			0x72767D
-		);
 		return Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
 	}
 }

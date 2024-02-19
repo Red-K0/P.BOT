@@ -35,7 +35,6 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 		[SlashCommandParameter(Name = "module", Description = "The module to turn on, or off.")]
 		Options.Modules module
 	);
-
 	#endregion
 
 	/// <summary> Toggles the state of the module specified in the <paramref name="module"/> parameter. </summary>

@@ -62,13 +62,13 @@ internal static class Constants
 	#endregion
 
 	#region URL Locations
-	/// <summary> The URL of the translation API used by <see cref="SlashCommand.Translate(string, Translation.Options, Translation.Options)"/>. </summary>
+	/// <summary> The URL of the translation API used by <see cref="SlashCommand.GetTranslation(string, Translation.Options, Translation.Options)"/>. </summary>
 	public const string URL_TRANSLATE = "https://655.mtis.workers.dev/translate";
 
-	// TODO | Work on this
+	/// <summary> The URL and preset parameters for the Wikipedia content API </summary>
 	public const string URL_WIKIPEDIA = "https://en.wikipedia.org/w/api.php?action=query&generator=prefixsearch&redirects=1&gpslimit=1&explaintext=0&format=json&prop=extracts&";
 
-	/// <summary> The URL of the translation icon used by <see cref="SlashCommand.Translate(string, Translation.Options, Translation.Options)"/> </summary>
+	/// <summary> The URL of the translation icon used by <see cref="SlashCommand.GetTranslation(string, Translation.Options, Translation.Options)"/> </summary>
 	public const string URL_TLICON = "https://i.ibb.co/GV149Px/iamvector-download-1.png";
 
 	/// <summary> The URL of the rulebook emoji used by discord. Used by <see cref="SlashCommand.GetDefinition(Define.DefineChoices)"/>. </summary>

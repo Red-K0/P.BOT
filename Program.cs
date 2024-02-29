@@ -1,35 +1,20 @@
 ﻿using NetCord.Services.ApplicationCommands;
-using P_BOT;
-using P_BOT.Command_Processing.Helpers;
+using P_BOT.Messages;
 
-#region Events
-
-// System Message Logging
-client.Log += MessageLogging.System;
-
-// When a message is deleted
-client.MessageDelete += MessageLogging.Delete;
-
-// When a message is edited
-client.MessageUpdate += MessageLogging.Update;
-
-// When a message is reacted to
-client.MessageReactionAdd += MessageLogging.ReactAdd;
-
-// When a message is sent
-client.MessageCreate += MessageLogging.Create;
-
+#region Event Handlers
+client.Log += Logging.Log;
+client.MessageCreate += Events.MessageCreated;
+client.MessageDelete += Events.MessageDeleted;
+client.MessageUpdate += Events.MessageUpdated;
+client.MessageReactionAdd += Events.ReactionAdded;
 #endregion
 
-#region Startup Sequence
-
+#region Startup
 Console.CursorVisible = false;
 Console.OutputEncoding = System.Text.Encoding.Unicode;
 
 await client.StartAsync();
 await client.ReadyAsync;
-
-#region Slash Command Handler
 
 ApplicationCommandService<SlashCommandContext> applicationCommandService = new();
 applicationCommandService.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);
@@ -42,8 +27,6 @@ client.InteractionCreate += async interaction =>
 		_ = await applicationCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client));
 	}
 };
-#endregion
 
 await Task.Delay(Timeout.Infinite);
-
 #endregion

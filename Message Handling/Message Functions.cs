@@ -1,37 +1,42 @@
-﻿namespace P_BOT;
+﻿namespace P_BOT.Messages;
 
-/// <summary> Contains methods and variables used for basic message functionality and parsing. </summary>
-internal static class MessageFunctions
+/// <summary>
+/// Contains methods and variables used for basic message functionality and parsing.
+/// </summary>
+internal static class Functions
 {
-	#region Variables
-	/// <summary> The ID of the last logged user. </summary>
-	public static ulong? LastAuthor = 0;
-
-	/// <summary> The number of messages starred by P.BOT. </summary>
-	private static int StarCount = Convert.ToInt32(DataBackend.ReadMemory(1, DataBackend.Pages.Counter));
-
-	#region Spam Filter
-	/// <summary> The <see cref="Attachment.FileName"/> of the last <see cref="Attachment"/> sent. </summary>
+	#region Filter Fields
+	/// <summary>
+	/// The <see cref="Attachment.FileName"/> of the last <see cref="Attachment"/> sent.
+	/// </summary>
 	private static string LastAttachment = "";
 
-	/// <summary> The <see cref="RestMessage.Content"/> of the last <see cref="RestMessage"/> sent. </summary>
+	/// <summary>
+	/// The <see cref="RestMessage.Content"/> of the last <see cref="RestMessage"/> sent.
+	/// </summary>
 	private static string LastContent = "";
 
-	/// <summary> The number of identical <see cref="Attachment"/> objects sent. </summary>
+	/// <summary>
+	/// The number of identical <see cref="Attachment"/> objects sent.
+	/// </summary>
 	private static int AttachmentFilterLimit;
 
-	/// <summary> The number of identical <see cref="RestMessage.Content"/> objects sent. </summary>
+	/// <summary>
+	/// The number of identical <see cref="RestMessage.Content"/> objects sent.
+	/// </summary>
 	private static int MessageFilterLimit;
-	#endregion
-
 	#endregion
 
 	/// <summary> Parses the contents of a given <see cref="MessageReactionAddEventArgs"/> and adds the result to the starboard. </summary>
 	/// <param name="message"> The <see cref="MessageReactionAddEventArgs"/> containing the message to add to the starboard. </param>
 	public static async void AddToStarBoard(MessageReactionAddEventArgs message)
 	{
+		const ulong STARBOARD = 1133836713194696744;
+
+		int StarCount = Convert.ToInt32(DataBackend.ReadMemory(DataBackend.Pages.Counters, 1).Result);
 		RestMessage Message = await client.Rest.GetMessageAsync(message.ChannelId, message.MessageId);
 		MessageProperties msg_prop = new();
+
 		if (Message.ReferencedMessage != null)
 		{
 			RestMessage Reply = client.Rest.GetMessageAsync(Message.ReferencedMessage.ChannelId, Message.ReferencedMessage.Id).Result;
@@ -41,13 +46,14 @@ internal static class MessageFunctions
 				IconUrl = Message.ReferencedMessage.Author.GetAvatarUrl().ToString()
 			};
 
-			_ = msg_prop.AddEmbeds
+			msg_prop.AddEmbeds
 			(
-				EmbedHelpers.ToEmbed(Reply,
+				Embeds.Generate(Reply,
 				$"{SERVER_LINK}{Message.ReferencedMessage.ChannelId}/{Message.ReferencedMessage.Id}"
 			).Embeds!.First().WithAuthor(Author));
 		}
-		_ = msg_prop.AddEmbeds(EmbedHelpers.ToEmbed
+
+		msg_prop.AddEmbeds(Embeds.Generate
 		(
 			Message,
 			$"{SERVER_LINK}{message.ChannelId}/{message.MessageId}",
@@ -56,37 +62,20 @@ internal static class MessageFunctions
 			message.MessageId,
 			$"Starboard Entry #{StarCount}"
 		).Embeds!);
+
 		StarCount++;
+		DataBackend.AppendMemory(DataBackend.Pages.Starboard, message.MessageId.ToString());
+		DataBackend.WriteMemory(DataBackend.Pages.Counters, 1, StarCount.ToString());
 
-		DataBackend.AppendMemory(DataBackend.Pages.StarredMessageList, message.MessageId.ToString());
-		DataBackend.WriteMemory(1, DataBackend.Pages.Counter, StarCount.ToString());
-
-		_ = await client.Rest.SendMessageAsync(SERVER_STARBOARD, msg_prop.WithContent("# " + new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10))));
-	}
-
-	/// <summary> Logs a given <paramref name="message"/> in the console, using <see cref="GetAnnotation(string)"/>. </summary>
-	/// <param name="message"> The <see cref="Message"/> object to log. </param>
-	public static void LogMessage(in Message message)
-	{
-		if (!string.IsNullOrWhiteSpace(message.Content))
-		{
-			if (LastAuthor != message.Author.Id)
-			{
-				Console.WriteLine($"\n{message.CreatedAt} {message.Author,-22} - {message.Author.Username}");
-			}
-
-			string Annotation = GetAnnotation(message.Content);
-			Console.WriteLine($"{message.Content} {(string.IsNullOrWhiteSpace(Annotation) ? '\0' : "< ")}{Annotation}");
-			LastAuthor = message.Author.Id;
-		}
+		await client.Rest.SendMessageAsync(STARBOARD, msg_prop.WithContent("# " + new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10))));
 	}
 
 	/// <summary> Parses a given <paramref name="message"/> to check for message links, and displays their content if possible. </summary>
 	/// <param name="message"> The <see cref="Message"/> object to check for and parse links in. </param>
-	public static void ParseMessageLink(in Message message)
+	public static async void ParseMessageLink(Message message)
 	{
 		//HACK | The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
-		string Scan = message.Content; string CurrentScan; ulong ChannelID; ulong MessageID; RestMessage LinkedMessage;
+		string Scan = message.Content; string CurrentScan; RestMessage LinkedMessage;
 		int LinkCount = (Scan.Length - Scan.Replace(SERVER_LINK, "").Length) / SERVER_LINK.Length;
 		for (int i = 0; i < LinkCount; i++)
 		{
@@ -101,27 +90,31 @@ internal static class MessageFunctions
 				CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
 			}
 
-			try { ChannelID = ulong.Parse(CurrentScan.Remove(CurrentScan.IndexOf('/'))); } catch (Exception) { return; }
-			try { MessageID = ulong.Parse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..].Replace('/','\0')); } catch (Exception) { return; }
-			LinkedMessage = client.Rest.GetMessageAsync(ChannelID, MessageID, null).Result;
+			if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.IndexOf('/')),
+				out ulong ChannelID)) return;
 
-			MessageProperties msg_prop = EmbedHelpers.ToEmbed(
+			if (!ulong.TryParse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..].Replace('/','\0'),
+				out ulong MessageID)) return;
+
+			LinkedMessage = await client.Rest.GetMessageAsync(ChannelID, MessageID, null);
+
+			MessageProperties msg_prop = Embeds.Generate(
 				LinkedMessage,
 				$"{SERVER_LINK}{message.ChannelId}/{message.Id}",
 				$"Message linked by {message.Author.Username}",
 				message.Author.GetAvatarUrl().ToString(),
 				message.Id
 			);
-			_ = client.Rest.SendMessageAsync(message.ChannelId, msg_prop);
+			await client.Rest.SendMessageAsync(message.ChannelId, msg_prop);
 			Scan = Scan.Remove(Scan.IndexOf(SERVER_LINK), 49 + CurrentScan.Length);
 		}
 	}
 
 	/// <summary> Monitors and deletes messages to avoid spam. </summary>
 	/// <param name="message"> The <see cref="RestMessage"/> object to filter. </param>
-	public static void SpamFilter(in Message message)
+	public static async void SpamFilter(Message message)
 	{
-		bool Filter = false;
+		bool Filter;
 
 		if (message.Content == LastContent) { Filter = true;  MessageFilterLimit++; }
 									   else { Filter = false; MessageFilterLimit = Math.Max(MessageFilterLimit - 1, 0); }
@@ -156,38 +149,8 @@ internal static class MessageFunctions
 				_ => response
 			};
 
-			client.Rest.SendMessageAsync(message.ChannelId, response);
-			client.Rest.DeleteMessageAsync(message.ChannelId, message.Id);
+			await client.Rest.SendMessageAsync(message.ChannelId, response);
+			await client.Rest.DeleteMessageAsync(message.ChannelId, message.Id);
 		}
-	}
-
-	/// <summary> Responsible for setting text color in P.BOT's console log and annotating it. </summary>
-	/// <param name="content"> The <see cref="Message"/> object to highlight in the console. </param>
-	private static string GetAnnotation(string content)
-	{
-		//Message Highlighting
-		if (content.Contains(SERVER_LINK))
-		{
-			Console.ForegroundColor = ConsoleColor.Blue;
-			return "Discord Message Link";
-		}
-
-		if (content.StartsWith('.'))
-		{
-			Console.ForegroundColor = Command_Processing.Helpers.Options.DnDTextModule ? ConsoleColor.Green : ConsoleColor.Red;
-			return $"Call to DnDTextModule {(Command_Processing.Helpers.Options.DnDTextModule ? "(Processed)" : "(Ignored)")}";
-		}
-
-		return "";
-	}
-
-	/// <summary> Writes the string <paramref name="content"/> to the console in the color specified by <paramref name="color"/>. </summary>
-	/// <param name="content"> The <see cref="string"/> to write to the console. </param>
-	/// <param name="color"> The color to write the <paramref name="content"/> in. </param>
-	public static void WriteColor(string content, ConsoleColor color)
-	{
-		Console.ForegroundColor = color;
-		Console.Write(content);
-		Console.ForegroundColor = ConsoleColor.Gray;
 	}
 }

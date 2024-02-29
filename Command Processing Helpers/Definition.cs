@@ -1,20 +1,26 @@
 ﻿using NetCord.Services.ApplicationCommands;
 namespace P_BOT.Command_Processing.Helpers;
 
-/// <summary> Contains data involving dictionaries and the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
-public static class Define
+/// <summary>
+/// Contains data involving dictionaries and the <see cref="SlashCommand.GetDefinition(Choices)"/> command.
+/// </summary>
+public static class Definition
 {
 	#region Key-Value pair defintions
-	/// <summary> The meaning of the PPP Abbreviation. </summary>
-	public static readonly KeyValuePair<DefineChoices, string> DICT_MEANOF_PPP = new(DefineChoices.MeaningOf_PPP, """
+	/// <summary>
+	/// The meaning of the PPP Abbreviation.
+	/// </summary>
+	private static readonly KeyValuePair<Choices, string> PPP_Meaning = new(Choices.MeaningOf_PPP, """
 		'PPP' stands for \"Perfect Protection Polygon\".
 
 		History:
 		>>> Originally, the PPP was called the 'Protection Triangle', as it consisted of three members. This was then expanded to the 'Protection Square', 'Protection Hexagon', and upon people's unawareness of what a heptagon is, the 'Protection Polygon'. The 'Perfect' prefix was added for alliteration, resulting in the 'Perfect Protection Polygon' or as its more commonly known, 'The PPP'.
 		""");
 
-	/// <summary> The history of the PPP. </summary>
-	public static readonly KeyValuePair<DefineChoices, string> DICT_WHATIS_PPP = new(DefineChoices.WhatIs_ThePPP, """
+	/// <summary>
+	/// The history of the PPP.
+	/// </summary>
+	private static readonly KeyValuePair<Choices, string> PPP_History = new(Choices.WhatIs_ThePPP, """
 		*The PPP has had a fairly long history, documented here. For a summary, look up 'What does 'PPP' stand for?' instead*
 
 		Originally, the PPP was not a server, or even a thread, instead a concept randomly created in a channel by three of the original founders, Courtney, Eun and Soarin. The channel in question was #lounge in the server Vent Bistro, and the intention was a 'Protection Triangle' for a member known at the time as Kira☆Kira.
@@ -42,17 +48,24 @@ public static class Define
 		""");
 	#endregion
 
-	/// <summary> Contains definitions used for the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
-	public static readonly Dictionary<DefineChoices, string> Definitions = new([DICT_MEANOF_PPP, DICT_WHATIS_PPP]);
+	/// <summary>
+	/// Contains definitions used for the <see cref="SlashCommand.GetDefinition(Choices)"/> command.
+	/// </summary>
+	public static readonly Dictionary<Choices, string> Values = new([PPP_Meaning, PPP_History]);
 
-	/// <summary> A list of possible choices for the <see cref="SlashCommand.GetDefinition(DefineChoices)"/> command. </summary>
-	public enum DefineChoices
+	/// <summary>
+	/// A list of possible choices for the <see cref="SlashCommand.GetDefinition(Choices)"/> command.
+	/// </summary>
+	public enum Choices
 	{
-		/// <summary> The meaning of the PPP Abbreviation. </summary>
+		/// <summary>
+		/// The meaning of the PPP Abbreviation.
+		/// </summary>
 		[SlashCommandChoice(Name = "What does 'PPP' stand for?")] MeaningOf_PPP,
 
-		/// <summary> The history of the PPP. </summary>
+		/// <summary>
+		/// The history of the PPP.
+		/// </summary>
 		[SlashCommandChoice(Name = "What is the PPP?")] WhatIs_ThePPP
 	}
-
 }

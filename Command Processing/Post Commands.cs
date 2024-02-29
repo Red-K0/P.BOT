@@ -4,9 +4,8 @@
 // Commands in this file heavily rely on content found in the PostDB folder.
 
 using NetCord.Services.ApplicationCommands;
-using P_BOT.Command_Processing.Helpers;
-using static P_BOT.EmbedComponents;
-using static P_BOT.EmbedHelpers;
+using static P_BOT.Embeds;
+using static P_BOT.Command_Processing.Helpers.Posts;
 
 namespace P_BOT.Command_Processing;
 public sealed partial class SlashCommand
@@ -29,20 +28,22 @@ public sealed partial class SlashCommand
 	);
 	#endregion
 
-	/// <summary> Creates a post, experimental. </summary>
-	public partial Task CreatePost(string content, Attachment? image, bool anonymous, bool draft)
+	/// <summary>
+	/// Creates a post, experimental.
+	/// </summary>
+	public async partial Task CreatePost(string content, Attachment? image, bool anonymous, bool draft)
 	{
 		// Make sure the interaction doesn't time out
-		Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
+		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
 		// Get an ID for the post.
-		ulong InternalPostID = Convert.ToUInt64(DataBackend.ReadMemory(3, DataBackend.Pages.Counter)) + 1;
+		ulong InternalPostID = Convert.ToUInt64(await DataBackend.ReadMemory(DataBackend.Pages.Counters, 3)) + 1;
 
-		MessageProperties msg_prop = CreateEmbed
+		MessageProperties msg_prop = Generate
 		(
 			content,
 			anonymous ?
-			CreateAuthorObject("Posted by an Anonymous User", URL_ANONUSER) : // < Note the colon
+			CreateAuthorObject("Posted by an Anonymous User", ASSETS + "Anonymous%20Profile%20Picture.png") : // < Note the colon
 			CreateAuthorObject($"Posted by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			DateTime.Now,
 			CreateFooterObject($"Post ID: {InternalPostID}"),
@@ -51,21 +52,21 @@ public sealed partial class SlashCommand
 
 		if (draft)
 		{
-			return Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
+			await Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
 		}
 		else
 		{
-			_ = client.Rest.SendMessageAsync(SERVER_POSTFEED, msg_prop.WithContent($"Post #{InternalPostID}")).Result;
+			_ = client.Rest.SendMessageAsync(CHANNEL, msg_prop.WithContent($"Post #{InternalPostID}")).Result;
 
-			ulong ExternalPostID = PostFunctions.StoreID(InternalPostID);
+			ulong ExternalPostID = StoreID(InternalPostID);
 
 			// Creates the corresponding thread for the post, and then resets the content to empty.
-			client.Rest.CreateGuildThreadAsync(SERVER_POSTFEED, ExternalPostID, new($"Post #{InternalPostID}"));
-			client.Rest.    ModifyMessageAsync(SERVER_POSTFEED, ExternalPostID, new(s => s.WithContent("_ _")));
+			await client.Rest.CreateGuildThreadAsync(CHANNEL, ExternalPostID, new($"Post #{InternalPostID}"));
+			await client.Rest.ModifyMessageAsync(CHANNEL, ExternalPostID, new(s => s.WithContent("_ _")));
 
-			return Context.Interaction.SendFollowupMessageAsync(new()
+			await Context.Interaction.SendFollowupMessageAsync(new()
 			{
-				Content = $"Post created successfully, view it [here.]({SERVER_LINK}{SERVER_POSTFEED}/{ExternalPostID})",
+				Content = $"Post created successfully, view it [here.]({SERVER_LINK}{CHANNEL}/{ExternalPostID})",
 				Flags = MessageFlags.Ephemeral
 			});
 		}

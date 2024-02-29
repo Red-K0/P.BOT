@@ -8,16 +8,25 @@ using P_BOT.Command_Processing.Helpers;
 
 namespace P_BOT.Command_Processing;
 
-/// <summary> Contains the commands used by P.BOT and their associated tasks. </summary>
+/// <summary>
+/// Contains the commands used by P.BOT and their associated tasks.
+/// </summary>
 public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommandContext>
 {
+	/// <summary>
+	/// The URL to the GitHub Assets folder.
+	/// </summary>
+	private const string ASSETS = "https://raw.githubusercontent.com/Red-K0/P.BOT/master/Assets/";
+
 	#region Attributes
 	[SlashCommand("syscheck", "Check if the system's online.")]
 	public partial Task SystemsCheck();
 	#endregion
 
-	/// <summary> Command task. Checks if P.BOT's system is active. </summary>
-	public partial Task SystemsCheck()
+	/// <summary>
+	/// Command task. Checks if P.BOT's system is active.
+	/// </summary>
+	public async partial Task SystemsCheck()
 	{
 		const string response =
 		"""
@@ -25,7 +34,7 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 		System is active and running.
 		
 		""";
-		return RespondAsync(InteractionCallback.Message(response));
+		await RespondAsync(InteractionCallback.Message(response));
 	}
 
 	#region Attributes
@@ -37,14 +46,16 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 	);
 	#endregion
 
-	/// <summary> Toggles the state of the module specified in the <paramref name="module"/> parameter. </summary>
-	public partial Task ToggleModule(Options.Modules module)
+	/// <summary>
+	/// Toggles the state of the module specified in the <paramref name="module"/> parameter.
+	/// </summary>
+	public async partial Task ToggleModule(Options.Modules module)
 	{
 		bool result = false;
 		switch (module)
 		{
 			case Options.Modules.DnDTextModule: Options.DnDTextModule ^= true; result = Options.DnDTextModule; break;
 		}
-		return RespondAsync(InteractionCallback.Message(result ? $"The module '{module}' has been successfully enabled." : $"The module '{module}' has been successfully disabled."));
+		await RespondAsync(InteractionCallback.Message(result ? $"The module '{module}' has been successfully enabled." : $"The module '{module}' has been successfully disabled."));
 	}
 }

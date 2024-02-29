@@ -5,8 +5,7 @@
 
 using NetCord.Services.ApplicationCommands;
 using P_BOT.Command_Processing.Helpers;
-using static P_BOT.EmbedComponents;
-using static P_BOT.EmbedHelpers;
+using static P_BOT.Embeds;
 
 namespace P_BOT.Command_Processing;
 public sealed partial class SlashCommand
@@ -23,11 +22,13 @@ public sealed partial class SlashCommand
 	);
 	#endregion
 
-	/// <summary> Command task. Gets the avatar of the <paramref name="user"/>, in a specific format if specified in <paramref name="format"/>. </summary>
-	public partial Task GetAvatar(User user, ImageFormat format)
+	/// <summary>
+	/// Command task. Gets the avatar of the <paramref name="user"/>, in a specific format if specified in <paramref name="format"/>.
+	/// </summary>
+	public async partial Task GetAvatar(User user, ImageFormat format)
 	{
 		user ??= Context.User;
-		MessageProperties msg_prop = CreateEmbed
+		MessageProperties msg_prop = Generate
 		(
 			user.HasAvatar ?
 			$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar " :
@@ -39,7 +40,7 @@ public sealed partial class SlashCommand
 			ImageURL: new(user.GetAvatarUrl(format).ToString())
 		);
 
-		return RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds, AllowedMentions = AllowedMentionsProperties.None }));
+		await RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds, AllowedMentions = AllowedMentionsProperties.None }));
 	}
 
 	#region Attributes
@@ -47,23 +48,25 @@ public sealed partial class SlashCommand
 	public partial Task GetDefinition
 	(
 		[SlashCommandParameter(Name = "term", Description = "The term to reply with a definition for.")]
-		Define.DefineChoices term
+		Definition.Choices term
 	);
 	#endregion
 
-	/// <summary> Command task. Gets the definition of the term specified in the <paramref name="term"/> parameter.</summary>
-	public partial Task GetDefinition(Define.DefineChoices term)
+	/// <summary>
+	/// Command task. Gets the definition of the term specified in the <paramref name="term"/> parameter.
+	/// </summary>
+	public async partial Task GetDefinition(Definition.Choices term)
 	{
-		_ = Define.Definitions.TryGetValue(term, out string? definition);
-		MessageProperties msg_prop = CreateEmbed
+		Definition.Values.TryGetValue(term, out string? definition);
+		MessageProperties msg_prop = Generate
 		(
 			definition,
-			CreateAuthorObject("PPP Encyclopedia", URL_RULESICON),
+			CreateAuthorObject("PPP Encyclopedia", ASSETS + "Define&20Icon.png"),
 			DateTimeOffset.UtcNow,
 			ReplyTo: Context.User.Id
 		);
 
-		return RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds }));
+		await RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds }));
 	}
 
 	#region Attributes
@@ -74,32 +77,39 @@ public sealed partial class SlashCommand
 		string input,
 
 		[SlashCommandParameter(Name = "original_language", Description = "The language of the original text, defaults to English (en).")]
-		Translation.Options source_lang = Translation.Options.en,
+		Translation.Choices source_lang = Translation.Choices.en,
 
 		[SlashCommandParameter(Name = "target_language", Description = "The language to translate the text to, defaults to Japanese (ja).")]
-		Translation.Options target_lang = Translation.Options.ja
+		Translation.Choices target_lang = Translation.Choices.ja
 	);
 
 	#endregion
 
-	/// <summary> Translates a given <see cref="string"/> from the <paramref name="source_lang"/> to the <paramref name="target_lang"/>, and responds with the output. </summary>
-	public partial Task GetTranslation(string input, Translation.Options source_lang, Translation.Options target_lang)
+	/// <summary>
+	/// Translates a given <see cref="string"/> from the <paramref name="source_lang"/> to the <paramref name="target_lang"/>, and responds with the output.
+	/// </summary>
+	public async partial Task GetTranslation(string input, Translation.Choices source_lang, Translation.Choices target_lang)
 	{
 		// Make sure the interaction doesn't time out
-		Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
+		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
 
-		MessageProperties msg_prop = CreateEmbed
+		MessageProperties msg_prop = Generate
 		(
-			Translation.GetTranslation(input, source_lang, target_lang),
-			CreateAuthorObject("Translation Processed", URL_TLICON),
+			await Translation.Process(input, source_lang, target_lang),
+			CreateAuthorObject("Translation Processed", ASSETS + "Translator%20Icon.png"),
 			DateTime.Now,
 			CreateFooterObject($"Translation requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			0x72767D
 		);
-		return Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
+		await Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
 	}
 
-	#region Attributes
+	#region Attributes & Constants
+	/// <summary>
+	/// The URL and preset parameters for the Wikipedia content API.
+	/// </summary>
+	private const string WIKI_API = "https://en.wikipedia.org/w/api.php?action=query&generator=prefixsearch&redirects=1&gpslimit=1&explaintext=0&format=json&prop=extracts&";
+
 	[SlashCommand("wikidefine", "Define a given term via Wikipedia.")]
 	public partial Task GetWikiResult
 	(
@@ -111,19 +121,23 @@ public sealed partial class SlashCommand
 	);
 	#endregion
 
-	/// <summary> Searches for a Wikipedia page similar to the given <paramref name="search_term"/>, and gets its content if a page is found. </summary>
-	public partial Task GetWikiResult(string search_term, bool long_format)
+	/// <summary>
+	/// Searches for a Wikipedia page similar to the given <paramref name="search_term"/>, and gets its content if a page is found.
+	/// </summary>
+	public async partial Task GetWikiResult(string search_term, bool long_format)
 	{
 		// Make sure the interaction doesn't time out
-		Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
+		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
 
 		bool NoResponse = false;
 
-		string Query = URL_WIKIPEDIA + $"gpssearch={search_term}{(long_format ? "" : "&exintro=1")}";
-		string Response = client_h.GetStringAsync(Query).Result;
+		string Query = WIKI_API + $"gpssearch={search_term}{(long_format ? "" : "&exintro=1")}";
+		string Response = await client_h.GetStringAsync(Query);
 		Response = Response[(Response.IndexOf(",\"extract\":\"") + 12)..];
-		try { Response = Response.Remove(Response.IndexOf("}}}}") - 1); } catch { NoResponse = true; goto FailCheckpoint; }
-		if (!long_format) try { Response = Response.Remove(Response.IndexOf("\\n")); } catch { }
+
+		// If there's a response, this won't fail.
+		if (Response.Contains("}}}}")) { Response = Response.Remove(Response.IndexOf("}}}}") - 1); } else { NoResponse = true; goto FailCheckpoint; }
+		if (!long_format && Response.Contains("\\n")) Response = Response.Remove(Response.IndexOf("\\n"));
 
 		// The next section exists solely to parse the response and return actually useful text.
 		// Fuck Wikipedia and whoever wrote the code responsible for returning this horrible mess.
@@ -151,7 +165,8 @@ public sealed partial class SlashCommand
 								  + CharArray[i + 4].ToString()
 								  + CharArray[i + 5].ToString();
 
-				// Convert the Identifier into a char value, and replace the '\' with it.
+				// Convert the Identifier into a char value, and replace the '\' w
+				// ith it.
 				CharArray[i] = Convert.ToChar(int.Parse(Identifier, System.Globalization.NumberStyles.HexNumber));
 
 				// Replace the 'u' and identifier characters with null '\0' characters.
@@ -197,22 +212,21 @@ public sealed partial class SlashCommand
 		Response = string.Concat(StringArray);
 
 		// If the long format was not requested, cuts off the text at the first (proper) newline, otherwise attempts to clean up excess newlines.
-		if (!long_format) try { Response = Response.Remove(Response.IndexOf('\n')); } catch { }
+		if   (!long_format && Response.Contains('\n')) try { Response = Response.Remove(Response.IndexOf('\n')); } catch { }
 		else try { while (Response.Contains("\n\n\n")) Response = Response.Replace("\n\n\n", "\n\n"); } catch { }
 
 		#endregion
 
 	FailCheckpoint:
-		// TODO | Add padding to image, move images to GitHub.
-		MessageProperties msg_prop = CreateEmbed
+		MessageProperties msg_prop = Generate
 		(
 			NoResponse ? $"Wikipedia does not have a definition for '{search_term}'." : Response,
-			CreateAuthorObject("Wikipedia", "https://i.ibb.co/WWtz9ST/svgviewer-png-output-1.png"),
+			CreateAuthorObject("Wikipedia", ASSETS + "Wikipedia%20Icon.png"),
 			DateTime.Now,
 			CreateFooterObject($"Definition requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			0x72767D
 		);
 
-		return Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
+		await Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
 	}
 }

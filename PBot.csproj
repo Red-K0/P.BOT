@@ -52,12 +52,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="Constants">
+      <Static>True</Static>
+    </Using>
     <Using Include="NetCord" />
     <Using Include="NetCord.Gateway" />
     <Using Include="NetCord.Rest" />
-    <Using Include="P_BOT.Constants">
-      <Static>True</Static>
-    </Using>
+    <Using Include="P_BOT" />
   </ItemGroup>
 
   <ItemGroup>

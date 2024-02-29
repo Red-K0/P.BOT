@@ -1,10 +1,39 @@
 ﻿namespace P_BOT.Command_Processing.Helpers;
 
-/// <summary> Contains the <see cref="Options"/> <see cref="Enum"/> and <see cref="GetTranslation(string, Translation.Options, Translation.Options)"/> method, for use in the <see cref="SlashCommand.GetTranslation(string, Translation.Options, Translation.Options)"/> command.</summary>
+/// <summary>
+/// Contains the <see cref="Choices"/> <see cref="Enum"/> and <see cref="Process(string, Translation.Choices, Translation.Choices)"/> method, for use in the <see cref="SlashCommand.GetTranslation(string, Translation.Choices, Translation.Choices)"/> command.
+/// </summary>
 public static class Translation
 {
-	/// <summary> A list of languages supported by the translation server. </summary>
-	public enum Options
+	/// <summary> Sends a GET request to the translation API with the specified parameters. </summary>
+	/// <param name="input"> The <see cref="string"/> of text to pass to the translator. Limited to 623 characters. </param>
+	/// <param name="source_lang"> The original language of the <paramref name="input"/> string. </param>
+	/// <param name="target_lang"> The language to translate the <paramref name="input"/> string to. </param>
+	public static async Task<string> Process(string input, Choices source_lang, Choices target_lang)
+	{
+		const string API_URL = "https://655.mtis.workers.dev/translate";
+
+		if (input.Length > 623)
+		{
+			return "Sorry, inputs longer than 623 characters aren't supported by the translation API, please try a shorter input." +
+				  $"\n>>> \"{input}\" - Length : {input.Length} Characters";
+		}
+
+		string output = await client_h.GetStringAsync($"{API_URL}?text={input}&source_lang={source_lang}&target_lang={target_lang}");
+		output = output.Remove(output.Length - 3)[(output.IndexOf("\"translated_text\":") + 19)..];
+
+		return
+		$"""
+		Original Text: {input}
+
+		Translated Text: {output}
+		""";
+	}
+
+	/// <summary>
+	/// A list of languages supported by the translation server. 
+	/// </summary>
+	public enum Choices
 	{
 		/// <summary> The language Arabic. </summary>
 		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Arabic")] ar,
@@ -44,39 +73,6 @@ public static class Translation
 		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Turkish")] tr,
 		/// <summary> The language Vietnamese. </summary>
 		[NetCord.Services.ApplicationCommands.SlashCommandChoice(Name = "Vietnamese")] vi,
-	}
-
-	/// <summary> Sends a GET request to the translation API defined at <see cref="URL_TRANSLATE"/> with the specified parameters. </summary>
-	/// <param name="input"> The <see cref="string"/> of text to pass to the translator. Limited to 623 characters. </param>
-	/// <param name="source_lang"> The original language of the <paramref name="input"/> string. </param>
-	/// <param name="target_lang"> The language to translate the <paramref name="input"/> string to. </param>
-	public static string GetTranslation(string input, Options source_lang, Options target_lang)
-	{
-		if (input.Length > 623)
-		{
-			return "Sorry, inputs longer than 623 characters aren't supported by the translation API, please try a shorter input." +
-				  $"\n>>> \"{input}\" - Length : {input.Length} Characters";
-		}
-
-		HttpRequestMessage request = new()
-		{
-			Method = HttpMethod.Get,
-			Version = new Version(1, 1),
-			RequestUri = new Uri($"{URL_TRANSLATE}?text={input}&source_lang={source_lang}&target_lang={target_lang}")
-		};
-		HttpResponseMessage response = client_h.Send(request);
-		_ = response.EnsureSuccessStatusCode();
-
-		string output = response.Content.ReadAsStringAsync().Result;
-		output = output.Remove(output.Length - 3)[(output.IndexOf("\"translated_text\":") + 19)..];
-		request.Dispose();
-
-		return
-		$"""
-		Original Text: {input}
-
-		Translated Text: {output}
-		""";
 	}
 }
 

@@ -1,9 +1,11 @@
-﻿using System.Globalization;
+﻿// The helper class supporting the .r* commands.
+
+using System.Globalization;
 using System.Text;
 namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary>
-/// Contains constants,variables and the function responsible for probability calculations and roll results.
+/// Contains constants, variables and the function responsible for probability calculations and roll results.
 /// </summary>
 public static class ProbabilityStateMachine
 {

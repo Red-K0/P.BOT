@@ -114,10 +114,18 @@ internal static class Functions
 	/// <param name="message"> The <see cref="RestMessage"/> object to filter. </param>
 	public static async void SpamFilter(Message message)
 	{
-		bool Filter;
+		ulong ID = message.Author.Id;
+		bool filter = false;
+		string response;
 
-		if (message.Content == LastContent) { Filter = true;  MessageFilterLimit++; }
-									   else { Filter = false; MessageFilterLimit = Math.Max(MessageFilterLimit - 1, 0); }
+		if (message.Content.StartsWith("# ") && message.Content.Equals(message.Content, StringComparison.Ordinal))
+		{
+			if (MessageFilterLimit < 4) MessageFilterLimit = 4; else MessageFilterLimit++;
+			filter = true;
+		}
+
+		if (message.Content == LastContent) { filter = true; MessageFilterLimit++; }
+						  else if (!filter) { MessageFilterLimit = Math.Max(MessageFilterLimit - 1, 0); }
 		LastContent = message.Content;
 
 		KeyValuePair<ulong, Attachment>[] Attachments = [.. message.Attachments];
@@ -125,31 +133,34 @@ internal static class Functions
 		{
 			if (Attachments[i].Value.FileName == "image.png" || Attachments[i].Value.FileName == "unknown.png") continue;
 
-			if (Attachments[i].Value.FileName == LastAttachment) { Filter = true;  AttachmentFilterLimit++; }
-															else { Filter = false; AttachmentFilterLimit = Math.Max(AttachmentFilterLimit - 1, 0); }
+			if (Attachments[i].Value.FileName == LastAttachment) { filter = true;  AttachmentFilterLimit++; }
+															else { filter = false; AttachmentFilterLimit = Math.Max(AttachmentFilterLimit - 1, 0); }
 			LastAttachment = Attachments[i].Value.FileName;
 		}
 
-		if ((AttachmentFilterLimit >= 3 || MessageFilterLimit >= 5) && Filter)
+		if ((AttachmentFilterLimit >= 3 || MessageFilterLimit >= 5) && filter)
 		{
-			string  response = AttachmentFilterLimit switch
+			response = AttachmentFilterLimit switch
 			{
-				3 => $"<@{message.Author.Id}> please avoid spamming.",
-				4 => $"<@{message.Author.Id}> spamming interrupts others and the flow of chat, please avoid so.",
-				5 => $"<@{message.Author.Id}> avoid spamming, final warning.",
+				3 => $"<@{ID}> please avoid spamming.",
+				4 => $"<@{ID}> spamming interrupts others and the flow of chat, please avoid so.",
+				5 => $"<@{ID}> avoid spamming, final warning.",
 				6 => "<@&1147933921829470399> spam limit reached, timeout necessary.",
 				_ => ""
 			};
-					response = MessageFilterLimit switch
+			response = MessageFilterLimit switch
 			{
-				5 => $"<@{message.Author.Id}> please avoid spamming.",
-				6 => $"<@{message.Author.Id}> spamming interrupts others and the flow of chat, please avoid so.",
-				7 => $"<@{message.Author.Id}> avoid spamming, final warning.",
+				5 => $"<@{ID}> please avoid spamming.",
+				6 => $"<@{ID}> spamming interrupts others and the flow of chat, please avoid so.",
+				7 => $"<@{ID}> avoid spamming, final warning.",
 				8 => "<@&1147933921829470399> spam limit reached, timeout necessary.",
 				_ => response
 			};
 
-			await client.Rest.SendMessageAsync(message.ChannelId, response);
+			if (!string.IsNullOrWhiteSpace(response))
+			{
+				await client.Rest.SendMessageAsync(message.ChannelId, response);
+			}
 			await client.Rest.DeleteMessageAsync(message.ChannelId, message.Id);
 		}
 	}

@@ -32,6 +32,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Command Processing Helpers\~Template.cs" />
+    <Compile Remove="Command Processing\~Template.cs" />
     <Compile Remove="CommonFunctions.cs" />
   </ItemGroup>
 
@@ -63,6 +65,11 @@
 
   <ItemGroup>
     <Folder Include="Assets\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Command Processing Helpers\~Template.cs" />
+    <None Include="Command Processing\~Template.cs" />
   </ItemGroup>
 
 </Project>

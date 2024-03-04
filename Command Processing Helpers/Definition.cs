@@ -1,4 +1,6 @@
-﻿using NetCord.Services.ApplicationCommands;
+﻿// The helper class supporting the /define command.
+
+using NetCord.Services.ApplicationCommands;
 namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary>

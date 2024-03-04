@@ -16,7 +16,7 @@ internal static class Logging
 	public static async ValueTask Log(LogMessage message)
 	{
 		const string EMPTY_TRACE = "\"at System.Linq.Enumerable.ToDictionary[TSource,TKey,TElement](IEnumerable`1 source, Func`2 keySelector, Func`2 elementSelector)\"";
-		const string EMPTY_ERROR = "Value cannot be null. (Parameter 'source')";
+		const string EMPTY_ERROR = "Value cannot be null.";
 
 		// Prevents partial message exceptions in the log
 		if (message.Exception is { StackTrace: string stackTrace } && (stackTrace.Contains(EMPTY_TRACE) || stackTrace.Contains(EMPTY_ERROR)))

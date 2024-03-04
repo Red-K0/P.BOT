@@ -16,6 +16,8 @@ Console.OutputEncoding = System.Text.Encoding.Unicode;
 await client.StartAsync();
 await client.ReadyAsync;
 
+UserManagement.InitMembersSearch();
+
 ApplicationCommandService<SlashCommandContext> applicationCommandService = new();
 applicationCommandService.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);
 

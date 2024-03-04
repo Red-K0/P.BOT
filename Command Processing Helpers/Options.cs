@@ -1,10 +1,19 @@
-﻿namespace P_BOT.Command_Processing.Helpers;
+﻿// The helper class supporting the /toggle command.
+
+using NetCord.Services.ApplicationCommands;
+namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary>
 /// Contains methods and variables for storage and modification of bot settings.
 /// </summary>
 public static class Options
 {
+	/// <summary>
+	/// The current status of the module.
+	/// </summary>
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "<Pending>")]
+	public static bool DnDTextModule;
+
 	/// <summary>
 	/// A list of optional modules used by P.BOT.
 	/// </summary>
@@ -13,11 +22,6 @@ public static class Options
 		/// <summary>
 		/// The module responsible for rolling dice, as well as message parsing related to so.
 		/// </summary>
-		DnDTextModule
+		[SlashCommandChoice(Name = "Probability Module")]DnDTextModule
 	}
-	/// <summary>
-	/// The current status of the module.
-	/// </summary>
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "<Pending>")]
-	public static bool DnDTextModule;
 }

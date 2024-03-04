@@ -1,4 +1,6 @@
-﻿namespace P_BOT.Command_Processing.Helpers;
+﻿// The helper class supporting the /post command.
+
+namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary>
 /// Contains methods and variables related to the post system.

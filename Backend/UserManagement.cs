@@ -7,7 +7,9 @@ internal static partial class UserManagement
 	private static string MembersSearch = "";
 	public static Response[] MemberList = [];
 
-	/// <summary> Initializes the class with data from the <c>members_search</c> endpoint. </summary>
+	/// <summary>
+	/// Initializes the class with data from the <c>members_search</c> endpoint.
+	/// </summary>
 	public static async void InitMembersSearch()
 	{
 		Dictionary<string, int> dict = []; dict.Add("limit", 500);
@@ -24,7 +26,9 @@ internal static partial class UserManagement
 		}
 	}
 
-	/// <summary> Gets the relevant Response object for a specified server member. </summary>
+	/// <summary>
+	/// Gets the relevant Response object for a specified server member.
+	/// </summary>
 	public static Response GetMembersSearch(int Member = -1)
 	{
 		string str = MembersSearch;
@@ -67,7 +71,7 @@ internal static partial class UserManagement
 				if (response.Equals("null", StringComparison.Ordinal)) return null!;
 				return response.Replace("\"", "");
 			}
-			ulong[] RoleArray(string setstring)
+			ulong[] ToRoleArray(string setstring)
 			{
 				ulong[] Roles = [];
 				setstring = setstring[1..^1];
@@ -90,7 +94,7 @@ internal static partial class UserManagement
 			// Trimming of members header.
 			str = str[20..];
 
-			// Use Iterator() to parse the entire resopnse into a Response object.
+			// Use Iterator() to parse the entire response into a Response object.
 			return new() {
 				Member = new() {
 					Avatar = Iterator(AvatarSkip: true),
@@ -100,7 +104,7 @@ internal static partial class UserManagement
 					Nick = Iterator(),
 					Pending = Convert.ToBoolean(Iterator()),
 					PremiumSince = Convert.ToDateTime(Iterator(true)),
-					Roles = RoleArray(Iterator()),
+					Roles = ToRoleArray(Iterator()),
 					UnusualDMActivityUntil = Convert.ToDateTime(Iterator(true)),
 					User = new() {
 						ID = Convert.ToUInt64(Iterator(UserSkip: true)),

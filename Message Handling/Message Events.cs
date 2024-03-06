@@ -39,7 +39,7 @@ internal static class Events
 	/// </summary>
 	public static async ValueTask MessageDeleted(MessageDeleteEventArgs message)
 	{
-		Logging.AsClient($"The message with ID '{message.MessageId}' was deleted.");
+		Logging.AsDiscord($"The message with ID '{message.MessageId}' was deleted.");
 		await Task.CompletedTask;
 	}
 
@@ -50,7 +50,7 @@ internal static class Events
 	{
 		if (message.Content != null)
 		{
-			Logging.AsClient($"The message with ID '{message.Id}' was updated by {message.Author.Username} with the new content:");
+			Logging.AsDiscord($"The message with ID '{message.Id}' was updated by {message.Author.Username} with the new content:");
 		}
 		await Task.CompletedTask;
 	}

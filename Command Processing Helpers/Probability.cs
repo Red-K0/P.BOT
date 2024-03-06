@@ -100,6 +100,10 @@ public static class ProbabilityStateMachine
 	/// <param name="message"> The message to operate with. </param>
 	public static async void Run(Message message)
 	{
+		#if DEBUG
+		Stopwatch Timer = Stopwatch.StartNew();
+		#endif
+
 		try
 		{
 			CurrentMessage = message;
@@ -205,5 +209,10 @@ public static class ProbabilityStateMachine
 		JesusCount = RollCount = FaceCount = MinCount = Result = Mod = default;
 		Prefix = TempString = MainString = "";
 		Rolls = [];
+
+		#if DEBUG
+		Messages.Logging.AsVerbose($"Probability Processed [{Timer.ElapsedMilliseconds}ms]");
+		Timer.Reset();
+		#endif
 	}
 }

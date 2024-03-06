@@ -27,6 +27,10 @@ public sealed partial class SlashCommand
 	/// </summary>
 	public async partial Task GetAvatar(User user, ImageFormat format)
 	{
+		#if DEBUG_COMMAND
+		Stopwatch Timer = Stopwatch.StartNew();
+		#endif
+
 		user ??= Context.User;
 		MessageProperties msg_prop = Generate
 		(
@@ -41,6 +45,11 @@ public sealed partial class SlashCommand
 		);
 
 		await RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds, AllowedMentions = AllowedMentionsProperties.None }));
+
+		#if DEBUG_COMMAND
+		Messages.Logging.AsVerbose($"GetAvatar Completed [{Timer.ElapsedMilliseconds}ms]");
+		Timer.Reset();
+		#endif
 	}
 
 	#region Attributes
@@ -57,6 +66,10 @@ public sealed partial class SlashCommand
 	/// </summary>
 	public async partial Task GetDefinition(Definition.Choices term)
 	{
+		#if DEBUG_COMMAND
+		Stopwatch Timer = Stopwatch.StartNew();
+		#endif
+
 		Definition.Values.TryGetValue(term, out string? definition);
 		MessageProperties msg_prop = Generate
 		(
@@ -68,6 +81,11 @@ public sealed partial class SlashCommand
 		);
 
 		await RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds }));
+
+		#if DEBUG_COMMAND
+		Messages.Logging.AsVerbose($"GetDefinition Completed [{Timer.ElapsedMilliseconds}ms]");
+		Timer.Reset();
+		#endif
 	}
 
 	#region Attributes
@@ -91,6 +109,10 @@ public sealed partial class SlashCommand
 	/// </summary>
 	public async partial Task GetTranslation(string input, Translation.Choices source_lang, Translation.Choices target_lang)
 	{
+		#if DEBUG_COMMAND
+		Stopwatch Timer = Stopwatch.StartNew();
+		#endif
+
 		// Make sure the interaction doesn't time out
 		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
 
@@ -103,6 +125,11 @@ public sealed partial class SlashCommand
 			STD_COLOR
 		);
 		await Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
+
+		#if DEBUG_COMMAND
+		Messages.Logging.AsVerbose($"GetTranslation Completed [{Timer.ElapsedMilliseconds}ms]");
+		Timer.Reset();
+		#endif
 	}
 
 	#region Attributes
@@ -122,6 +149,10 @@ public sealed partial class SlashCommand
 	/// </summary>
 	public async partial Task GetWikiResult(string search_term, bool long_format)
 	{
+		#if DEBUG_COMMAND
+		Stopwatch Timer = Stopwatch.StartNew();
+		#endif
+
 		// Make sure the interaction doesn't time out
 		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
 		MessageProperties msg_prop = Generate
@@ -134,5 +165,10 @@ public sealed partial class SlashCommand
 		);
 
 		await Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
+
+		#if DEBUG_COMMAND
+		Messages.Logging.AsVerbose($"GetWikiResult Completed [{Timer.ElapsedMilliseconds}ms]");
+		Timer.Reset();
+		#endif
 	}
 }

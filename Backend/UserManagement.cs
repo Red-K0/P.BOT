@@ -4,6 +4,9 @@ namespace P_BOT;
 
 internal static partial class UserManagement
 {
+	[GeneratedRegex(",{\"member\"")]
+	private static partial Regex MemberCountRegex();
+
 	private static string MembersSearch = "";
 	public static Response[] MemberList = [];
 
@@ -12,18 +15,27 @@ internal static partial class UserManagement
 	/// </summary>
 	public static async void InitMembersSearch()
 	{
+		#if DEBUG
+		Stopwatch Timer = Stopwatch.StartNew();
+		#endif
+
 		Dictionary<string, int> dict = []; dict.Add("limit", 500);
 		JsonContent Content = JsonContent.Create(dict);
-		var x = await client.Rest.SendRequestAsync(HttpMethod.Post, Content, $"/guilds/{1131100534250680433}/members-search", resourceInfo: new TopLevelResourceInfo(1131100534250680433));
-		byte[] response = new byte[x.Length];
-		x.Read(response, 0, (int)x.Length);
-		MembersSearch = System.Text.Encoding.Default.GetString(response);
+		Stream x = await client.Rest.SendRequestAsync(HttpMethod.Post, Content, $"/guilds/{1131100534250680433}/members-search", resourceInfo: new TopLevelResourceInfo(1131100534250680433));
 
+		byte[] response = new byte[x.Length]; x.Read(response, 0, (int)x.Length);
+		await x.DisposeAsync();
+
+		MembersSearch = System.Text.Encoding.Default.GetString(response);
 		int max = MemberCountRegex().Matches(MembersSearch).Count + 2;
-		for (int i = 1; i < max; i++)
-		{
-			MemberList = [.. MemberList, GetMembersSearch(i)];
-		}
+		for (int i = 1; i < max; i++) MemberList = [.. MemberList, GetMembersSearch(i)];
+
+		MemberList = MemberList.Reverse().ToArray();
+
+		#if DEBUG
+		Messages.Logging.AsVerbose($"Member List Ready ({max} members loaded) [{Timer.ElapsedMilliseconds}ms]");
+		Timer.Reset();
+		#endif
 	}
 
 	/// <summary>
@@ -41,9 +53,25 @@ internal static partial class UserManagement
 			{
 				oldoffset = offset + 3;
 				offset = str.IndexOf(",{\"member\"", offset + 3);
+
+#if DEBUG_OFFSET
+			if (offset == -1) offset = str.Length;
+			Messages.Logging.AsVerbose($"Offset {i:D2} found at 0x{offset:X4}. Previous offset was at 0x{oldoffset:X4}.");
+#endif
 			}
 			oldoffset -= 2;
 			if (offset == -1) str = str[(oldoffset)..]; else str = str[oldoffset..offset];
+
+#if DEBUG_OFFSET
+			Messages.Logging.AsVerbose($"""
+
+				All {Member:D2} offsets calculated succesfully. Final result was between offsets 0x{oldoffset:X4} and 0x{offset:X4}. Result was:
+				{str}
+
+				Break (Y/N)?
+				""");
+			if (Console.ReadKey(true).Key == ConsoleKey.Y) Debugger.Break();
+#endif
 		}
 		str = str.Replace(",{\"member\"", ",\n\n{\"member\"");
 
@@ -167,7 +195,4 @@ internal static partial class UserManagement
 		public string AvatarDecorationData { get; set; }
 		public int BannerColor { get; set; }
 	}
-
-	[GeneratedRegex(",{\"member\"")]
-	private static partial Regex MemberCountRegex();
 }

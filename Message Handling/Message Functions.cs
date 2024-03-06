@@ -31,6 +31,10 @@ internal static class Functions
 	/// <param name="message"> The <see cref="MessageReactionAddEventArgs"/> containing the message to add to the starboard. </param>
 	public static async void AddToStarBoard(MessageReactionAddEventArgs message)
 	{
+		#if DEBUG_EVENTS
+		Stopwatch Timer = Stopwatch.StartNew();
+		#endif
+
 		const ulong STARBOARD = 1133836713194696744;
 
 		int StarCount = Convert.ToInt32(DataBackend.ReadMemory(DataBackend.Pages.Counters, 1).Result);
@@ -68,12 +72,21 @@ internal static class Functions
 		DataBackend.WriteMemory(DataBackend.Pages.Counters, 1, StarCount.ToString());
 
 		await client.Rest.SendMessageAsync(STARBOARD, msg_prop.WithContent("# " + new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10))));
+
+		#if DEBUG_EVENTS
+		Logging.AsVerbose($"Starboard Processed [{Timer.ElapsedMilliseconds}ms]");
+		Timer.Reset();
+		#endif
 	}
 
 	/// <summary> Parses a given <paramref name="message"/> to check for message links, and displays their content if possible. </summary>
 	/// <param name="message"> The <see cref="Message"/> object to check for and parse links in. </param>
 	public static async void ParseMessageLink(Message message)
 	{
+		#if DEBUG_EVENTS
+		Stopwatch Timer = Stopwatch.StartNew();
+		#endif
+
 		//HACK | The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
 		string Scan = message.Content; string CurrentScan; RestMessage LinkedMessage;
 		int LinkCount = (Scan.Length - Scan.Replace(SERVER_LINK, "").Length) / SERVER_LINK.Length;
@@ -108,6 +121,11 @@ internal static class Functions
 			await client.Rest.SendMessageAsync(message.ChannelId, msg_prop);
 			Scan = Scan.Remove(Scan.IndexOf(SERVER_LINK), 49 + CurrentScan.Length);
 		}
+
+		#if DEBUG_EVENTS
+		Logging.AsVerbose($"Link Parsed [{Timer.ElapsedMilliseconds}ms]");
+		Timer.Reset();
+		#endif
 	}
 
 	/// <summary> Monitors and deletes messages to avoid spam. </summary>

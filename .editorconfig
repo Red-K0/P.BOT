@@ -25,6 +25,9 @@ dotnet_diagnostic.RCS1001.severity = none
 # RCS1110: Declare type inside namespace
 dotnet_diagnostic.RCS1110.severity = none
 
+# RCS1003: Add braces to if-else (when expression spans over multiple lines)
+dotnet_diagnostic.RCS1003.severity = none
+
 [*.{cs,vb}]
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 tab_width = 4

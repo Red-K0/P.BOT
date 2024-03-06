@@ -30,7 +30,13 @@ internal static class DataBackend
 	/// <summary> Reads the content at a specific <paramref name="Line"/>, from the specified <paramref name="Page"/>. </summary>
 	/// <param name="Page"> The memory page to read the <paramref name="Line"/> from. </param>
 	/// <param name="Line"> The number of the line to read the contents of. </param>
-	public static async Task<string> ReadMemory(Pages Page, int Line) => (await File.ReadAllLinesAsync(PageSwitch(Page)))[Line];
+	public static async Task<string> ReadMemory(Pages Page, int Line)
+	{
+#if DEBUG_DISK
+		Messages.Logging.AsVerbose($"The value at line {Line} in page {Page} was read.");
+#endif
+		return (await File.ReadAllLinesAsync(PageSwitch(Page)))[Line];
+	}
 
 	/// <summary> Appends the given <paramref name="NewLine"/> to the end of the <paramref name="Page"/> specified. </summary>
 	/// <param name="Page"> The memory page to append the <paramref name="NewLine"/> to. </param>
@@ -39,6 +45,10 @@ internal static class DataBackend
 	{
 		string Path = PageSwitch(Page);
 		await File.WriteAllLinesAsync(Path, [.. File.ReadAllLines(Path), NewLine]);
+
+#if DEBUG_DISK
+		Messages.Logging.AsVerbose($"The value \"{NewLine}\" was appended to the end of the page {Page}.");
+#endif
 	}
 
 	/// <summary> Overwrites the data at <paramref name="Line"/> with the given <paramref name="NewValue"/>, at the specified <paramref name="Page"/>. </summary>
@@ -51,12 +61,28 @@ internal static class DataBackend
 		string[] STR = [.. File.ReadAllLines(Path)];
 		STR.SetValue(NewValue, Line);
 		await File.WriteAllLinesAsync(Path, STR);
+
+#if DEBUG_DISK
+		Messages.Logging.AsVerbose($"The value \"{NewValue}\" was written to the page {Page} at line {Line}");
+#endif
 	}
 
 	/// <summary> Gets the path of a given <paramref name="Page"/>. </summary>
 	/// <param name="Page"> The page to fetch the path to. </param>
 	private static string PageSwitch(Pages Page)
 	{
+#if DEBUG_DISK
+		string ReturnValue = Page switch
+		{
+			Pages.Counters => COUNTERS,
+			Pages.Starboard => STARBOARD,
+			Pages.PDB_ID => PDB_ID,
+			_ => throw new ArgumentException("You forgot to register the new memory file."),
+		};
+
+		Messages.Logging.AsVerbose($"Page {Page} at path \"{ReturnValue}\" was switched to successfully.");
+		return ReturnValue;
+#else
 		return Page switch
 		{
 			Pages.Counters => COUNTERS,
@@ -64,6 +90,7 @@ internal static class DataBackend
 			Pages.PDB_ID => PDB_ID,
 			_ => throw new ArgumentException("You forgot to register the new memory file."),
 		};
+#endif
 	}
 
 	/// <summary>

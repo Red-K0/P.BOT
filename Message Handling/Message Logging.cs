@@ -23,7 +23,7 @@ internal static class Logging
 		{
 			return;
 		}
-		AsSystem(ref message);
+		AsNetwork(ref message);
 		await Task.CompletedTask;
 	}
 
@@ -57,30 +57,42 @@ internal static class Logging
 	}
 
 	#region Special ID Writes
-	private const ulong SYSTEM_ID = 0, CLIENT_ID = 1;
-	private static void AsSystem(ref LogMessage message)
+	private const ulong NETWORK_ID = 0, DISCORD_ID = 1, VERBOSE_ID = 2;
+	private static void AsNetwork(ref LogMessage message)
 	{
-		if (LastAuthor != SYSTEM_ID)
+		if (LastAuthor != NETWORK_ID)
 		{
 			Console.Write('\n');
 		}
 
-		WriteColor("System: ", ConsoleColor.Green);
+		WriteColor("Network: ", ConsoleColor.Green);
 		Console.WriteLine(message.Message);
 
-		LastAuthor = SYSTEM_ID;
+		LastAuthor = NETWORK_ID;
 	}
-	public  static void AsClient(string message)
+	public  static void AsDiscord(string message)
 	{
-		if (LastAuthor != CLIENT_ID)
+		if (LastAuthor != DISCORD_ID)
 		{
 			Console.Write('\n');
 		}
-		WriteColor("Client: ", ConsoleColor.Red);
+		WriteColor("Discord: ", ConsoleColor.Blue);
 		Console.WriteLine(message);
 
-		LastAuthor = CLIENT_ID;
+		LastAuthor = DISCORD_ID;
 	}
+	public  static void AsVerbose(string message)
+	{
+		if (LastAuthor != VERBOSE_ID)
+		{
+			Console.Write('\n');
+		}
+		WriteColor("Command: ", ConsoleColor.Red);
+		Console.WriteLine(message);
+
+		LastAuthor = VERBOSE_ID;
+	}
+
 	private static void WriteColor(string content, ConsoleColor color)
 	{
 		Console.ForegroundColor = color;

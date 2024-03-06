@@ -1,6 +1,5 @@
 ﻿// The helper class supporting the /wikidefine command.
 
-using NetCord.Services.ApplicationCommands;
 namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary>

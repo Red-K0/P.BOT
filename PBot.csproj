@@ -61,6 +61,7 @@
     <Using Include="NetCord.Gateway" />
     <Using Include="NetCord.Rest" />
     <Using Include="P_BOT" />
+    <Using Include="System.Diagnostics" />
   </ItemGroup>
 
   <ItemGroup>

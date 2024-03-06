@@ -33,6 +33,10 @@ public sealed partial class SlashCommand
 	/// </summary>
 	public async partial Task CreatePost(string content, Attachment? image, bool anonymous, bool draft)
 	{
+		#if DEBUG_COMMAND
+		Stopwatch Timer = Stopwatch.StartNew();
+		#endif
+
 		// Make sure the interaction doesn't time out
 		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
@@ -70,5 +74,10 @@ public sealed partial class SlashCommand
 				Flags = MessageFlags.Ephemeral
 			});
 		}
+
+		#if DEBUG_COMMAND
+		Messages.Messages.Logging.AsVerbose($"CreatePost Completed [{Timer.ElapsedMilliseconds}ms]");
+		Timer.Reset();
+		#endif
 	}
 }

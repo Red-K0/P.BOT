@@ -1,6 +1,10 @@
 ﻿using NetCord.Services.ApplicationCommands;
 using P_BOT.Messages;
 
+#if DEBUG
+Stopwatch Timer = Stopwatch.StartNew();
+#endif
+
 #region Event Handlers
 client.Log += Logging.Log;
 client.MessageCreate += Events.MessageCreated;
@@ -29,6 +33,11 @@ client.InteractionCreate += async interaction =>
 		_ = await applicationCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client));
 	}
 };
+
+#if DEBUG
+Logging.AsVerbose($"Startup Complete [{Timer.ElapsedMilliseconds}ms]");
+Timer.Reset();
+#endif
 
 await Task.Delay(Timeout.Infinite);
 #endregion

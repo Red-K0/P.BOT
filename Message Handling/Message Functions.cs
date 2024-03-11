@@ -88,7 +88,7 @@ internal static class Functions
 		#endif
 
 		//HACK | The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
-		string Scan = message.Content; string CurrentScan; RestMessage LinkedMessage;
+		string Scan = message.Content; string CurrentScan; RestMessage LinkedMessage; ulong ChannelID, MessageID;
 		int LinkCount = (Scan.Length - Scan.Replace(SERVER_LINK, "").Length) / SERVER_LINK.Length;
 		for (int i = 0; i < LinkCount; i++)
 		{
@@ -102,12 +102,13 @@ internal static class Functions
 			{
 				CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
 			}
+			if (CurrentScan.Contains('/'))
+			{
+				if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.IndexOf('/')), out ChannelID)) return;
+			}
+			else return;
 
-			if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.IndexOf('/')),
-				out ulong ChannelID)) return;
-
-			if (!ulong.TryParse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..].Replace('/','\0'),
-				out ulong MessageID)) return;
+			if (!ulong.TryParse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..].Replace('/','\0'), out MessageID)) return;
 
 			LinkedMessage = await client.Rest.GetMessageAsync(ChannelID, MessageID, null);
 

@@ -51,7 +51,8 @@ public sealed partial class SlashCommand
 			CreateAuthorObject($"Posted by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			DateTime.Now,
 			CreateFooterObject($"Post ID: {InternalPostID}"),
-			ImageURL: new(image?.Url)
+			ImageURL: new(image?.Url),
+			CallerID: Context.User.Id
 		);
 
 		if (draft)

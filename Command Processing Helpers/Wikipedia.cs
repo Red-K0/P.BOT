@@ -1,11 +1,13 @@
 ﻿// The helper class supporting the /wikidefine command.
 
+using System.Text.RegularExpressions;
+
 namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary>
 /// Contains the Wikipedia API constant, as well as the method responsible for page retrieval.
 /// </summary>
-public static class Wikipedia
+public static partial class Wikipedia
 {
 	/// <summary>
 	/// The URL and preset parameters for the Wikipedia content API.
@@ -38,38 +40,8 @@ public static class Wikipedia
 		// Limit the response to 4096 characters if it's longer, appending a '...' in place of the final 3 characters as clarification.
 		if (Response.Length > 4096) Response = Response[..4093] + "...";
 
-		// Convert the response to an array of chars.
-		char[] CharArray = Response.ToCharArray();
-
 		// Fix for escape characters in raw text, such as "\u2014" instead of '—' (U+2014 | Em Dash).
-		for (int i = 0; i < CharArray.Length - 1; i++)
-		{
-			// If a raw text unicode identifier is present (\u****).
-			if (CharArray[i] == '\\' && CharArray[i + 1] == 'u')
-			{
-				// Get the chars present after "\u", and merge them into one identifier.
-				string Identifier = CharArray[i + 2].ToString()
-								  + CharArray[i + 3].ToString()
-								  + CharArray[i + 4].ToString()
-								  + CharArray[i + 5].ToString();
-
-				// Convert the Identifier into a char value, and replace the '\' w
-				// ith it.
-				CharArray[i] = Convert.ToChar(int.Parse(Identifier, System.Globalization.NumberStyles.HexNumber));
-
-				// Replace the 'u' and identifier characters with null '\0' characters.
-				CharArray[i + 1] = '\0';
-				CharArray[i + 2] = '\0';
-				CharArray[i + 3] = '\0';
-				CharArray[i + 4] = '\0';
-				CharArray[i + 5] = '\0';
-			}
-		}
-
-		// Horrible hack to make the conversion faster.
-		// Stores the array in the response variable temporarily to remove null characters.
-		Response = new(CharArray);
-		Response = Response.Replace("\0", "");
+		Response = Parsing.EscapedUnicode(Response);
 
 		// Copy char array to string array.
 		string[] StringArray = new string[Response.Length];
@@ -80,7 +52,7 @@ public static class Wikipedia
 		{
 			// Fix for the '[1]' bug, where a citation replaces a necessary newline.
 			// Avoids scenarios such as the following: "This paragraph ends here.[1]This one starts here."
-			if (StringArray[i] == "." && StringArray[i + 1] is not (" " or " " or "." or ":" or "\\") && StringArray[i + 1][0] - 30 < 10 && StringArray[i + 2] != ".")
+			if (StringArray[i] == "." && StringArray[i + 1] is not (" " or " " or "." or ":" or "\\") && Alphanumeric().IsMatch(StringArray[i + 1]) && StringArray[i + 2] != ".")
 			{
 				StringArray[i] = ".\n\n";
 			}
@@ -105,4 +77,7 @@ public static class Wikipedia
 
 		return Response;
 	}
+
+	[GeneratedRegex("[A-Z0-9]?")]
+	private static partial Regex Alphanumeric();
 }

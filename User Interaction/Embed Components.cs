@@ -35,4 +35,15 @@ internal static partial class Embeds
 		Text = FooterText,
 		IconUrl = IconURL,
 	};
+
+	/// <summary> Creates an <see cref="EmbedFieldProperties"/> object for use in an <see cref="Embed"/>. </summary>
+	/// <param name="Name"> The <see cref="string"/> to display at the field title, used for the <see cref="EmbedFieldProperties.Name"/> property. </param>
+	/// <param name="Value"> The <see cref="string"/> to display in the field, used for the <see cref="EmbedFieldProperties.Value"/> property. </param>
+	/// <param name="Inline"> Whether or not to display the field inline. </param>
+	public static EmbedFieldProperties CreateFieldObject(string? Name = null, string? Value = null, bool Inline = false) => new()
+	{
+		Inline = Inline,
+		Name = Name,
+		Value = Value
+	};
 }

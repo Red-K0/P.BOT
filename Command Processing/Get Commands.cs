@@ -27,21 +27,29 @@ public sealed partial class SlashCommand
 	/// </summary>
 	public async partial Task GetAvatar(User user, ImageFormat format)
 	{
+		const ulong BOT_ID = 1169031557848252516;
 		#if DEBUG_COMMAND
 		Stopwatch Timer = Stopwatch.StartNew();
-		#endif
+#endif
+
 
 		user ??= Context.User;
-		MessageProperties msg_prop = Generate
+		MessageProperties msg_prop = (user.Id == BOT_ID) ?
+		Generate
+		(
+			$"Sure, Sure, [here]({ASSETS}/Bot%20Icon.png) is my avatar"
+		) :
+		Generate
 		(
 			user.HasAvatar ?
-			$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar " :
+			$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar" :
 			$"Sorry, <@{user.Id}> does not currently have an avatar set, [here]({user.DefaultAvatarUrl}) is the default discord avatar",
 
 			CreateAuthorObject($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
 			DateTimeOffset.UtcNow,
 			ReplyTo: Context.User.Id,
-			ImageURL: new(user.GetAvatarUrl(format).ToString())
+			ImageURL: new(user.GetAvatarUrl(format).ToString()),
+			CallerID: user.Id
 		);
 
 		await RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds, AllowedMentions = AllowedMentionsProperties.None }));

@@ -5,6 +5,7 @@
 
 using NetCord.Services.ApplicationCommands;
 using P_BOT.Command_Processing.Helpers;
+using static P_BOT.UserManagement;
 
 namespace P_BOT.Command_Processing;
 
@@ -62,5 +63,57 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 			case Options.Modules.DnDTextModule: Options.DnDTextModule ^= true; result = Options.DnDTextModule; break;
 		}
 		await RespondAsync(InteractionCallback.Message(result ? $"The module '{module}' has been successfully enabled." : $"The module '{module}' has been successfully disabled."));
+	}
+
+	#region Attributes
+	[SlashCommand("userdata", "Gets a specific user")]
+	public partial Task DumpUserInfo
+	(
+		[SlashCommandParameter(MinValue = 1)]
+		int number
+	);
+	#endregion
+
+	/// <summary>
+	/// Dumps user info.
+	/// </summary>
+	public async partial Task DumpUserInfo(int number) // TODO | Proper details
+	{
+		if (number > UserList.Length) { await RespondAsync(InteractionCallback.Message($"There are only {UserList.Length} members in the PPP.")); return; }
+		UserObject User = UserList[number - 1];
+
+		EmbedFieldProperties[] FieldArray =
+		[
+			Embeds.CreateFieldObject("User", $"<@{User.ID}>", true),
+			Embeds.CreateFieldObject("ID", User.ID.ToString(), true),
+			Embeds.CreateFieldObject(Inline: false),
+
+			Embeds.CreateFieldObject("Joined", $"<t:{Microsoft.IdentityModel.Tokens.EpochTime.GetIntDate(User.Server.JoinedAt.ToUniversalTime())}>", true),
+			Embeds.CreateFieldObject("Verified", User.Server.Verified.ToString(), true),
+			Embeds.CreateFieldObject(Inline: false),
+
+			Embeds.CreateFieldObject("Invited by", User.Invite.SenderID != 0 ? $"<@{User.Invite.SenderID}>" : "Unknown", true),
+			Embeds.CreateFieldObject("Invite link", User.Invite.Code != "false" ? $"https://discord.gg/{User.Invite.Code}" : "None", true),
+			Embeds.CreateFieldObject(Inline: false),
+
+			Embeds.CreateFieldObject("Personal Role", User.Customization.PersonalRole == 0 ? "None" : $"<@&{User.Customization.PersonalRole}>")
+		];
+		MessageProperties msg_prop = Embeds.Generate
+		(
+			$"AKA - {User.Username}" + (User.GlobalName?.Length != 0 ? $", {User.GlobalName}" : ""),
+			null,
+			null,
+			Embeds.CreateFooterObject($"User requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			-1,
+			Context.User.Id,
+			null,
+			ImageUrl.UserAvatar(User.ID, User.Customization.AvatarHash, ImageFormat.Png).ToString(),
+			User.Server.Nickname?.Length != 0 ? User.Server.Nickname : User.GlobalName?.Length !=0 ? User.GlobalName : User.Username,
+			null,
+			false,
+			FieldArray,
+			User.ID
+		);
+		await RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds }));
 	}
 }

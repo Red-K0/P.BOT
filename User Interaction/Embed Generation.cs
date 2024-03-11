@@ -1,4 +1,6 @@
-﻿namespace P_BOT;
+﻿using static P_BOT.UserManagement;
+
+namespace P_BOT;
 
 /// <summary>
 /// Contains functions for the creation of embeds.
@@ -17,9 +19,13 @@ internal static partial class Embeds
 	/// <param name="Title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="TitleURL"/>, has a 256 character limit. </param>
 	/// <param name="TitleURL"> A link to an address of a webpage. When set, the <paramref name="Title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
 	/// <param name="Ephemeral"> Creates an ephemeral message when set to true.</param>
+	/// <param name="FieldObjects"> Contains an array of <see cref="EmbedField"/>s to include in the embed </param>
+	/// <param name="CallerID"> The ID of the user responsible for the embed's creation. </param>
 	/// <returns> <see cref="MessageProperties"/> containing the created embed. </returns>
-	public static MessageProperties Generate(string? Description = null, EmbedAuthorProperties? AuthorObject = null, DateTimeOffset? Timestamp = null, EmbedFooterProperties? FooterObject = null,int RGB = -1, ulong ReplyTo = 0, string? ImageURL = null, string? ThumbnailURL = null, string? Title = null, string? TitleURL = null, bool Ephemeral = false)
+	public static MessageProperties Generate(string? Description = null, EmbedAuthorProperties? AuthorObject = null, DateTimeOffset? Timestamp = null, EmbedFooterProperties? FooterObject = null,int RGB = -1, ulong ReplyTo = 0, string? ImageURL = null, string? ThumbnailURL = null, string? Title = null, string? TitleURL = null, bool Ephemeral = false, EmbedFieldProperties[]? FieldObjects = null, ulong CallerID = 0)
 	{
+		if (RGB == -1) RGB = UserList[GetIndexOfUser(CallerID)].Customization.PersonalRoleColor;
+
 		EmbedProperties embed_prop = new()
 		{
 			Author = AuthorObject,
@@ -30,7 +36,8 @@ internal static partial class Embeds
 			Timestamp = Timestamp,
 			Title = Title,
 			Thumbnail = new(ThumbnailURL),
-			Url = TitleURL
+			Url = TitleURL,
+			Fields = FieldObjects
 		};
 		return new()
 		{
@@ -61,7 +68,8 @@ internal static partial class Embeds
 			ReplyTo: ReplyTo ?? 0,
 			ImageURL: TargetMessage.Attachments.Any() ? TargetMessage.Attachments.Values.ToArray()[i].Url : null,
 			Title: Title,
-			TitleURL: TitleURL
+			TitleURL: TitleURL,
+			CallerID: TargetMessage.Author.Id
 			).Embeds!);
 		}
 

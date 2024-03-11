@@ -6,18 +6,18 @@ internal static partial class UserManagement
 {
 	[GeneratedRegex(",{\"member\"")]
 	private static partial Regex MemberCountRegex();
-
 	private static string MembersSearch = "";
-	public static Response[] MemberList = [];
+	private static Response[] WorkingArray = [];
+	public  static UserObject[] UserList = [];
 
 	/// <summary>
 	/// Initializes the class with data from the <c>members_search</c> endpoint.
 	/// </summary>
 	public static async void InitMembersSearch()
 	{
-		#if DEBUG
+#if DEBUG
 		Stopwatch Timer = Stopwatch.StartNew();
-		#endif
+#endif
 
 		Dictionary<string, int> dict = []; dict.Add("limit", 500);
 		JsonContent Content = JsonContent.Create(dict);
@@ -28,20 +28,38 @@ internal static partial class UserManagement
 
 		MembersSearch = System.Text.Encoding.Default.GetString(response);
 		int max = MemberCountRegex().Matches(MembersSearch).Count + 2;
-		for (int i = 1; i < max; i++) MemberList = [.. MemberList, GetMembersSearch(i)];
+		for (int i = 1; i < max; i++)
+		{
+			WorkingArray = [.. WorkingArray, GetMembersSearch(i)];
+		}
 
-		MemberList = MemberList.Reverse().ToArray();
+		// Unicode Escape Repair
+		for (int i = 0; i < WorkingArray.Length; i++)
+		{
+			Member @Member = WorkingArray[i].Member;
+			User @User = Member.User;
 
-		#if DEBUG
+			Member.Nick = Parsing.EscapedUnicode(Member.Nick);
+			User.Username = Parsing.EscapedUnicode(User.Username);
+			User.GlobalName = Parsing.EscapedUnicode(User.GlobalName);
+
+			Member.User = User;
+			WorkingArray[i].Member = Member;
+		}
+
+		WorkingArray = WorkingArray.Reverse().ToArray();
+		ListConverter();
+
+#if DEBUG
 		Messages.Logging.AsVerbose($"Member List Ready ({max} members loaded) [{Timer.ElapsedMilliseconds}ms]");
 		Timer.Reset();
-		#endif
+#endif
 	}
 
 	/// <summary>
 	/// Gets the relevant Response object for a specified server member.
 	/// </summary>
-	public static Response GetMembersSearch(int Member = -1)
+	private static Response GetMembersSearch(int Member = -1)
 	{
 		string str = MembersSearch;
 		str = str[(str.IndexOf('[') + 1)..str.LastIndexOf(']')];
@@ -60,7 +78,7 @@ internal static partial class UserManagement
 #endif
 			}
 			oldoffset -= 2;
-			if (offset == -1) str = str[(oldoffset)..]; else str = str[oldoffset..offset];
+			str = offset == -1 ? str[oldoffset..] : str[oldoffset..offset];
 
 #if DEBUG_OFFSET
 			Messages.Logging.AsVerbose($"""
@@ -79,25 +97,33 @@ internal static partial class UserManagement
 
 		static Response Parse(string str)
 		{
-			string Iterator(bool Date = false, bool UserSkip = false, bool AvatarSkip = false, bool Assets = false)
+			string? Iterator(bool Date = false, bool UserSkip = false, bool AvatarSkip = false, bool Assets = false)
 			{
 				string response;
-				if    (UserSkip) str = str[(str.IndexOf(':') + 1)..];
-				if (!AvatarSkip) str = str[(str.IndexOf(':') + 1)..];
+				if (UserSkip)
+				{
+					str = str[(str.IndexOf(':') + 1)..];
+				}
 
-				if (!Assets && str.Contains(',')) response = str.Remove(str.IndexOf(','));
-				else
-				if (Assets) { response = str.Remove(str.IndexOf(",\"b")); }
-				else
-				response = str;
+				if (!AvatarSkip)
+				{
+					str = str[(str.IndexOf(':') + 1)..];
+				}
+
+				response = !Assets && str.Contains(',') ? str.Remove(str.IndexOf(',')) : Assets ? str.Remove(str.IndexOf(",\"b")) : str;
 
 				response = response.Replace("}", "");
-				if (Date && response.Contains(':')) str = str[str.IndexOf(',')..];
+				if (Date && response.Contains(':'))
+				{
+					str = str[str.IndexOf(',')..];
+				}
 
-				if (Assets && response.Contains("sku_id")) str = str[(str.IndexOf(",\"b") + 10)..];
+				if (Assets && response.Contains("sku_id"))
+				{
+					str = str[(str.IndexOf(",\"b") + 10)..];
+				}
 
-				if (response.Equals("null", StringComparison.Ordinal)) return null!;
-				return response.Replace("\"", "");
+				return response.Equals("null", StringComparison.Ordinal) ? null : response.Replace("\"", "");
 			}
 			ulong[] ToRoleArray(string setstring)
 			{
@@ -122,10 +148,14 @@ internal static partial class UserManagement
 			// Trimming of members header.
 			str = str[20..];
 
+			#pragma warning disable CS8601, CS8604
+
 			// Use Iterator() to parse the entire response into a Response object.
-			return new() {
-				Member = new() {
-					Avatar = Iterator(AvatarSkip: true),
+			return new()
+			{
+				Member = new()
+				{
+					AvatarHash = Iterator(AvatarSkip: true),
 					CommunicationDisabledUntil = Convert.ToDateTime(Iterator(true)),
 					Flags = Convert.ToInt32(Iterator()),
 					JoinedAt = Convert.ToDateTime(Iterator(true)),
@@ -134,10 +164,11 @@ internal static partial class UserManagement
 					PremiumSince = Convert.ToDateTime(Iterator(true)),
 					Roles = ToRoleArray(Iterator()),
 					UnusualDMActivityUntil = Convert.ToDateTime(Iterator(true)),
-					User = new() {
+					User = new()
+					{
 						ID = Convert.ToUInt64(Iterator(UserSkip: true)),
 						Username = Iterator(),
-						Avatar = Iterator(),
+						AvatarHash = Iterator(),
 						Discriminator = Convert.ToInt32(Iterator()),
 						PublicFlags = Convert.ToInt32(Iterator()),
 						PremiumType = Convert.ToInt32(Iterator()),
@@ -155,44 +186,85 @@ internal static partial class UserManagement
 				JoinSourceType = Convert.ToInt32(Iterator()),
 				InviterID = Convert.ToUInt64(Iterator()),
 			};
+
+#pragma warning restore
 		}
 	}
 
-	public struct Response
+	public static void ListConverter()
 	{
-		public Member Member { get; set; }
-		public string SourceInviteCode { get; set; }
-		public int JoinSourceType { get; set; }
-		public ulong InviterID { get; set; }
+		IReadOnlyDictionary<ulong, Role> Roles = client.Rest.GetGuildRolesAsync(Convert.ToUInt64(SERVER_LINK[29..^1])).Result;
+
+		for (int i = 0; i < WorkingArray.Length; i++)
+		{
+			Response OldUser = WorkingArray[i];
+			User @User = OldUser.Member.User;
+			Member @Member = OldUser.Member;
+			UserObject NewUser = new()
+			{
+				ID = User.ID,
+				Username = User.Username,
+				Discriminator = User.Discriminator,
+				GlobalName = User.GlobalName,
+
+				Customization = new()
+				{
+					AccentColor = User.AccentColor,
+					AvatarDecorationData = User.AvatarDecorationData,
+					AvatarHash = User.AvatarHash,
+					Banner = User.Banner,
+					BannerColor = User.BannerColor
+				},
+				Invite = new()
+				{
+					Code = OldUser.SourceInviteCode,
+					SenderID = OldUser.InviterID,
+					Type = OldUser.JoinSourceType
+				},
+				Server = new()
+				{
+					AvatarHash = Member.AvatarHash,
+					Flags = (Flags)Member.Flags,
+					IsVCDeafened = Member.Deaf,
+					IsVCMuted = Member.Mute,
+					MutedUntil = Member.CommunicationDisabledUntil,
+					JoinedAt = Member.JoinedAt,
+					Nickname = Member.Nick,
+					NitroSince = Member.PremiumSince,
+					Roles = Member.Roles,
+					UnusualDMActivityUntil = Member.UnusualDMActivityUntil,
+					Verified = Member.Pending
+				},
+
+				PublicFlags = (PublicFlags)User.PublicFlags,
+				PremiumType = (PremiumType)User.PremiumType,
+			};
+
+			// If the user is a bot, retain their default role.
+			ulong PersonalRole = (User.Discriminator == 0) ? 0 : NewUser.Server.Roles[0];
+
+			// If the user is a founder, apply their unique founder role.
+			if (FounderIDs.Contains(NewUser.ID)) PersonalRole = FounderRoleIDs[Array.IndexOf(FounderIDs, User.ID)];
+
+			// Modify struct with new personal role.
+			Customization TempCustom = NewUser.Customization;
+			TempCustom.PersonalRole = PersonalRole;
+
+			TempCustom.PersonalRoleColor = (PersonalRole != 0 && Roles.TryGetValue(PersonalRole, out Role? TempRole)) ? TempRole.Color.RawValue : -1;
+			if (TempCustom.PersonalRoleColor == 0) TempCustom.PersonalRoleColor = -1;
+
+			NewUser.Customization = TempCustom;
+
+			UserList = [.. UserList, NewUser];
+		}
+
+		// Empty working array.
+		WorkingArray = [];
 	}
-	public struct Member
+
+	public static int GetIndexOfUser(ulong ID)
 	{
-		public string Avatar { get; set; }
-		public DateTime CommunicationDisabledUntil { get; set; }
-		public int Flags { get; set; }
-		public DateTime JoinedAt { get; set; }
-		public string Nick { get; set; }
-		public bool Pending { get; set; }
-		public DateTime PremiumSince { get; set; }
-		public ulong[] Roles { get; set; }
-		public DateTime UnusualDMActivityUntil { get; set; }
-		public User User { get; set; }
-		public bool Mute { get; set; }
-		public bool Deaf { get; set; }
-	}
-	public struct User
-	{
-		public ulong ID { get; set; }
-		public string Username { get; set; }
-		public string Avatar { get; set; }
-		public int Discriminator { get; set; }
-		public int PublicFlags { get; set; }
-		public int Flags { get; set; }
-		public int PremiumType { get; set; }
-		public string Banner { get; set; }
-		public int AccentColor { get; set; }
-		public string GlobalName { get; set; }
-		public string AvatarDecorationData { get; set; }
-		public int BannerColor { get; set; }
+		for (int i = 0; i < UserList.Length; i++) if (UserList[i].ID == ID) return i;
+		throw new ArgumentException("This user is not in the member list.");
 	}
 }

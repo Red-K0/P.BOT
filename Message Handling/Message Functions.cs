@@ -93,18 +93,13 @@ internal static class Functions
 		for (int i = 0; i < LinkCount; i++)
 		{
 			CurrentScan = Scan[(Scan.IndexOf(SERVER_LINK) + 49)..];
-			if (CurrentScan.Contains(' '))
-			{
-				CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf(' '));
-			}
 
-			if (CurrentScan.Contains('\n'))
-			{
-				CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
-			}
+			CurrentScan = CurrentScan.Remove(' ',  0);
+			CurrentScan = CurrentScan.Remove('\n', 0);
+
 			if (CurrentScan.Contains('/'))
 			{
-				if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.IndexOf('/')), out ChannelID)) return;
+				if (!ulong.TryParse(CurrentScan.Remove('/'), out ChannelID)) return;
 			}
 			else return;
 
@@ -120,7 +115,7 @@ internal static class Functions
 				message.Id
 			);
 			await client.Rest.SendMessageAsync(message.ChannelId, msg_prop);
-			Scan = Scan.Remove(Scan.IndexOf(SERVER_LINK), 49 + CurrentScan.Length);
+			Scan = Scan.Remove(SERVER_LINK, 49 + CurrentScan.Length);
 		}
 
 		#if DEBUG_EVENTS

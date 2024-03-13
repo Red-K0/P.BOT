@@ -3,6 +3,7 @@
 // An example of these commands are the SystemsCheck() command, which queries the current state of the bot.
 // Commands in this file should be minimal and concise, as well as being able to run entirely locally.
 
+using Microsoft.IdentityModel.Tokens;
 using NetCord.Services.ApplicationCommands;
 using P_BOT.Command_Processing.Helpers;
 using static P_BOT.UserManagement;
@@ -82,38 +83,84 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 		if (number > UserList.Length) { await RespondAsync(InteractionCallback.Message($"There are only {UserList.Length} members in the PPP.")); return; }
 		UserObject User = UserList[number - 1];
 
-		EmbedFieldProperties[] FieldArray =
-		[
-			Embeds.CreateFieldObject("User", $"<@{User.ID}>", true),
-			Embeds.CreateFieldObject("ID", User.ID.ToString(), true),
-			Embeds.CreateFieldObject(Inline: false),
+		string Roles = "";
+		for (int i = 0; i < User.Server.Roles.Length; i++)
+		{
+			if (IsEventRole(User.Server.Roles[i]))
+			{
+				Roles += User.Server.Roles[i] switch
+				{
+					SixMonthAnniversary => $"\n<@&{SixMonthAnniversary}> \n- Attended the 6-Month Server Anniversary",
+					SecretSanta2023 => $"\n<@&{SecretSanta2023}> \n- Sent a Secret Santa Gift in 2023",
+					HyakkanoEnjoyer => $"\n<@&{HyakkanoEnjoyer}> \n- Read the first 50 Chapters of 100 Girlfriends",
+					_ => ""
+				};
+			}
+		}
 
-			Embeds.CreateFieldObject("Joined", $"<t:{Microsoft.IdentityModel.Tokens.EpochTime.GetIntDate(User.Server.JoinedAt.ToUniversalTime())}>", true),
-			Embeds.CreateFieldObject("Verified", User.Server.Verified.ToString(), true),
-			Embeds.CreateFieldObject(Inline: false),
+		string NitroType = User.PremiumType switch
+		{
+			UserManagement.PremiumType.NitroClassic => "Classic",
+			UserManagement.PremiumType.Nitro => "Standard",
+			UserManagement.PremiumType.NitroBasic => "Basic",
+			_ => "None"
+		};
 
-			Embeds.CreateFieldObject("Invited by", User.Invite.SenderID != 0 ? $"<@{User.Invite.SenderID}>" : "Unknown", true),
-			Embeds.CreateFieldObject("Invite link", User.Invite.Code != "false" ? $"https://discord.gg/{User.Invite.Code}" : "None", true),
-			Embeds.CreateFieldObject(Inline: false),
+		string? DisplayName = User.Server.Nickname?.Length != 0 ? User.Server.Nickname : User.GlobalName?.Length != 0 ? User.GlobalName : User.Username;
 
-			Embeds.CreateFieldObject("Personal Role", User.Customization.PersonalRole == 0 ? "None" : $"<@&{User.Customization.PersonalRole}>")
-		];
+		string AKAstring = "`AKA` "; bool DisplayAKA = false;
+		if (User.Username != DisplayName)
+		{
+			AKAstring += $"{User.Username}, ";
+			DisplayAKA = true;
+		}
+		if (User.GlobalName != DisplayName && !string.IsNullOrWhiteSpace(User.GlobalName))
+		{
+			AKAstring += $"{User.GlobalName}";
+			DisplayAKA = true;
+		}
+		else
+		{
+			AKAstring = AKAstring[..^2];
+		}
+
 		MessageProperties msg_prop = Embeds.Generate
 		(
-			$"AKA - {User.Username}" + (User.GlobalName?.Length != 0 ? $", {User.GlobalName}" : ""),
+			DisplayAKA ? Parsing.MDLiteral(AKAstring) : "",
 			null,
 			null,
-			Embeds.CreateFooterObject($"User requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			Embeds.CreateFooterObject($"User requested by {Context.User.Username}", $"{Context.User.GetAvatarUrl()}"),
 			-1,
 			Context.User.Id,
 			null,
-			ImageUrl.UserAvatar(User.ID, User.Customization.AvatarHash, ImageFormat.Png).ToString(),
-			User.Server.Nickname?.Length != 0 ? User.Server.Nickname : User.GlobalName?.Length !=0 ? User.GlobalName : User.Username,
+			(User.Customization.AvatarHash != null) ?
+			ImageUrl.UserAvatar(User.ID, User.Customization.AvatarHash, ImageFormat.Png).ToString() : ImageUrl.DefaultUserAvatar(User.ID).ToString(),
+			DisplayName,
 			null,
 			false,
-			FieldArray,
+			#region Fields
+			[
+			Embeds.CreateFieldObject("User", $"<@{User.ID}>", true),
+			Embeds.CreateFieldObject("Tag", User.Discriminator == 0 ? "None" : $"#{User.Discriminator}", true),
+			Embeds.CreateFieldObject("ID", User.ID.ToString(), true),
+			Embeds.CreateFieldObject("Joined", $"<t:{EpochTime.GetIntDate(User.Server.JoinedAt.ToUniversalTime())}>", true),
+			Embeds.CreateFieldObject("Verified", User.Server.Verified.ToString(), true),
+			Embeds.CreateFieldObject("PPP Founder", IsFounder(User.ID) ? "True" : "False", true),
+			Embeds.CreateFieldObject("Timed Out Until", User.Server.MutedUntil < DateTime.Now ? "No Timeout" : $"<t:{EpochTime.GetIntDate(User.Server.MutedUntil.ToUniversalTime())}>", true),
+			Embeds.CreateFieldObject("Muted", User.Server.IsVCMuted ? "True" : "False", true),
+			Embeds.CreateFieldObject("Deafened", User.Server.IsVCDeafened ? "True" : "False", true),
+			Embeds.CreateFieldObject("Invite Code", User.Invite.Code != "false" ? User.Invite.Code : "None", true),
+			Embeds.CreateFieldObject("Invited by", User.Invite.SenderID != 0 ? $"<@{User.Invite.SenderID}>" : "Unknown", true),
+			Embeds.CreateFieldObject("Personal Role", User.Customization.PersonalRole == 0 ? "None" : $"<@&{User.Customization.PersonalRole}>", true),
+			Embeds.CreateFieldObject("Personal Role Color", User.Customization.PersonalRoleColor == -1 ? "None" : $"#{User.Customization.PersonalRoleColor:X6}", true),
+			Embeds.CreateFieldObject("Nitro Type", NitroType, true),
+			Embeds.CreateFieldObject("Boosting Since", User.Server.NitroSince != DateTime.MinValue ? $"<t:{EpochTime.GetIntDate(User.Server.NitroSince.ToUniversalTime())}>" : "Not Boosting", true),
+			Embeds.CreateFieldObject(Inline: false),
+			Embeds.CreateFieldObject("Accolades", Roles.Length != 0 ? Roles : "None", false),
+			],
+			#endregion
 			User.ID
 		);
-		await RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds }));
+		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
 	}
 }

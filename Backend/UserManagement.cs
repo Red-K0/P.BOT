@@ -97,9 +97,18 @@ internal static partial class UserManagement
 
 		static Response Parse(string str)
 		{
-			string? Iterator(bool Date = false, bool UserSkip = false, bool AvatarSkip = false, bool Assets = false)
+			string? Iterator(bool Date = false, bool UserSkip = false, bool AvatarSkip = false, bool Assets = false, bool RoleSkip = false)
 			{
 				string response;
+
+				if (RoleSkip)
+				{
+					response = str[str.IndexOf('[')..];
+					response = response.Remove(']', 1);
+					str = str[(str.IndexOf("],")+2)..];
+					return response;
+				}
+
 				if (UserSkip)
 				{
 					str = str[(str.IndexOf(':') + 1)..];
@@ -110,7 +119,7 @@ internal static partial class UserManagement
 					str = str[(str.IndexOf(':') + 1)..];
 				}
 
-				response = !Assets && str.Contains(',') ? str.Remove(str.IndexOf(',')) : Assets ? str.Remove(str.IndexOf(",\"b")) : str;
+				response = !Assets && str.Contains(',') ? str.Remove(',', 0) : Assets ? str.Remove(",\"b", 0) : str;
 
 				response = response.Replace("}", "");
 				if (Date && response.Contains(':'))
@@ -130,11 +139,14 @@ internal static partial class UserManagement
 				ulong[] Roles = [];
 				setstring = setstring[1..^1];
 
-				for (int i = 0; i < setstring.Count(f => f == ',') + 1; i++)
+				setstring = setstring.Replace("\"", "");
+				int imax = setstring.Count(f => f == ',') + 1;
+
+				for (int i = 0; i < imax; i++)
 				{
 					if (setstring.Contains(','))
 					{
-						Roles = [.. Roles, Convert.ToUInt64(setstring.Remove(','))];
+						Roles = [.. Roles, Convert.ToUInt64(setstring.Remove(',', 0))];
 						setstring = setstring[(setstring.IndexOf(',') + 1)..];
 					}
 					else
@@ -162,7 +174,7 @@ internal static partial class UserManagement
 					Nick = Iterator(),
 					Pending = Convert.ToBoolean(Iterator()),
 					PremiumSince = Convert.ToDateTime(Iterator(true)),
-					Roles = ToRoleArray(Iterator()),
+					Roles = ToRoleArray(Iterator(RoleSkip: true)),
 					UnusualDMActivityUntil = Convert.ToDateTime(Iterator(true)),
 					User = new()
 					{
@@ -267,4 +279,8 @@ internal static partial class UserManagement
 		for (int i = 0; i < UserList.Length; i++) if (UserList[i].ID == ID) return i;
 		throw new ArgumentException("This user is not in the member list.");
 	}
+
+	public static bool IsFounder(ulong ID) => FounderIDs.Contains(ID);
+
+	public static bool IsEventRole(ulong ID) => EventIDs.Contains(ID);
 }

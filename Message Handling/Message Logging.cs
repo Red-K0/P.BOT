@@ -19,10 +19,9 @@ internal static class Logging
 		const string EMPTY_ERROR = "Value cannot be null.";
 
 		// Prevents partial message exceptions in the log
-		if (message.Exception is { StackTrace: string stackTrace } && (stackTrace.Contains(EMPTY_TRACE) || stackTrace.Contains(EMPTY_ERROR)))
-		{
-			return;
-		}
+		if (message.Exception is { StackTrace: string stackTrace   } &&  (stackTrace.Contains(EMPTY_TRACE) || stackTrace.Contains(EMPTY_ERROR))) return;
+		if (message.Exception is {    Message: string errorMessage } && errorMessage.Contains(EMPTY_ERROR)) return;
+
 		AsNetwork(ref message);
 		await Task.CompletedTask;
 	}

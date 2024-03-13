@@ -24,7 +24,7 @@ internal static partial class Embeds
 	/// <returns> <see cref="MessageProperties"/> containing the created embed. </returns>
 	public static MessageProperties Generate(string? Description = null, EmbedAuthorProperties? AuthorObject = null, DateTimeOffset? Timestamp = null, EmbedFooterProperties? FooterObject = null,int RGB = -1, ulong ReplyTo = 0, string? ImageURL = null, string? ThumbnailURL = null, string? Title = null, string? TitleURL = null, bool Ephemeral = false, EmbedFieldProperties[]? FieldObjects = null, ulong CallerID = 0)
 	{
-		if (RGB == -1) RGB = UserList[GetIndexOfUser(CallerID)].Customization.PersonalRoleColor;
+		if (RGB == -1 && CallerID != 0) RGB = UserList[GetIndexOfUser(CallerID)].Customization.PersonalRoleColor;
 
 		EmbedProperties embed_prop = new()
 		{

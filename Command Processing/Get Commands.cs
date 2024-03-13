@@ -28,22 +28,28 @@ public sealed partial class SlashCommand
 	public async partial Task GetAvatar(User user, ImageFormat format)
 	{
 		const ulong BOT_ID = 1169031557848252516;
+
 		#if DEBUG_COMMAND
 		Stopwatch Timer = Stopwatch.StartNew();
-#endif
-
+		#endif
 
 		user ??= Context.User;
 		MessageProperties msg_prop = (user.Id == BOT_ID) ?
 		Generate
 		(
-			$"Sure, Sure, [here]({ASSETS}/Bot%20Icon.png) is my avatar"
+			$"Sure, [here]({ASSETS}/Bot%20Icon.png) is my avatar, if you require it in a format other than PNG, please contact <@1124777547687788626>.",
+			CreateAuthorObject($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
+			DateTimeOffset.UtcNow,
+			CreateFooterObject($"Avatar requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			ReplyTo: Context.User.Id,
+			ImageURL: new($"{ASSETS}/Bot%20Icon.png"),
+			CallerID: user.Id
 		) :
 		Generate
 		(
 			user.HasAvatar ?
-			$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar" :
-			$"Sorry, <@{user.Id}> does not currently have an avatar set, [here]({user.DefaultAvatarUrl}) is the default discord avatar",
+			$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar." :
+			$"Sorry, <@{user.Id}> does not currently have an avatar set, [here]({user.DefaultAvatarUrl}) is the default discord avatar.",
 
 			CreateAuthorObject($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
 			DateTimeOffset.UtcNow,
@@ -52,7 +58,7 @@ public sealed partial class SlashCommand
 			CallerID: user.Id
 		);
 
-		await RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds, AllowedMentions = AllowedMentionsProperties.None }));
+		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
 
 		#if DEBUG_COMMAND
 		Messages.Logging.AsVerbose($"GetAvatar Completed [{Timer.ElapsedMilliseconds}ms]");
@@ -84,11 +90,12 @@ public sealed partial class SlashCommand
 			definition,
 			CreateAuthorObject("PPP Encyclopedia", ASSETS + "Define&20Icon.png"),
 			DateTimeOffset.UtcNow,
-			RGB: STD_COLOR,
+			CreateFooterObject($"Definition requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			STD_COLOR,
 			ReplyTo: Context.User.Id
 		);
 
-		await RespondAsync(InteractionCallback.Message(new() { Embeds = msg_prop.Embeds }));
+		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
 
 		#if DEBUG_COMMAND
 		Messages.Logging.AsVerbose($"GetDefinition Completed [{Timer.ElapsedMilliseconds}ms]");
@@ -132,7 +139,8 @@ public sealed partial class SlashCommand
 			CreateFooterObject($"Translation requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			STD_COLOR
 		);
-		await Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
+
+		await Context.Interaction.SendFollowupMessageAsync(msg_prop.ToInteraction());
 
 		#if DEBUG_COMMAND
 		Messages.Logging.AsVerbose($"GetTranslation Completed [{Timer.ElapsedMilliseconds}ms]");
@@ -172,7 +180,7 @@ public sealed partial class SlashCommand
 			STD_COLOR
 		);
 
-		await Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
+		await Context.Interaction.SendFollowupMessageAsync(msg_prop.ToInteraction());
 
 		#if DEBUG_COMMAND
 		Messages.Logging.AsVerbose($"GetWikiResult Completed [{Timer.ElapsedMilliseconds}ms]");

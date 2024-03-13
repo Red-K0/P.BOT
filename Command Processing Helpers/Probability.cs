@@ -122,7 +122,7 @@ public static class ProbabilityStateMachine
 			if (TempString.Contains(SPACE_CHAR))
 			{
 				Mod = int.Parse(MainString[(MainString.IndexOf(SPACE_CHAR) + 1)..]);
-				MainString = TempString.Remove(TempString.IndexOf(SPACE_CHAR));
+				MainString = TempString.Remove(SPACE_CHAR, 0);
 			}
 			else
 			{

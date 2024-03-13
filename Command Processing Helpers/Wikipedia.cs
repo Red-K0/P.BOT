@@ -26,9 +26,9 @@ public static partial class Wikipedia
 		Response = Response[(Response.IndexOf(",\"extract\":\"") + 12)..];
 
 		// If there's a response, this won't fail.
-		if (Response.Contains("}}}}")) Response = Response.Remove(Response.IndexOf("}}}}") - 1); else return FailResponse;
+		if (Response.Contains("}}}}")) Response = Response.Remove("}}}}", -1); else return FailResponse;
 		if (string.IsNullOrWhiteSpace(Response)) return FailResponse;
-		if (!long_format && Response.Contains("\\n")) Response = Response.Remove(Response.IndexOf("\\n"));
+		if (!long_format && Response.Contains("\\n")) Response = Response.Remove("\\n", 0);
 
 		// The next section exists solely to parse the response and return actually useful text.
 		// Fuck Wikipedia and whoever wrote the code responsible for returning this horrible mess.
@@ -72,7 +72,7 @@ public static partial class Wikipedia
 		Response = string.Concat(StringArray);
 
 		// If the long format was not requested, cuts off the text at the first (proper) newline, otherwise attempts to clean up excess newlines.
-		if (!long_format && Response.Contains('\n')) try { Response = Response.Remove(Response.IndexOf('\n')); } catch { }
+		if (!long_format && Response.Contains('\n')) try { Response = Response.Remove('\n', 0); } catch { }
 		else try { while (Response.Contains("\n\n\n")) Response = Response.Replace("\n\n\n", "\n\n"); } catch { }
 
 		return Response;

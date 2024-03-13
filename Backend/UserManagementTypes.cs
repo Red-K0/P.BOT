@@ -139,6 +139,13 @@ internal static partial class UserManagement
 
 	];
 
+	private static readonly ulong[] EventIDs =
+	[
+		SixMonthAnniversary,
+		SecretSanta2023,
+		HyakkanoEnjoyer
+	];
+
 	#region IDs
 	private const ulong
 		      Lu_ID = 916208242382753833,        Lu_RoleID = 0,
@@ -162,6 +169,11 @@ internal static partial class UserManagement
 			Pixi_ID = 1096090443478990979,     Pixi_RoleID = 1147560956835139597,
 		   Angel_ID = 1141261327973761076,    Angel_RoleID = 1185966727977246780,
 		   Marie_ID = 1144066017283289118,    Marie_RoleID = 0;
+
+	public const ulong
+		SixMonthAnniversary = 1200608387835121706,
+			SecretSanta2023 = 1193330313162657934,
+			HyakkanoEnjoyer = 1190873907503304754;
 	#endregion
 
 }

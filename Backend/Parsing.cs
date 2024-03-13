@@ -1,10 +1,6 @@
-﻿using System.Globalization;
-using System.Text.RegularExpressions;
-
-namespace P_BOT;
-internal static partial class Parsing
+﻿namespace P_BOT;
+internal static class Parsing
 {
-
 	public static string EscapedUnicode(string Unparsed)
 	{
 		if (Unparsed == null) return "";
@@ -38,4 +34,6 @@ internal static partial class Parsing
 		Unparsed = new(CharArray);
 		return Unparsed.Replace("\0", "");
 	}
+
+	public static string MDLiteral(string Unparsed) => Unparsed.Replace("\\", "\\\\").Replace("_","\\_").Replace("-","\\-").Replace("*","\\*").Replace("~","\\~");
 }

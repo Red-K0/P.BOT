@@ -57,7 +57,7 @@ public sealed partial class SlashCommand
 
 		if (draft)
 		{
-			await Context.Interaction.SendFollowupMessageAsync(new() { Embeds = msg_prop.Embeds });
+			await Context.Interaction.SendFollowupMessageAsync(msg_prop.ToInteraction());
 		}
 		else
 		{

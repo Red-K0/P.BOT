@@ -26,9 +26,9 @@ public static partial class Wikipedia
 		Response = Response[(Response.IndexOf(",\"extract\":\"") + 12)..];
 
 		// If there's a response, this won't fail.
-		if (Response.Contains("}}}}")) Response = Response.Remove("}}}}", -1); else return FailResponse;
+		if (Response.Contains("}}}}")) Response = Response.Remove(Response.IndexOf("}}}}") - 1); else return FailResponse;
 		if (string.IsNullOrWhiteSpace(Response)) return FailResponse;
-		if (!long_format && Response.Contains("\\n")) Response = Response.Remove("\\n", 0);
+		if (!long_format && Response.Contains("\\n")) Response = Response.Remove(Response.IndexOf("\\n"));
 
 		// The next section exists solely to parse the response and return actually useful text.
 		// Fuck Wikipedia and whoever wrote the code responsible for returning this horrible mess.

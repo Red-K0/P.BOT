@@ -115,7 +115,7 @@ internal static class Functions
 				message.Id
 			);
 			await client.Rest.SendMessageAsync(message.ChannelId, msg_prop);
-			Scan = Scan.Remove(SERVER_LINK, 49 + CurrentScan.Length);
+			Scan = Scan.Remove(Scan.IndexOf(SERVER_LINK) + 49 + CurrentScan.Length);
 		}
 
 		#if DEBUG_EVENTS

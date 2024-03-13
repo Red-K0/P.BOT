@@ -51,7 +51,7 @@ internal static partial class UserManagement
 		ListConverter();
 
 #if DEBUG
-		Messages.Logging.AsVerbose($"Member List Ready ({max} members loaded) [{Timer.ElapsedMilliseconds}ms]");
+		Messages.Logging.AsVerbose($"Member List Ready ({max - 1} members loaded) [{Timer.ElapsedMilliseconds}ms]");
 		Timer.Reset();
 #endif
 	}
@@ -104,7 +104,7 @@ internal static partial class UserManagement
 				if (RoleSkip)
 				{
 					response = str[str.IndexOf('[')..];
-					response = response.Remove(']', 1);
+					response = response.Remove(response.IndexOf(']'));
 					str = str[(str.IndexOf("],")+2)..];
 					return response;
 				}
@@ -119,7 +119,7 @@ internal static partial class UserManagement
 					str = str[(str.IndexOf(':') + 1)..];
 				}
 
-				response = !Assets && str.Contains(',') ? str.Remove(',', 0) : Assets ? str.Remove(",\"b", 0) : str;
+				response = !Assets && str.Contains(',') ? str.Remove(str.IndexOf(',')) : Assets ? str.Remove(str.IndexOf(",\"b")) : str;
 
 				response = response.Replace("}", "");
 				if (Date && response.Contains(':'))
@@ -146,7 +146,7 @@ internal static partial class UserManagement
 				{
 					if (setstring.Contains(','))
 					{
-						Roles = [.. Roles, Convert.ToUInt64(setstring.Remove(',', 0))];
+						Roles = [.. Roles, Convert.ToUInt64(setstring.Remove(setstring.IndexOf(',')))];
 						setstring = setstring[(setstring.IndexOf(',') + 1)..];
 					}
 					else

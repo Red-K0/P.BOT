@@ -112,7 +112,7 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 		}
 		if (User.GlobalName != DisplayName && !string.IsNullOrWhiteSpace(User.GlobalName))
 		{
-			AKAString += $"{User.GlobalName}";
+			AKAString += User.GlobalName;
 			DisplayAKA = true;
 		}
 		else
@@ -125,7 +125,7 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 			DisplayAKA ? Parsing.MDLiteral("`AKA` ") : "",
 			null,
 			null,
-			Embeds.CreateFooterObject($"User requested by {Context.User.Username}", $"{Context.User.GetAvatarUrl()}"),
+			Embeds.CreateFooterObject($"User requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			-1,
 			Context.User.Id,
 			null,

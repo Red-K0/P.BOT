@@ -104,16 +104,16 @@ public static class ProbabilityStateMachine
 		Stopwatch Timer = Stopwatch.StartNew();
 		#endif
 
+		CurrentMessage = message;
+
+		// Temporary variable assignments, these don't mean anything to the final result, optimization.
+		Prefix = CurrentMessage.Content[1..3].ToLowerInvariant();
+		MainString = CurrentMessage!.Content.Trim()[4..];
+		TempString = MainString[(Mod + 1)..];
+		Mod = MainString.IndexOf(ROLL_SEPERATOR);
+
 		try
 		{
-			CurrentMessage = message;
-
-			// Temporary variable assignments, these don't mean anything to the final result, optimization.
-			Prefix = CurrentMessage.Content[1..3].ToLowerInvariant();
-			MainString = CurrentMessage!.Content.Trim()[4..];
-			TempString = MainString[(Mod + 1)..];
-			Mod = MainString.IndexOf(ROLL_SEPERATOR);
-
 			// Parse how many die to roll, and prepare the appropriate array size.
 			RollCount = int.Parse(MainString[..Mod]);
 			Rolls = new int[RollCount];

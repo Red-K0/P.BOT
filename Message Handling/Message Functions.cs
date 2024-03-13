@@ -44,11 +44,11 @@ internal static class Functions
 		if (Message.ReferencedMessage != null)
 		{
 			RestMessage Reply = client.Rest.GetMessageAsync(Message.ReferencedMessage.ChannelId, Message.ReferencedMessage.Id).Result;
-			EmbedAuthorProperties Author = new()
-			{
-				Name = $"Replying to: {Message.ReferencedMessage.Author.Username}",
-				IconUrl = Message.ReferencedMessage.Author.GetAvatarUrl().ToString()
-			};
+			EmbedAuthorProperties Author = Embeds.CreateAuthorObject
+			(
+				$"Replying to: {Message.ReferencedMessage.Author.Username}",
+				Message.ReferencedMessage.Author.GetAvatarUrl().ToString()
+			);
 
 			msg_prop.AddEmbeds
 			(

@@ -34,11 +34,10 @@ public static partial class Wikipedia
 		// Fuck Wikipedia and whoever wrote the code responsible for returning this horrible mess.
 
 		// Replace inconsistently spaced newlines with inline newlines, and then replace all inline occurrences.
-		Response = Response.Replace(" \\n", "\\n");
-		Response = Response.Replace("\\n", "\n");
+		Response = Response.Replace(" \\n", "\\n").Replace("\\n", "\n");
 
 		// Limit the response to 4096 characters if it's longer, appending a '...' in place of the final 3 characters as clarification.
-		if (Response.Length > 4096) Response = Response[..4093] + "...";
+		if (Response.Length > 4096) Response = $"{Response[..4093]}...";
 
 		// Fix for escape characters in raw text, such as "\u2014" instead of '—' (U+2014 | Em Dash).
 		Response = Parsing.EscapedUnicode(Response);
@@ -52,13 +51,13 @@ public static partial class Wikipedia
 		{
 			// Fix for the '[1]' bug, where a citation replaces a necessary newline.
 			// Avoids scenarios such as the following: "This paragraph ends here.[1]This one starts here."
-			if (StringArray[i] == "." && StringArray[i + 1] is not (" " or " " or "." or ":" or "\\") && Alphanumeric().IsMatch(StringArray[i + 1]) && StringArray[i + 2] != ".")
+			if (!(StringArray[i] != "." || StringArray[i + 1] is " " or " " or "." or ":" or "\\" || !Alphanumeric().IsMatch(StringArray[i + 1]) || StringArray[i + 2] == "."))
 			{
 				StringArray[i] = ".\n\n";
 			}
 
 			// Remove random citation notes, such as ':1.1'.
-			if (StringArray[i] == ":" && StringArray[i + 1] is not (" " or "\\" or "\n") && (StringArray[i - 1][0] - 30) > 10)
+			if (!(StringArray[i] != ":" || StringArray[i + 1] is " " or "\\" or "\n" || (StringArray[i - 1][0] - 30) <= 10))
 			{
 				StringArray[i] = "\0";
 				StringArray[i + 1] = "\0";
@@ -72,7 +71,7 @@ public static partial class Wikipedia
 		Response = string.Concat(StringArray);
 
 		// If the long format was not requested, cuts off the text at the first (proper) newline, otherwise attempts to clean up excess newlines.
-		if (!long_format && Response.Contains('\n')) try { Response = Response.Remove('\n', 0); } catch { }
+		if (!long_format && Response.Contains('\n')) try { Response = Response.Remove(Response.IndexOf('\n')); } catch { }
 		else try { while (Response.Contains("\n\n\n")) Response = Response.Replace("\n\n\n", "\n\n"); } catch { }
 
 		return Response;

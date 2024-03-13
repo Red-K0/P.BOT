@@ -43,8 +43,7 @@ internal static class Pages
 	/// <param name="NewLine"> The <see cref="string"/> to append to the <paramref name="Page"/>. </param>
 	public static async void Append(Files Page, string NewLine)
 	{
-		string Path = Switch(Page);
-		await File.WriteAllLinesAsync(Path, [.. File.ReadAllLines(Path), NewLine]);
+		await File.WriteAllLinesAsync(Switch(Page), [.. File.ReadAllLines(Switch(Page)), NewLine]);
 
 #if DEBUG_DISK
 		Messages.Logging.AsVerbose($"The value \"{NewLine}\" was appended to the end of the page {Page}.");

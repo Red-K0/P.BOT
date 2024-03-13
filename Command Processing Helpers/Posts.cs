@@ -34,7 +34,7 @@ public static class Posts
 		RestMessage ExternalPostID = client.Rest.GetMessagesAsync(CHANNEL, new() { Limit = 1 }).ToBlockingEnumerable().First();
 
 		// Store the Internal ID and its relevant external ID in the ID List.
-		Pages.Append(Pages.Files.PDB_ID, $"{ExternalPostID}");
+		Pages.Append(Pages.Files.PDB_ID, ExternalPostID.ToString());
 
 		return ExternalPostID.Id;
 	}

@@ -215,13 +215,12 @@ public static class Translation
 		}
 
 		string output = await client_h.GetStringAsync($"{API_URL}?text={input}&source_lang={source_lang}&target_lang={target_lang}");
-		output = output.Remove(output.Length - 3)[(output.IndexOf("\"translated_text\":") + 19)..];
 
 		return
 		$"""
 		Original Text: {input}
 
-		Translated Text: {output}
+		Translated Text: {output.Remove(output.Length - 3)[(output.IndexOf("\"translated_text\":") + 19)..]}
 		""";
 	}
 

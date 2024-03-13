@@ -1,6 +1,4 @@
-﻿using P_BOT.Backend;
-
-namespace P_BOT.Messages;
+﻿namespace P_BOT.Messages;
 
 /// <summary>
 /// Contains methods and variables used for basic message functionality and parsing.
@@ -39,7 +37,7 @@ internal static class Functions
 
 		const ulong STARBOARD = 1133836713194696744;
 
-		int StarCount = Convert.ToInt32(DataBackend.ReadMemory(DataBackend.Pages.Counters, 1).Result);
+		int StarCount = Convert.ToInt32(Pages.Read(Pages.Files.Counters, 1).Result);
 		RestMessage Message = await client.Rest.GetMessageAsync(message.ChannelId, message.MessageId);
 		MessageProperties msg_prop = new();
 
@@ -70,8 +68,8 @@ internal static class Functions
 		).Embeds!);
 
 		StarCount++;
-		DataBackend.AppendMemory(DataBackend.Pages.Starboard, message.MessageId.ToString());
-		DataBackend.WriteMemory(DataBackend.Pages.Counters, 1, StarCount.ToString());
+		Pages.Append(Pages.Files.Starboard, message.MessageId.ToString());
+		Pages.Write(Pages.Files.Counters, 1, StarCount.ToString());
 
 		await client.Rest.SendMessageAsync(STARBOARD, msg_prop.WithContent("# " + new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10))));
 

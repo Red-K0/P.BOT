@@ -1,8 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.RegularExpressions;
-using P_BOT.Backend;
-namespace P_BOT;
 
+namespace P_BOT;
 internal static partial class UserManagement
 {
 	[GeneratedRegex(",{\"member\"")]

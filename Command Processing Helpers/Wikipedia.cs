@@ -1,7 +1,6 @@
 ﻿// The helper class supporting the /wikidefine command.
 
 using System.Text.RegularExpressions;
-using P_BOT.Backend;
 
 namespace P_BOT.Command_Processing.Helpers;
 

@@ -1,6 +1,5 @@
 ﻿namespace P_BOT.Messages;
 
-using P_BOT.Backend;
 using static Functions;
 
 /// <summary>
@@ -63,7 +62,7 @@ internal static class Events
 	public static async ValueTask ReactionAdded(MessageReactionAddEventArgs message)
 	{
 		// Starboard Handling
-		if (message.Emoji.Name == "⭐" && !(await File.ReadAllLinesAsync(DataBackend.STARBOARD)).Contains(message.MessageId.ToString()))
+		if (message.Emoji.Name == "⭐" && !(await File.ReadAllLinesAsync(Pages.STARBOARD)).Contains(message.MessageId.ToString()))
 		{
 			AddToStarBoard(message);
 		}

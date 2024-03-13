@@ -4,7 +4,6 @@
 // Commands in this file heavily rely on content found in the PostDB folder.
 
 using NetCord.Services.ApplicationCommands;
-using P_BOT.Backend;
 using static P_BOT.Command_Processing.Helpers.Posts;
 using static P_BOT.Embeds;
 
@@ -42,7 +41,7 @@ public sealed partial class SlashCommand
 		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
 
 		// Get an ID for the post.
-		ulong InternalPostID = Convert.ToUInt64(await DataBackend.ReadMemory(DataBackend.Pages.Counters, 3)) + 1;
+		ulong InternalPostID = Convert.ToUInt64(await Pages.Read(Pages.Files.Counters, 3)) + 1;
 
 		MessageProperties msg_prop = Generate
 		(

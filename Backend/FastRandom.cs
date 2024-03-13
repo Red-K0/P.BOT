@@ -15,9 +15,9 @@ internal static class FastRandom
 #endif
 		return state & limit;
 	}
-	public static int Next24(int seed)
+	public static int Color()
 	{
-		int state = seed;
+		int state = Environment.TickCount;
 		state ^= state << 13;
 		state ^= state >> 17;
 		state ^= state << 05;

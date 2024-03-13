@@ -13,7 +13,7 @@ public static class Definition
 	/// The meaning of the PPP Abbreviation.
 	/// </summary>
 	private static readonly KeyValuePair<Choices, string> PPP_Meaning = new(Choices.MeaningOf_PPP, """
-		'PPP' stands for \"Perfect Protection Polygon\".
+		'PPP' stands for "Perfect Protection Polygon".
 
 		History:
 		>>> Originally, the PPP was called the 'Protection Triangle', as it consisted of three members. This was then expanded to the 'Protection Square', 'Protection Hexagon', and upon people's unawareness of what a heptagon is, the 'Protection Polygon'. The 'Perfect' prefix was added for alliteration, resulting in the 'Perfect Protection Polygon' or as its more commonly known, 'The PPP'.

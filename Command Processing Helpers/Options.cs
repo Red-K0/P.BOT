@@ -22,6 +22,6 @@ public static class Options
 		/// <summary>
 		/// The module responsible for rolling dice, as well as message parsing related to so.
 		/// </summary>
-		[SlashCommandChoice(Name = "Probability Module")]DnDTextModule
+		[SlashCommandChoice(Name = "Probability Module")] DnDTextModule
 	}
 }

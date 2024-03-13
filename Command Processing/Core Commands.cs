@@ -67,35 +67,31 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 	}
 
 	#region Attributes
-	[SlashCommand("userdata", "Gets a specific user")]
+	[SlashCommand("user", "Displays data relevant to a specified user.")]
 	public partial Task DumpUserInfo
 	(
-		[SlashCommandParameter(MinValue = 1)]
-		int number
+		[SlashCommandParameter(Name = "user", Description = "The user to display data for.")]
+		User user
 	);
 	#endregion
 
 	/// <summary>
 	/// Dumps user info.
 	/// </summary>
-	public async partial Task DumpUserInfo(int number) // TODO | Proper details
+	public async partial Task DumpUserInfo(User user) // TODO | Proper details
 	{
-		if (number > UserList.Length) { await RespondAsync(InteractionCallback.Message($"There are only {UserList.Length} members in the PPP.")); return; }
-		UserObject User = UserList[number - 1];
+		_ = MemberList.TryGetValue(user.Id, out UserObject @User);
 
 		string Roles = "";
-		for (int i = 0; i < User.Server.Roles.Length; i++)
+		foreach (ulong Accolade in User.Server.Roles.Where(IsEventRole))
 		{
-			if (IsEventRole(User.Server.Roles[i]))
+			Roles += Accolade switch
 			{
-				Roles += User.Server.Roles[i] switch
-				{
-					SixMonthAnniversary => $"\n<@&{SixMonthAnniversary}> \n- Attended the 6-Month Server Anniversary",
-					SecretSanta2023 => $"\n<@&{SecretSanta2023}> \n- Sent a Secret Santa Gift in 2023",
-					HyakkanoEnjoyer => $"\n<@&{HyakkanoEnjoyer}> \n- Read the first 50 Chapters of 100 Girlfriends",
-					_ => ""
-				};
-			}
+				SixMonthAnniversary => $"\n<@&{SixMonthAnniversary}> \n- Attended the 6-Month Server Anniversary",
+				SecretSanta2023 => $"\n<@&{SecretSanta2023}> \n- Sent a Secret Santa Gift in 2023",
+				HyakkanoEnjoyer => $"\n<@&{HyakkanoEnjoyer}> \n- Read the first 50 Chapters of 100 Girlfriends",
+				_ => ""
+			};
 		}
 
 		string NitroType = User.PremiumType switch
@@ -108,25 +104,25 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 
 		string? DisplayName = User.Server.Nickname?.Length != 0 ? User.Server.Nickname : User.GlobalName?.Length != 0 ? User.GlobalName : User.Username;
 
-		string AKAstring = "`AKA` "; bool DisplayAKA = false;
+		string AKAString = "`AKA` "; bool DisplayAKA = false;
 		if (User.Username != DisplayName)
 		{
-			AKAstring += $"{User.Username}, ";
+			AKAString += $"{User.Username}, ";
 			DisplayAKA = true;
 		}
 		if (User.GlobalName != DisplayName && !string.IsNullOrWhiteSpace(User.GlobalName))
 		{
-			AKAstring += $"{User.GlobalName}";
+			AKAString += $"{User.GlobalName}";
 			DisplayAKA = true;
 		}
 		else
 		{
-			AKAstring = AKAstring[..^2];
+			AKAString = "`AKA` "[..^2];
 		}
 
 		MessageProperties msg_prop = Embeds.Generate
 		(
-			DisplayAKA ? Parsing.MDLiteral(AKAstring) : "",
+			DisplayAKA ? Parsing.MDLiteral("`AKA` ") : "",
 			null,
 			null,
 			Embeds.CreateFooterObject($"User requested by {Context.User.Username}", $"{Context.User.GetAvatarUrl()}"),
@@ -158,7 +154,7 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 			Embeds.CreateFieldObject(Inline: false),
 			Embeds.CreateFieldObject("Accolades", Roles.Length != 0 ? Roles : "None", false),
 			],
-			#endregion
+		#endregion
 			User.ID
 		);
 		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));

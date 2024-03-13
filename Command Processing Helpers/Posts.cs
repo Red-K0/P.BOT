@@ -1,5 +1,7 @@
 ﻿// The helper class supporting the /post command.
 
+using P_BOT.Backend;
+
 namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary>

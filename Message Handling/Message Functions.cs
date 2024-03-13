@@ -1,4 +1,6 @@
-﻿namespace P_BOT.Messages;
+﻿using P_BOT.Backend;
+
+namespace P_BOT.Messages;
 
 /// <summary>
 /// Contains methods and variables used for basic message functionality and parsing.
@@ -31,9 +33,9 @@ internal static class Functions
 	/// <param name="message"> The <see cref="MessageReactionAddEventArgs"/> containing the message to add to the starboard. </param>
 	public static async void AddToStarBoard(MessageReactionAddEventArgs message)
 	{
-		#if DEBUG_EVENTS
+#if DEBUG_EVENTS
 		Stopwatch Timer = Stopwatch.StartNew();
-		#endif
+#endif
 
 		const ulong STARBOARD = 1133836713194696744;
 
@@ -73,37 +75,46 @@ internal static class Functions
 
 		await client.Rest.SendMessageAsync(STARBOARD, msg_prop.WithContent("# " + new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10))));
 
-		#if DEBUG_EVENTS
+#if DEBUG_EVENTS
 		Logging.AsVerbose($"Starboard Processed [{Timer.ElapsedMilliseconds}ms]");
 		Timer.Reset();
-		#endif
+#endif
 	}
 
 	/// <summary> Parses a given <paramref name="message"/> to check for message links, and displays their content if possible. </summary>
 	/// <param name="message"> The <see cref="Message"/> object to check for and parse links in. </param>
 	public static async void ParseMessageLink(Message message)
 	{
-		#if DEBUG_EVENTS
+#if DEBUG_EVENTS
 		Stopwatch Timer = Stopwatch.StartNew();
-		#endif
+#endif
 
 		//HACK | The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
-		string Scan = message.Content; string CurrentScan; RestMessage LinkedMessage; ulong ChannelID, MessageID;
+		string Scan = message.Content; string CurrentScan; RestMessage LinkedMessage; ulong ChannelID;
 		int LinkCount = (Scan.Length - Scan.Replace(SERVER_LINK, "").Length) / SERVER_LINK.Length;
 		for (int i = 0; i < LinkCount; i++)
 		{
 			CurrentScan = Scan[(Scan.IndexOf(SERVER_LINK) + 49)..];
 
-			CurrentScan = CurrentScan.Remove(' ',  0);
+			CurrentScan = CurrentScan.Remove(' ', 0);
 			CurrentScan = CurrentScan.Remove('\n', 0);
 
 			if (CurrentScan.Contains('/'))
 			{
-				if (!ulong.TryParse(CurrentScan.Remove('/'), out ChannelID)) return;
+				if (!ulong.TryParse(CurrentScan.Remove('/'), out ChannelID))
+				{
+					return;
+				}
 			}
-			else return;
+			else
+			{
+				return;
+			}
 
-			if (!ulong.TryParse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..].Replace('/','\0'), out MessageID)) return;
+			if (!ulong.TryParse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..].Replace('/', '\0'), out ulong MessageID))
+			{
+				return;
+			}
 
 			LinkedMessage = await client.Rest.GetMessageAsync(ChannelID, MessageID, null);
 
@@ -118,10 +129,10 @@ internal static class Functions
 			Scan = Scan.Remove(Scan.IndexOf(SERVER_LINK) + 49 + CurrentScan.Length);
 		}
 
-		#if DEBUG_EVENTS
+#if DEBUG_EVENTS
 		Logging.AsVerbose($"Link Parsed [{Timer.ElapsedMilliseconds}ms]");
 		Timer.Reset();
-		#endif
+#endif
 	}
 
 	/// <summary> Monitors and deletes messages to avoid spam. </summary>
@@ -134,22 +145,32 @@ internal static class Functions
 
 		if (message.Content.StartsWith("# ") && message.Content.Equals(message.Content, StringComparison.Ordinal))
 		{
-			if (MessageFilterLimit < 4) MessageFilterLimit = 4; else MessageFilterLimit++;
+			if (MessageFilterLimit < 4)
+			{
+				MessageFilterLimit = 4;
+			}
+			else
+			{
+				MessageFilterLimit++;
+			}
+
 			filter = true;
 		}
 
 		if (message.Content == LastContent) { filter = true; MessageFilterLimit++; }
-						  else if (!filter) { MessageFilterLimit = Math.Max(MessageFilterLimit - 1, 0); }
+		else if (!filter) { MessageFilterLimit = Math.Max(MessageFilterLimit - 1, 0); }
 		LastContent = message.Content;
 
-		KeyValuePair<ulong, Attachment>[] Attachments = [.. message.Attachments];
-		for (int i = 0; i < Attachments.Length; i++)
+		foreach (KeyValuePair<ulong, Attachment> Attachment in (KeyValuePair<ulong, Attachment>[])([.. message.Attachments]))
 		{
-			if (Attachments[i].Value.FileName == "image.png" || Attachments[i].Value.FileName == "unknown.png") continue;
+			if (Attachment.Value.FileName is "image.png" or "unknown.png")
+			{
+				continue;
+			}
 
-			if (Attachments[i].Value.FileName == LastAttachment) { filter = true;  AttachmentFilterLimit++; }
-															else { filter = false; AttachmentFilterLimit = Math.Max(AttachmentFilterLimit - 1, 0); }
-			LastAttachment = Attachments[i].Value.FileName;
+			if (Attachment.Value.FileName == LastAttachment) { filter = true; AttachmentFilterLimit++; }
+			else { filter = false; AttachmentFilterLimit = Math.Max(AttachmentFilterLimit - 1, 0); }
+			LastAttachment = Attachment.Value.FileName;
 		}
 
 		if ((AttachmentFilterLimit >= 3 || MessageFilterLimit >= 5) && filter)
@@ -173,7 +194,7 @@ internal static class Functions
 
 			if (!string.IsNullOrWhiteSpace(response))
 			{
-				await client.Rest.SendMessageAsync(message.ChannelId, response);
+				_ = await client.Rest.SendMessageAsync(message.ChannelId, response);
 			}
 			await client.Rest.DeleteMessageAsync(message.ChannelId, message.Id);
 		}

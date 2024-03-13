@@ -1,4 +1,5 @@
-﻿using static P_BOT.UserManagement;
+﻿using P_BOT.Backend;
+using static P_BOT.UserManagement;
 
 namespace P_BOT;
 
@@ -20,16 +21,16 @@ internal static partial class Embeds
 	/// <param name="TitleURL"> A link to an address of a webpage. When set, the <paramref name="Title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
 	/// <param name="Ephemeral"> Creates an ephemeral message when set to true.</param>
 	/// <param name="FieldObjects"> Contains an array of <see cref="EmbedField"/>s to include in the embed </param>
-	/// <param name="CallerID"> The ID of the user responsible for the embed's creation. </param>
+	/// <param name="RefID"> The ID of the user responsible for the embed's creation. </param>
 	/// <returns> <see cref="MessageProperties"/> containing the created embed. </returns>
-	public static MessageProperties Generate(string? Description = null, EmbedAuthorProperties? AuthorObject = null, DateTimeOffset? Timestamp = null, EmbedFooterProperties? FooterObject = null,int RGB = -1, ulong ReplyTo = 0, string? ImageURL = null, string? ThumbnailURL = null, string? Title = null, string? TitleURL = null, bool Ephemeral = false, EmbedFieldProperties[]? FieldObjects = null, ulong CallerID = 0)
+	public static MessageProperties Generate(string? Description = null, EmbedAuthorProperties? AuthorObject = null, DateTimeOffset? Timestamp = null,
+	EmbedFooterProperties? FooterObject = null, int RGB = -1, ulong ReplyTo = 0, string? ImageURL = null, string? ThumbnailURL = null, string? Title = null,
+	string? TitleURL = null, bool Ephemeral = false, EmbedFieldProperties[]? FieldObjects = null, ulong RefID = 0) => new()
 	{
-		if (RGB == -1 && CallerID != 0) RGB = UserList[GetIndexOfUser(CallerID)].Customization.PersonalRoleColor;
-
-		EmbedProperties embed_prop = new()
+		Embeds = [(new EmbedProperties()
 		{
 			Author = AuthorObject,
-			Color = CreateColorObject(RGB),
+			Color = new((RGB == -1 && RefID != 0) ? MemberList.GetValueOrDefault(RefID).Customization.PersonalRoleColor : (RGB == -1) ? FastRandom.Color() : RGB),
 			Description = Description,
 			Footer = FooterObject,
 			Image = new(ImageURL),
@@ -38,14 +39,10 @@ internal static partial class Embeds
 			Thumbnail = new(ThumbnailURL),
 			Url = TitleURL,
 			Fields = FieldObjects
-		};
-		return new()
-		{
-			Embeds = new[] { embed_prop },
-			MessageReference = (ReplyTo != 0) ? new(ReplyTo) : null,
-			Flags = Ephemeral ? MessageFlags.Ephemeral : null
-		};
-	}
+		})],
+		MessageReference = (ReplyTo != 0) ? new(ReplyTo) : null,
+		Flags = Ephemeral ? MessageFlags.Ephemeral : null
+	};
 
 	/// <summary> Combines the specified parameters with parameters extracted from a given <see cref="RestMessage"/> to generate an embed. </summary>
 	/// <param name="TargetMessage"> The <see cref="RestMessage"/> object to extract parameters from. </param>
@@ -55,7 +52,8 @@ internal static partial class Embeds
 	/// <param name="ReplyTo"> The ID of the message being replied to with the embed. </param>
 	/// <param name="Title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="TitleURL"/>, has a 256 character limit. </param>
 	/// <returns> <see cref="MessageProperties"/> containing the created embed. </returns>
-	public static MessageProperties Generate(RestMessage TargetMessage, string TitleURL, string? Footer = null, string? FooterIconURL = null, ulong? ReplyTo = null, string? Title = null)
+	public static MessageProperties Generate(RestMessage TargetMessage, string TitleURL, string? Footer = null, string? FooterIconURL = null,
+	ulong? ReplyTo = null, string? Title = null)
 	{
 		MessageProperties msg_prop = new();
 		for (int i = 0; i < Math.Clamp(TargetMessage.Attachments.Count, 1, 10); i++)
@@ -65,11 +63,12 @@ internal static partial class Embeds
 			CreateAuthorObject(TargetMessage.Author.Username, TargetMessage.Author.GetAvatarUrl().ToString()),
 			TargetMessage.CreatedAt,
 			CreateFooterObject(Footer, FooterIconURL),
-			ReplyTo: ReplyTo ?? 0,
-			ImageURL: TargetMessage.Attachments.Any() ? TargetMessage.Attachments.Values.ToArray()[i].Url : null,
-			Title: Title,
-			TitleURL: TitleURL,
-			CallerID: TargetMessage.Author.Id
+			-1,
+			ReplyTo ?? 0,
+			TargetMessage.Attachments.Any() ? TargetMessage.Attachments.Values.ToArray()[i].Url : null,
+			Title,
+			TitleURL,
+			RefID: TargetMessage.Author.Id
 			).Embeds!);
 		}
 

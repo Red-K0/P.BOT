@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-static class Constants
+internal static class Constants
 {
 	/// <summary>
 	/// P.BOT's main client.

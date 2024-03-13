@@ -1,19 +1,18 @@
 ﻿using System.Net.Http.Json;
 using System.Text.RegularExpressions;
+using P_BOT.Backend;
 namespace P_BOT;
 
 internal static partial class UserManagement
 {
 	[GeneratedRegex(",{\"member\"")]
 	private static partial Regex MemberCountRegex();
-	private static string MembersSearch = "";
-	private static Response[] WorkingArray = [];
-	public  static UserObject[] UserList = [];
+	public static Dictionary<ulong, UserObject> MemberList = [];
 
 	/// <summary>
 	/// Initializes the class with data from the <c>members_search</c> endpoint.
 	/// </summary>
-	public static async void InitMembersSearch()
+	public static async void MembersSearch()
 	{
 #if DEBUG
 		Stopwatch Timer = Stopwatch.StartNew();
@@ -26,8 +25,10 @@ internal static partial class UserManagement
 		byte[] response = new byte[x.Length]; x.Read(response, 0, (int)x.Length);
 		await x.DisposeAsync();
 
-		MembersSearch = System.Text.Encoding.Default.GetString(response);
+		string MembersSearch = System.Text.Encoding.Default.GetString(response);
 		int max = MemberCountRegex().Matches(MembersSearch).Count + 2;
+		Response[] WorkingArray = [];
+
 		for (int i = 1; i < max; i++)
 		{
 			WorkingArray = [.. WorkingArray, GetMembersSearch(i)];
@@ -47,38 +48,33 @@ internal static partial class UserManagement
 			WorkingArray[i].Member = Member;
 		}
 
-		WorkingArray = WorkingArray.Reverse().ToArray();
-		ListConverter();
+		ParseResponse(WorkingArray.Reverse().ToArray());
 
 #if DEBUG
 		Messages.Logging.AsVerbose($"Member List Ready ({max - 1} members loaded) [{Timer.ElapsedMilliseconds}ms]");
 		Timer.Reset();
 #endif
-	}
 
-	/// <summary>
-	/// Gets the relevant Response object for a specified server member.
-	/// </summary>
-	private static Response GetMembersSearch(int Member = -1)
-	{
-		string str = MembersSearch;
-		str = str[(str.IndexOf('[') + 1)..str.LastIndexOf(']')];
-
-		int offset = 0, oldoffset = 0;
-		if (Member != -1)
+		Response GetMembersSearch(int Member = -1)
 		{
-			for (int i = 0; i < Member; i++)
+			string str = MembersSearch;
+			str = str[(str.IndexOf('[') + 1)..str.LastIndexOf(']')];
+
+			int Offset = 0, OldOffset = 0;
+			if (Member != -1)
 			{
-				oldoffset = offset + 3;
-				offset = str.IndexOf(",{\"member\"", offset + 3);
+				for (int i = 0; i < Member; i++)
+				{
+					OldOffset = Offset + 3;
+					Offset = str.IndexOf(",{\"member\"", Offset + 3);
 
 #if DEBUG_OFFSET
 			if (offset == -1) offset = str.Length;
 			Messages.Logging.AsVerbose($"Offset {i:D2} found at 0x{offset:X4}. Previous offset was at 0x{oldoffset:X4}.");
 #endif
-			}
-			oldoffset -= 2;
-			str = offset == -1 ? str[oldoffset..] : str[oldoffset..offset];
+				}
+				OldOffset -= 2;
+				str = Offset == -1 ? str[OldOffset..] : str[OldOffset..Offset];
 
 #if DEBUG_OFFSET
 			Messages.Logging.AsVerbose($"""
@@ -90,126 +86,127 @@ internal static partial class UserManagement
 				""");
 			if (Console.ReadKey(true).Key == ConsoleKey.Y) Debugger.Break();
 #endif
-		}
-		str = str.Replace(",{\"member\"", ",\n\n{\"member\"");
-
-		return Parse(str);
-
-		static Response Parse(string str)
-		{
-			string? Iterator(bool Date = false, bool UserSkip = false, bool AvatarSkip = false, bool Assets = false, bool RoleSkip = false)
-			{
-				string response;
-
-				if (RoleSkip)
-				{
-					response = str[str.IndexOf('[')..];
-					response = response.Remove(response.IndexOf(']'));
-					str = str[(str.IndexOf("],")+2)..];
-					return response;
-				}
-
-				if (UserSkip)
-				{
-					str = str[(str.IndexOf(':') + 1)..];
-				}
-
-				if (!AvatarSkip)
-				{
-					str = str[(str.IndexOf(':') + 1)..];
-				}
-
-				response = !Assets && str.Contains(',') ? str.Remove(str.IndexOf(',')) : Assets ? str.Remove(str.IndexOf(",\"b")) : str;
-
-				response = response.Replace("}", "");
-				if (Date && response.Contains(':'))
-				{
-					str = str[str.IndexOf(',')..];
-				}
-
-				if (Assets && response.Contains("sku_id"))
-				{
-					str = str[(str.IndexOf(",\"b") + 10)..];
-				}
-
-				return response.Equals("null", StringComparison.Ordinal) ? null : response.Replace("\"", "");
 			}
-			ulong[] ToRoleArray(string setstring)
+			str = str.Replace(",{\"member\"", ",\n\n{\"member\"");
+
+			return Parse(str);
+
+			static Response Parse(string str)
 			{
-				ulong[] Roles = [];
-				setstring = setstring[1..^1];
-
-				setstring = setstring.Replace("\"", "");
-				int imax = setstring.Count(f => f == ',') + 1;
-
-				for (int i = 0; i < imax; i++)
+				string? Iterator(bool Date = false, bool UserSkip = false, bool AvatarSkip = false, bool Assets = false, bool RoleSkip = false)
 				{
-					if (setstring.Contains(','))
+					string response;
+
+					if (RoleSkip)
 					{
-						Roles = [.. Roles, Convert.ToUInt64(setstring.Remove(setstring.IndexOf(',')))];
-						setstring = setstring[(setstring.IndexOf(',') + 1)..];
+						response = str[str.IndexOf('[')..];
+						response = response.Remove(response.IndexOf(']'));
+						str = str[(str.IndexOf("],") + 2)..];
+						return response;
 					}
-					else
+
+					if (UserSkip)
 					{
-						Roles = [.. Roles, Convert.ToUInt64(setstring)];
+						str = str[(str.IndexOf(':') + 1)..];
 					}
+
+					if (!AvatarSkip)
+					{
+						str = str[(str.IndexOf(':') + 1)..];
+					}
+
+					response = !Assets && str.Contains(',') ? str.Remove(str.IndexOf(',')) : Assets ? str.Remove(str.IndexOf(",\"b")) : str;
+
+					response = response.Replace("}", "");
+					if (Date && response.Contains(':'))
+					{
+						str = str[str.IndexOf(',')..];
+					}
+
+					if (Assets && response.Contains("sku_id"))
+					{
+						str = str[(str.IndexOf(",\"b") + 10)..];
+					}
+
+					return response.Equals("null", StringComparison.Ordinal) ? null : response.Replace("\"", "");
 				}
-				return Roles;
-			}
-
-			// Trimming of members header.
-			str = str[20..];
-
-			#pragma warning disable CS8601, CS8604
-
-			// Use Iterator() to parse the entire response into a Response object.
-			return new()
-			{
-				Member = new()
+				ulong[] ToRoleArray(string RoleString)
 				{
-					AvatarHash = Iterator(AvatarSkip: true),
-					CommunicationDisabledUntil = Convert.ToDateTime(Iterator(true)),
-					Flags = Convert.ToInt32(Iterator()),
-					JoinedAt = Convert.ToDateTime(Iterator(true)),
-					Nick = Iterator(),
-					Pending = Convert.ToBoolean(Iterator()),
-					PremiumSince = Convert.ToDateTime(Iterator(true)),
-					Roles = ToRoleArray(Iterator(RoleSkip: true)),
-					UnusualDMActivityUntil = Convert.ToDateTime(Iterator(true)),
-					User = new()
+					ulong[] Roles = [];
+					RoleString = RoleString[1..^1];
+
+					RoleString = RoleString.Replace("\"", "");
+					int max = RoleString.Count(f => f == ',') + 1;
+
+					for (int i = 0; i < max; i++)
 					{
-						ID = Convert.ToUInt64(Iterator(UserSkip: true)),
-						Username = Iterator(),
-						AvatarHash = Iterator(),
-						Discriminator = Convert.ToInt32(Iterator()),
-						PublicFlags = Convert.ToInt32(Iterator()),
-						PremiumType = Convert.ToInt32(Iterator()),
+						if (RoleString.Contains(','))
+						{
+							Roles = [.. Roles, Convert.ToUInt64(RoleString.Remove(RoleString.IndexOf(',')))];
+							RoleString = RoleString[(RoleString.IndexOf(',') + 1)..];
+						}
+						else
+						{
+							Roles = [.. Roles, Convert.ToUInt64(RoleString)];
+						}
+					}
+					return Roles;
+				}
+
+				// Trimming of members header.
+				str = str[20..];
+
+#pragma warning disable CS8601, CS8604
+
+				// Use Iterator() to parse the entire response into a Response object.
+				return new()
+				{
+					Member = new()
+					{
+						AvatarHash = Iterator(AvatarSkip: true),
+						CommunicationDisabledUntil = Convert.ToDateTime(Iterator(true)),
 						Flags = Convert.ToInt32(Iterator()),
-						Banner = Iterator(),
-						AccentColor = Convert.ToInt32(Iterator()),
-						GlobalName = Iterator(),
-						AvatarDecorationData = Iterator(Assets: true),
-						BannerColor = Convert.ToInt32(Iterator())
+						JoinedAt = Convert.ToDateTime(Iterator(true)),
+						Nick = Iterator(),
+						Pending = Convert.ToBoolean(Iterator()),
+						PremiumSince = Convert.ToDateTime(Iterator(true)),
+						Roles = ToRoleArray(Iterator(RoleSkip: true)),
+						UnusualDMActivityUntil = Convert.ToDateTime(Iterator(true)),
+						User = new()
+						{
+							ID = Convert.ToUInt64(Iterator(UserSkip: true)),
+							Username = Iterator(),
+							AvatarHash = Iterator(),
+							Discriminator = Convert.ToInt32(Iterator()),
+							PublicFlags = Convert.ToInt32(Iterator()),
+							PremiumType = Convert.ToInt32(Iterator()),
+							Flags = Convert.ToInt32(Iterator()),
+							Banner = Iterator(),
+							AccentColor = Convert.ToInt32(Iterator()),
+							GlobalName = Iterator(),
+							AvatarDecorationData = Iterator(Assets: true),
+							BannerColor = Convert.ToInt32(Iterator())
+						},
+						Mute = Convert.ToBoolean(Iterator()),
+						Deaf = Convert.ToBoolean(Iterator())
 					},
-					Mute = Convert.ToBoolean(Iterator()),
-					Deaf = Convert.ToBoolean(Iterator())
-				},
-				SourceInviteCode = Iterator(),
-				JoinSourceType = Convert.ToInt32(Iterator()),
-				InviterID = Convert.ToUInt64(Iterator()),
-			};
+					SourceInviteCode = Iterator(),
+					JoinSourceType = Convert.ToInt32(Iterator()),
+					InviterID = Convert.ToUInt64(Iterator()),
+				};
 
 #pragma warning restore
+			}
 		}
 	}
 
-	public static void ListConverter()
+	private static void ParseResponse(Response[] WorkingArray)
 	{
 		IReadOnlyDictionary<ulong, Role> Roles = client.Rest.GetGuildRolesAsync(Convert.ToUInt64(SERVER_LINK[29..^1])).Result;
 
-		for (int i = 0; i < WorkingArray.Length; i++)
+		foreach (Response Response in WorkingArray)
 		{
-			Response OldUser = WorkingArray[i];
+			Response OldUser = Response;
 			User @User = OldUser.Member.User;
 			Member @Member = OldUser.Member;
 			UserObject NewUser = new()
@@ -256,31 +253,27 @@ internal static partial class UserManagement
 			ulong PersonalRole = (User.Discriminator == 0) ? 0 : NewUser.Server.Roles[0];
 
 			// If the user is a founder, apply their unique founder role.
-			if (FounderIDs.Contains(NewUser.ID)) PersonalRole = FounderRoleIDs[Array.IndexOf(FounderIDs, User.ID)];
+			if (FounderIDs.Contains(NewUser.ID))
+			{
+				PersonalRole = FounderRoleIDs[Array.IndexOf(FounderIDs, User.ID)];
+			}
 
 			// Modify struct with new personal role.
 			Customization TempCustom = NewUser.Customization;
 			TempCustom.PersonalRole = PersonalRole;
 
 			TempCustom.PersonalRoleColor = (PersonalRole != 0 && Roles.TryGetValue(PersonalRole, out Role? TempRole)) ? TempRole.Color.RawValue : -1;
-			if (TempCustom.PersonalRoleColor == 0) TempCustom.PersonalRoleColor = -1;
+			if (TempCustom.PersonalRoleColor == 0)
+			{
+				TempCustom.PersonalRoleColor = -1;
+			}
 
 			NewUser.Customization = TempCustom;
 
-			UserList = [.. UserList, NewUser];
+			MemberList.Add(NewUser.ID, NewUser);
 		}
-
-		// Empty working array.
-		WorkingArray = [];
-	}
-
-	public static int GetIndexOfUser(ulong ID)
-	{
-		for (int i = 0; i < UserList.Length; i++) if (UserList[i].ID == ID) return i;
-		throw new ArgumentException("This user is not in the member list.");
 	}
 
 	public static bool IsFounder(ulong ID) => FounderIDs.Contains(ID);
-
 	public static bool IsEventRole(ulong ID) => EventIDs.Contains(ID);
 }

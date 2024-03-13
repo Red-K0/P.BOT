@@ -9,7 +9,7 @@ namespace P_BOT.Command_Processing.Helpers;
 public static class Translation
 {
 	#region Full Choices
-	#if false
+#if false
 	public enum Languages
 	{
 		[SlashCommandChoice(Name = "Afar")] aa,
@@ -197,7 +197,7 @@ public static class Translation
 		[SlashCommandChoice(Name = "Zhuang")] za,
 		[SlashCommandChoice(Name = "Zulu")] zu
 	}	
-	#endif
+#endif
 	#endregion
 
 	/// <summary> Sends a GET request to the translation API with the specified parameters. </summary>
@@ -226,7 +226,7 @@ public static class Translation
 	}
 
 	/// <summary>
-	/// A list of languages supported by the translation server. 
+	/// A list of languages supported by the translation server.
 	/// </summary>
 	public enum Choices
 	{

@@ -1,6 +1,7 @@
 ﻿// The helper class supporting the /wikidefine command.
 
 using System.Text.RegularExpressions;
+using P_BOT.Backend;
 
 namespace P_BOT.Command_Processing.Helpers;
 
@@ -19,7 +20,7 @@ public static partial class Wikipedia
 	/// </summary>
 	public static async Task<string> GetPage(string search_term, bool long_format)
 	{
-		string Query = WIKI_API + $"gpssearch={search_term}{(long_format ? "" : "&exintro=1")}";
+		string Query = $"{WIKI_API}gpssearch={search_term}{(long_format ? "" : "&exintro=1")}";
 		string FailResponse = $"Wikipedia does not have a definition for '{search_term}'.";
 
 		string Response = await client_h.GetStringAsync(Query);

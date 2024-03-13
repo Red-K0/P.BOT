@@ -4,6 +4,7 @@
 // Commands in this file heavily rely on content found in the PostDB folder.
 
 using NetCord.Services.ApplicationCommands;
+using P_BOT.Backend;
 using static P_BOT.Command_Processing.Helpers.Posts;
 using static P_BOT.Embeds;
 
@@ -33,9 +34,9 @@ public sealed partial class SlashCommand
 	/// </summary>
 	public async partial Task CreatePost(string content, Attachment? image, bool anonymous, bool draft)
 	{
-		#if DEBUG_COMMAND
+#if DEBUG_COMMAND
 		Stopwatch Timer = Stopwatch.StartNew();
-		#endif
+#endif
 
 		// Make sure the interaction doesn't time out
 		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
@@ -52,7 +53,7 @@ public sealed partial class SlashCommand
 			DateTime.Now,
 			CreateFooterObject($"Post ID: {InternalPostID}"),
 			ImageURL: new(image?.Url),
-			CallerID: Context.User.Id
+			RefID: Context.User.Id
 		);
 
 		if (draft)
@@ -76,9 +77,9 @@ public sealed partial class SlashCommand
 			});
 		}
 
-		#if DEBUG_COMMAND
+#if DEBUG_COMMAND
 		Messages.Messages.Logging.AsVerbose($"CreatePost Completed [{Timer.ElapsedMilliseconds}ms]");
 		Timer.Reset();
-		#endif
+#endif
 	}
 }

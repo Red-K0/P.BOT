@@ -1,5 +1,5 @@
 ﻿namespace P_BOT;
-internal static partial class UserManagement
+internal static partial class Members
 {
 	// XML Structure Types
 	private struct Response
@@ -118,6 +118,7 @@ internal static partial class UserManagement
 		NitroBasic = 3
 	}
 
+	#region IDs
 	private static readonly ulong[] FounderIDs =
 	[
 		    Lu_ID,  Kira_ID, Fifer_ID,     Cash_ID, // 4
@@ -146,7 +147,6 @@ internal static partial class UserManagement
 		HyakkanoEnjoyer
 	];
 
-	#region IDs
 	private const ulong
 		      Lu_ID = 916208242382753833,        Lu_RoleID = 0,
 		    Kira_ID = 456226577798135808,      Kira_RoleID = 0,
@@ -171,9 +171,9 @@ internal static partial class UserManagement
 		   Marie_ID = 1144066017283289118,    Marie_RoleID = 0;
 
 	public const ulong
+					Cultist = 1155447510823874621,
 		SixMonthAnniversary = 1200608387835121706,
 			SecretSanta2023 = 1193330313162657934,
 			HyakkanoEnjoyer = 1190873907503304754;
 	#endregion
-
 }

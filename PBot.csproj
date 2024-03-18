@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -32,13 +32,39 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="C++ Helper\**" />
+    <Compile Remove="PBOT_C\**" />
+    <Compile Remove="VTs\**" />
+    <Compile Remove="~PBOT_C\**" />
+    <EmbeddedResource Remove="C++ Helper\**" />
+    <EmbeddedResource Remove="PBOT_C\**" />
+    <EmbeddedResource Remove="VTs\**" />
+    <EmbeddedResource Remove="~PBOT_C\**" />
+    <None Remove="C++ Helper\**" />
+    <None Remove="PBOT_C\**" />
+    <None Remove="VTs\**" />
+    <None Remove="~PBOT_C\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Command Processing Helpers\~Template.cs" />
     <Compile Remove="Command Processing\~Template.cs" />
     <Compile Remove="CommonFunctions.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="dllmain.cpp" />
+    <None Remove="framework.h" />
+    <None Remove="Library.cpp" />
+    <None Remove="Library.h" />
+    <None Remove="pch.cpp" />
+    <None Remove="pch.h" />
+    <None Remove="VTs.vcxproj.filters" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0-preview.2.24128.5" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.4.0" />
     <PackageReference Include="NetCord" Version="1.0.0-alpha.272" />
     <PackageReference Include="NetCord.Hosting" Version="1.0.0-alpha.42" />
@@ -72,6 +98,15 @@
   <ItemGroup>
     <None Include="Command Processing Helpers\~Template.cs" />
     <None Include="Command Processing\~Template.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="PBOT_C.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="VTs.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

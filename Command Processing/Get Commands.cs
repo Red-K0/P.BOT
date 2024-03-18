@@ -103,6 +103,8 @@ public sealed partial class SlashCommand
 #endif
 	}
 
+#if false // No Translation Server available
+
 	#region Attributes
 	[SlashCommand("translate", "Translate a given input from one language to another.")]
 	public partial Task GetTranslation
@@ -147,6 +149,7 @@ public sealed partial class SlashCommand
 		Timer.Reset();
 #endif
 	}
+#endif
 
 	#region Attributes
 	[SlashCommand("wikidefine", "Define a given term via Wikipedia.")]

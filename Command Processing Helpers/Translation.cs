@@ -1,4 +1,6 @@
-﻿// The helper class supporting the /translate command.
+﻿#if false
+
+// The helper class supporting the /translate command.
 
 using NetCord.Services.ApplicationCommands;
 namespace P_BOT.Command_Processing.Helpers;
@@ -269,3 +271,4 @@ public static class Translation
 		[SlashCommandChoice(Name = "Vietnamese")] vi,
 	}
 }
+#endif

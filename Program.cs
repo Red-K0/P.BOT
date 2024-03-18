@@ -14,13 +14,15 @@ client.MessageReactionAdd += Events.ReactionAdded;
 #endregion
 
 #region Startup
+if (!PBOT_C.EnableVirtual()) throw new OperationCanceledException("VT_Sequences (VTs.dll) failed to initlialize.");
+
 Console.CursorVisible = false;
 Console.OutputEncoding = System.Text.Encoding.Unicode;
 
 await client.StartAsync();
 await client.ReadyAsync;
 
-UserManagement.MembersSearch();
+Members.Search();
 
 ApplicationCommandService<SlashCommandContext> applicationCommandService = new();
 applicationCommandService.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);

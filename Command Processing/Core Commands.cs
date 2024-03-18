@@ -6,7 +6,7 @@
 using Microsoft.IdentityModel.Tokens;
 using NetCord.Services.ApplicationCommands;
 using P_BOT.Command_Processing.Helpers;
-using static P_BOT.UserManagement;
+using static P_BOT.Members;
 
 namespace P_BOT.Command_Processing;
 
@@ -80,9 +80,18 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 	/// </summary>
 	public async partial Task DumpUserInfo(User user) // TODO | Proper details
 	{
-		_ = MemberList.TryGetValue(user.Id, out UserObject @User);
+		UserObject @User = List[user.Id];
 
-		string Roles = "";
+		string index = (Array.IndexOf([.. List.Keys], User.ID) + 1).ToString();
+		index += index.Last() switch
+		{
+			'1' => "st",
+			'2' => "nd",
+			'3' => "rd",
+			  _ => "th"
+		};
+
+		string Roles = $">>> - The {index} member to join the PPP.";
 		foreach (ulong Accolade in User.Server.Roles.Where(IsEventRole))
 		{
 			Roles += Accolade switch
@@ -96,9 +105,9 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 
 		string NitroType = User.PremiumType switch
 		{
-			UserManagement.PremiumType.NitroClassic => "Classic",
-			UserManagement.PremiumType.Nitro => "Standard",
-			UserManagement.PremiumType.NitroBasic => "Basic",
+			Members.PremiumType.NitroClassic => "Classic",
+			Members.PremiumType.Nitro => "Standard",
+			Members.PremiumType.NitroBasic => "Basic",
 			_ => "None"
 		};
 
@@ -117,12 +126,12 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 		}
 		else
 		{
-			AKAString = "`AKA` "[..^2];
+			AKAString = AKAString[..^2];
 		}
 
 		MessageProperties msg_prop = Embeds.Generate
 		(
-			DisplayAKA ? Parsing.MDLiteral("`AKA` ") : "",
+			DisplayAKA ? Parsing.MDLiteral(AKAString) : "",
 			null,
 			null,
 			Embeds.CreateFooterObject($"User requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),

@@ -1,4 +1,4 @@
-﻿using static P_BOT.UserManagement;
+﻿using static P_BOT.Members;
 
 namespace P_BOT;
 
@@ -29,7 +29,7 @@ internal static partial class Embeds
 		Embeds = [(new EmbedProperties()
 		{
 			Author = AuthorObject,
-			Color = new((RGB == -1 && RefID != 0) ? MemberList.GetValueOrDefault(RefID).Customization.PersonalRoleColor : (RGB == -1) ? FastRandom.Color() : RGB),
+			Color = new((RGB == -1 && RefID != 0) ? List.GetValueOrDefault(RefID).Customization.PersonalRoleColor : (RGB == -1) ? FastRandom.Color() : RGB),
 			Description = Description,
 			Footer = FooterObject,
 			Image = new(ImageURL),

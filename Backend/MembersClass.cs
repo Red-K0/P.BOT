@@ -2,16 +2,16 @@
 using System.Text.RegularExpressions;
 
 namespace P_BOT;
-internal static partial class UserManagement
+internal static partial class Members
 {
 	[GeneratedRegex(",{\"member\"")]
-	private static partial Regex MemberCountRegex();
-	public static Dictionary<ulong, UserObject> MemberList = [];
+	private static partial Regex CountRegex();
+	public static Dictionary<ulong, UserObject> List = [];
 
 	/// <summary>
 	/// Initializes the class with data from the <c>members_search</c> endpoint.
 	/// </summary>
-	public static async void MembersSearch()
+	public static async void Search()
 	{
 #if DEBUG
 		Stopwatch Timer = Stopwatch.StartNew();
@@ -25,7 +25,7 @@ internal static partial class UserManagement
 		await x.DisposeAsync();
 
 		string MembersSearch = System.Text.Encoding.Default.GetString(response);
-		int max = MemberCountRegex().Matches(MembersSearch).Count + 2;
+		int max = CountRegex().Matches(MembersSearch).Count + 2;
 		Response[] WorkingArray = [];
 
 		for (int i = 1; i < max; i++)
@@ -269,7 +269,7 @@ internal static partial class UserManagement
 
 			NewUser.Customization = TempCustom;
 
-			MemberList.Add(NewUser.ID, NewUser);
+			List.Add(NewUser.ID, NewUser);
 		}
 	}
 

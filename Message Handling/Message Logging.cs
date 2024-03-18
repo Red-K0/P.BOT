@@ -1,4 +1,6 @@
-﻿namespace P_BOT.Messages;
+﻿using P_BOT.Command_Processing.Helpers;
+
+namespace P_BOT.Messages;
 
 /// <summary>
 /// Contains methods responsible for logging messages to the console.
@@ -39,20 +41,12 @@ internal static class Logging
 
 			string Annotation = GetAnnotation(message.Content);
 			Console.WriteLine($"{message.Content} {(string.IsNullOrWhiteSpace(Annotation) ? "" : "< ")}{Annotation}");
-			Console.ForegroundColor = ConsoleColor.Gray;
 			LastAuthor = message.Author.Id;
 		}
 
-		static string GetAnnotation(string content)
-		{
-			if (content.StartsWith(".r"))
-			{
-				Console.ForegroundColor = Command_Processing.Helpers.Options.DnDTextModule ? ConsoleColor.Green : ConsoleColor.Red;
-				return $"Call to DnDTextModule {(Command_Processing.Helpers.Options.DnDTextModule ? "(Processed)" : "(Ignored)")}";
-			}
-
-			return "";
-		}
+		static string GetAnnotation(string content) => content.StartsWith(".r") ?
+			$"{(Options.DnDTextModule ? PBOT_C.Green : PBOT_C.Red)}Call to DnDTextModule {(Options.DnDTextModule ? "(Processed)" : "(Ignored)")}{PBOT_C.None}"
+			: "";
 	}
 
 	#region Special ID Writes
@@ -63,10 +57,7 @@ internal static class Logging
 		{
 			Console.Write('\n');
 		}
-
-		WriteColor("Network: ", ConsoleColor.Green);
-		Console.WriteLine(message.Message);
-
+		Console.WriteLine($"{PBOT_C.Green}Network:{PBOT_C.None} {message.Message}");
 		LastAuthor = NETWORK_ID;
 	}
 	public  static void AsDiscord(string message)
@@ -75,9 +66,7 @@ internal static class Logging
 		{
 			Console.Write('\n');
 		}
-		WriteColor("Discord: ", ConsoleColor.Blue);
-		Console.WriteLine(message);
-
+		Console.WriteLine($"{PBOT_C.Blue}Discord:{PBOT_C.None} {message}");
 		LastAuthor = DISCORD_ID;
 	}
 	public  static void AsVerbose(string message)
@@ -86,17 +75,8 @@ internal static class Logging
 		{
 			Console.Write('\n');
 		}
-		WriteColor("Command: ", ConsoleColor.Red);
-		Console.WriteLine(message);
-
+		Console.WriteLine($"{PBOT_C.Red}Command:{PBOT_C.None} {message}");
 		LastAuthor = VERBOSE_ID;
-	}
-
-	private static void WriteColor(string content, ConsoleColor color)
-	{
-		Console.ForegroundColor = color;
-		Console.Write(content);
-		Console.ForegroundColor = ConsoleColor.Gray;
 	}
 	#endregion
 }

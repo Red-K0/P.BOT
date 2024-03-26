@@ -48,7 +48,7 @@ internal static partial class Members
 		public string GlobalName			{ get; set; }
 		public int Discriminator			{ get; set; }
 		public PremiumType PremiumType		{ get; set; }
-		public PublicFlags PublicFlags		{ get; set; }
+		public UserFlags PublicFlags		{ get; set; }
 		public Customization Customization	{ get; set; }
 		public Invite Invite				{ get; set; }
 		public Server Server				{ get; set; }
@@ -73,7 +73,7 @@ internal static partial class Members
 	{
 		public string AvatarHash				{ get; set; }
 		public DateTime MutedUntil				{ get; set; }
-		public Flags Flags						{ get; set; }
+		public GuildMemberFlags Flags						{ get; set; }
 		public DateTime JoinedAt				{ get; set; }
 		public string Nickname					{ get; set; }
 		public bool Verified					{ get; set; }
@@ -85,36 +85,145 @@ internal static partial class Members
 	}
 
 	// Data Enumerations
-	public enum Flags
+
+	/// <summary>
+	/// The user's guild flags.
+	/// </summary>
+	public enum GuildMemberFlags
 	{
 		DID_REJOIN				= 1 << 0,
 		COMPLETED_ONBOARDING	= 1 << 1,
 		BYPASSES_VERIFICATION	= 1 << 2,
 		STARTED_ONBOARDING		= 1 << 3
 	}
-	public enum PublicFlags
+
+	/// <summary>
+	/// The user's account flags.
+	/// </summary>
+	public enum UserFlags : long
 	{
-		STAFF						= 1 << 00,
-		PARTNER						= 1 << 01,
-		HYPESQUAD					= 1 << 02,
-		BUG_HUNTER_LEVEL_1			= 1 << 03,
-		HYPERSQUAD_ONLINE_HOUSE_1	= 1 << 06,
-		HYPERSQUAD_ONLINE_HOUSE_2	= 1 << 07,
-		HYPERSQUAD_ONLINE_HOUSE_3	= 1 << 08,
-		PREMIUM_EARLY_SUPPORTER		= 1 << 09,
-		TEAM_PSEUDO_USER			= 1 << 10,
-		BUG_HUNTER_LEVEL_2			= 1 << 14,
-		VERIFIED_BOT				= 1 << 16,
-		VERIFIED_DEVELOPER			= 1 << 17,
-		CERTIFIED_MODERATOR			= 1 << 18,
-		BOT_HTTP_INTERACTIONS		= 1 << 19,
-		ACTIVE_DEVELOPER			= 1 << 22
+		/// <summary> User is a discord employee. </summary>
+		STAFF                        = (long) 1 << 00,
+
+		/// <summary> User is a discord partner. </summary>
+		PARTNER                      = (long) 1 << 01,
+
+		/// <summary> User has the 'HypeSquad Events' badge. </summary>
+		HYPESQUAD                    = (long) 1 << 02,
+
+		/// <summary> User has the 'Bug Hunter' badge. </summary>
+		BUG_HUNTER_LEVEL_1           = (long) 1 << 03,
+
+		/// <summary> User has SMS recovery for 2FA enabled. </summary>
+		MFA_SMS                      = (long) 1 << 04,
+
+		/// <summary> User dismissed the Nitro promotion. </summary>
+		PREMIUM_PROMO_DISMISSED      = (long) 1 << 05,
+
+		/// <summary> User is a House of Bravery Member. </summary>
+		HYPERSQUAD_ONLINE_HOUSE_1    = (long) 1 << 06,
+
+		/// <summary> User is a House of Brilliance Member. </summary>
+		HYPERSQUAD_ONLINE_HOUSE_2    = (long) 1 << 07,
+
+		/// <summary> User is a House of Balance Member. </summary>
+		HYPERSQUAD_ONLINE_HOUSE_3    = (long) 1 << 08,
+
+		/// <summary> User has the 'Early Supporter' badge. </summary>
+		PREMIUM_EARLY_SUPPORTER      = (long) 1 << 09,
+
+		/// <summary> User is a team. See <see href="https://discord.com/developers/docs/topics/teams"/>. </summary>
+		TEAM_PSEUDO_USER             = (long) 1 << 10,
+
+		/// <summary> User has a pending partner/verification application. </summary>
+		INTERNAL_APPLICATION         = (long) 1 << 11,
+
+		/// <summary> User is the SYSTEM account. </summary>
+		SYSTEM                       = (long) 1 << 12,
+
+		/// <summary> User has unread messages from Discord. </summary>
+		HAS_UNREAD_URGENT_MESSAGES   = (long) 1 << 13,
+
+		/// <summary> User has the 'Golden Bug Hunter' badge. </summary>
+		BUG_HUNTER_LEVEL_2           = (long) 1 << 14,
+
+		/// <summary> User is pending deletion for being underage in DOB prompt. </summary>
+		UNDERAGE_DELETED             = (long) 1 << 15,
+
+		/// <summary> User is a verified bot. See <see href="https://support.discord.com/hc/articles/360040720412"/>. </summary>
+		VERIFIED_BOT                 = (long) 1 << 16,
+
+		/// <summary> User has the 'Early Verified Developer' badge. </summary>
+		VERIFIED_DEVELOPER           = (long) 1 << 17,
+
+		/// <summary> User has the 'Moderator Program Alumni' badge. </summary>
+		CERTIFIED_MODERATOR          = (long) 1 << 18,
+
+		/// <summary> User is a bot with an interactions endpoint. </summary>
+		BOT_HTTP_INTERACTIONS        = (long) 1 << 19,
+
+		/// <summary> User's account is disabled for spam. </summary>
+		SPAMMER                      = (long) 1 << 20,
+
+		/// <summary> User's Nitro features are disabled. </summary>
+		DISABLE_PREMIUM              = (long) 1 << 21,
+
+		/// <summary> User has the 'Active Developer' badge. See <see href="https://support-dev.discord.com/hc/articles/10113997751447"/>. </summary>
+		ACTIVE_DEVELOPER             = (long) 1 << 22,
+
+		/// <summary> User's account has a high global rate limit. </summary>
+		HIGH_GLOBAL_RATE_LIMIT       = (long) 1 << 33,
+
+		/// <summary> User's account is deleted. </summary>
+		DELETED                      = (long) 1 << 34,
+
+		/// <summary> User's account is disabled for suspicious activity. </summary>
+		DISABLED_SUSPICIOUS_ACTIVITY = (long) 1 << 35,
+
+		/// <summary> User's account was manually deleted. </summary>
+		SELF_DELETED                 = (long) 1 << 36,
+
+		/// <summary> User has a manually selected discriminator. </summary>
+		[Obsolete]
+		PREMIUM_DISCRIMINATOR        = (long) 1 << 37,
+
+		/// <summary> User has used the desktop client. </summary>
+		USED_DESKTOP_CLIENT          = (long) 1 << 38,
+
+		/// <summary> User has used the web client. </summary>
+		USED_WEB_CLIENT              = (long) 1 << 39,
+
+		/// <summary> User has used the mobile client. </summary>
+		USED_MOBILE_CLIENT           = (long) 1 << 40,
+
+		/// <summary> User's account is temporarily or permanently disabled. </summary>
+		DISABLED                     = (long) 1 << 41,
+
+		/// <summary> User has a verified email. </summary>
+		VERIFIED_EMAIL               = (long) 1 << 43,
+
+		/// <summary> User is quarantined. See <see href="https://support.discord.com/hc/articles/6461420677527"/>. </summary>
+		QUARANTINED                  = (long) 1 << 44,
+
+		/// <summary> User is a collaborator and has staff permissions. </summary>
+		COLLABORATOR                 = (long) 1 << 50,
+
+		/// <summary> User is a restricted collaborator and has staff permissions. </summary>
+		RESTRICTED_COLLABORATOR      = (long) 1 << 51
 	}
+
+	/// <summary>
+	/// The user's type of nitro subscription.
+	/// </summary>
 	public enum PremiumType
 	{
+		/// <summary> No nitro subscription. </summary>
 		None = 0,
+		/// <summary> Nitro Classic subscription. </summary>
 		NitroClassic = 1,
+		/// <summary> Standard Nitro subscription. </summary>
 		Nitro = 2,
+		/// <summary> Nitro Basic subscription. </summary>
 		NitroBasic = 3
 	}
 
@@ -144,7 +253,8 @@ internal static partial class Members
 	[
 		SixMonthAnniversary,
 		SecretSanta2023,
-		HyakkanoEnjoyer
+		HyakkanoEnjoyer,
+		CelesteSpeedrun
 	];
 
 	private const ulong
@@ -172,8 +282,10 @@ internal static partial class Members
 
 	public const ulong
 					Cultist = 1155447510823874621,
+					Founder = 1147935997770862612,
 		SixMonthAnniversary = 1200608387835121706,
 			SecretSanta2023 = 1193330313162657934,
-			HyakkanoEnjoyer = 1190873907503304754;
+			HyakkanoEnjoyer = 1190873907503304754,
+			CelesteSpeedrun = 1219835818357686282;
 	#endregion
 }

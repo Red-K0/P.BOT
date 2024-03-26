@@ -1,6 +1,5 @@
-﻿namespace P_BOT.Messages;
-
-using static Functions;
+﻿using static P_BOT.Messages.Functions;
+namespace P_BOT.Messages;
 
 /// <summary>
 /// Contains methods responsible for handling message events.

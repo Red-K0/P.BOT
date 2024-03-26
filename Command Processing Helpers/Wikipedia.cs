@@ -1,7 +1,6 @@
 ﻿// The helper class supporting the /wikidefine command.
 
 using System.Text.RegularExpressions;
-
 namespace P_BOT.Command_Processing.Helpers;
 
 /// <summary>
@@ -40,7 +39,7 @@ public static partial class Wikipedia
 		if (Response.Length > 4096) Response = $"{Response[..4093]}...";
 
 		// Fix for escape characters in raw text, such as "\u2014" instead of '—' (U+2014 | Em Dash).
-		Response = Parsing.EscapedUnicode(Response);
+		Response = Response.ToParsedUnicode();
 
 		// Copy char array to string array.
 		string[] StringArray = new string[Response.Length];

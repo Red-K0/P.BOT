@@ -1,11 +1,18 @@
 ﻿using System.Net.Http.Json;
 using System.Text.RegularExpressions;
-
 namespace P_BOT;
+
+/// <summary>
+/// Contains the bot's member list and its methods.
+/// </summary>
 internal static partial class Members
 {
 	[GeneratedRegex(",{\"member\"")]
 	private static partial Regex CountRegex();
+
+	/// <summary>
+	/// The bot's internal member list, generated from the <c>membersearch</c> endpoint.
+	/// </summary>
 	public static Dictionary<ulong, UserObject> List = [];
 
 	/// <summary>
@@ -39,9 +46,9 @@ internal static partial class Members
 			Member @Member = WorkingArray[i].Member;
 			User @User = Member.User;
 
-			Member.Nick = Parsing.EscapedUnicode(Member.Nick);
-			User.Username = Parsing.EscapedUnicode(User.Username);
-			User.GlobalName = Parsing.EscapedUnicode(User.GlobalName);
+			Member.Nick = Member.Nick.ToParsedUnicode();
+			User.Username = User.Username.ToParsedUnicode();
+			User.GlobalName = User.GlobalName.ToParsedUnicode();
 
 			Member.User = User;
 			WorkingArray[i].Member = Member;
@@ -199,6 +206,9 @@ internal static partial class Members
 		}
 	}
 
+	/// <summary>
+	/// Parses each <see cref="Response"/> into its equivalent <see cref="UserObject"/>.
+	/// </summary>
 	private static void ParseResponse(Response[] WorkingArray)
 	{
 		IReadOnlyDictionary<ulong, Role> Roles = client.Rest.GetGuildRolesAsync(Convert.ToUInt64(SERVER_LINK[29..^1])).Result;
@@ -232,7 +242,7 @@ internal static partial class Members
 				Server = new()
 				{
 					AvatarHash = Member.AvatarHash,
-					Flags = (Flags)Member.Flags,
+					Flags = (GuildMemberFlags)Member.Flags,
 					IsVCDeafened = Member.Deaf,
 					IsVCMuted = Member.Mute,
 					MutedUntil = Member.CommunicationDisabledUntil,
@@ -244,7 +254,7 @@ internal static partial class Members
 					Verified = Member.Pending
 				},
 
-				PublicFlags = (PublicFlags)User.PublicFlags,
+				PublicFlags = (UserFlags)User.PublicFlags,
 				PremiumType = (PremiumType)User.PremiumType,
 			};
 
@@ -273,6 +283,15 @@ internal static partial class Members
 		}
 	}
 
+	/// <summary>
+	/// Checks if the user referenced by the ID is a founder.
+	/// </summary>
+	/// <param name="ID"> The ID to check. </param>
 	public static bool IsFounder(ulong ID) => FounderIDs.Contains(ID);
+
+	/// <summary>
+	/// Checks if the role referenced by the ID is an event role.
+	/// </summary>
+	/// <param name="ID"> The ID to check. </param>
 	public static bool IsEventRole(ulong ID) => EventIDs.Contains(ID);
 }

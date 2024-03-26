@@ -1,8 +1,5 @@
 ﻿namespace P_BOT;
 
-/// <summary>
-/// Contains methods to contain and simplify the creation of <see cref="Embed"/> components.
-/// </summary>
 internal static partial class Embeds
 {
 	/// <summary> Creates an <see cref="EmbedAuthorProperties"/> object for use in an <see cref="Embed"/>. </summary>

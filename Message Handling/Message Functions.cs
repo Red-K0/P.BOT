@@ -94,12 +94,12 @@ internal static class Functions
 		{
 			CurrentScan = Scan[(Scan.IndexOf(SERVER_LINK) + 49)..];
 
-			CurrentScan = CurrentScan.Remove(' ', 0);
-			CurrentScan = CurrentScan.Remove('\n', 0);
+			if (CurrentScan.Contains(' ')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf(' '));
+			if (CurrentScan.Contains('\n')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
 
 			if (CurrentScan.Contains('/'))
 			{
-				if (!ulong.TryParse(CurrentScan.Remove('/'), out ChannelID))
+				if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.IndexOf('/')), out ChannelID))
 				{
 					return;
 				}

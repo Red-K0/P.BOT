@@ -1,5 +1,4 @@
 ﻿using P_BOT.Command_Processing.Helpers;
-
 namespace P_BOT.Messages;
 
 /// <summary>
@@ -8,7 +7,7 @@ namespace P_BOT.Messages;
 internal static class Logging
 {
 	/// <summary>
-	/// The ID of the last logged user.
+	/// The ID of the latest logged user.
 	/// </summary>
 	private static ulong? LastAuthor = 0;
 
@@ -34,23 +33,40 @@ internal static class Logging
 	{
 		if (!string.IsNullOrWhiteSpace(message.Content))
 		{
+			string LogMessage = message.Content;
+
 			if (LastAuthor != message.Author.Id)
 			{
 				Console.WriteLine($"\n{message.CreatedAt} {message.Author,-22} - {message.Author.Username}");
 			}
 
-			string Annotation = GetAnnotation(message.Content);
-			Console.WriteLine($"{message.Content} {(string.IsNullOrWhiteSpace(Annotation) ? "" : "< ")}{Annotation}");
+			while (LogMessage.Contains(" http") || LogMessage.StartsWith("http"))
+			{
+				int LinkStart = LogMessage.IndexOf(" http") + 1;
+				int LinkEnd = LogMessage.IndexOf(' ', LinkStart);
+
+				if (LinkEnd == -1) LinkEnd = LogMessage.Length + 5;
+
+				LogMessage = LogMessage.Insert(LinkStart, PBOT_C.BrightBlue).Insert(LinkEnd, PBOT_C.None);
+			}
+
+			GetAnnotation(ref LogMessage);
+			Console.WriteLine(LogMessage);
 			LastAuthor = message.Author.Id;
 		}
 
-		static string GetAnnotation(string content) => content.StartsWith(".r") ?
-			$"{(Options.DnDTextModule ? PBOT_C.Green : PBOT_C.Red)}Call to DnDTextModule {(Options.DnDTextModule ? "(Processed)" : "(Ignored)")}{PBOT_C.None}"
+		static void GetAnnotation(ref string content) => content += content.StartsWith(".r") ?
+			$" < {(Options.DnDTextModule ? PBOT_C.Green : PBOT_C.Red)}Call to DnDTextModule {(Options.DnDTextModule ? "(Processed)" : "(Ignored)")}{PBOT_C.None}"
 			: "";
 	}
 
 	#region Special ID Writes
 	private const ulong NETWORK_ID = 0, DISCORD_ID = 1, VERBOSE_ID = 2;
+
+	/// <summary>
+	/// Logs network client responses.
+	/// </summary>
+	/// <param name="message"> The text to log. </param>
 	private static void AsNetwork(ref LogMessage message)
 	{
 		if (LastAuthor != NETWORK_ID)
@@ -60,7 +76,12 @@ internal static class Logging
 		Console.WriteLine($"{PBOT_C.Green}Network:{PBOT_C.None} {message.Message}");
 		LastAuthor = NETWORK_ID;
 	}
-	public  static void AsDiscord(string message)
+
+	/// <summary>
+	/// Logs discord responses.
+	/// </summary>
+	/// <param name="message"> The text to log. </param>
+	public static void AsDiscord(string message)
 	{
 		if (LastAuthor != DISCORD_ID)
 		{
@@ -69,6 +90,11 @@ internal static class Logging
 		Console.WriteLine($"{PBOT_C.Blue}Discord:{PBOT_C.None} {message}");
 		LastAuthor = DISCORD_ID;
 	}
+
+	/// <summary>
+	/// Logs verbose output.
+	/// </summary>
+	/// <param name="message"> The text to log. </param>
 	public  static void AsVerbose(string message)
 	{
 		if (LastAuthor != VERBOSE_ID)

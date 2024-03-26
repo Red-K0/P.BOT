@@ -1,9 +1,8 @@
 ﻿using static P_BOT.Members;
-
 namespace P_BOT;
 
 /// <summary>
-/// Contains functions for the creation of embeds.
+/// Contains functions for the creation of embeds and their components.
 /// </summary>
 internal static partial class Embeds
 {
@@ -29,7 +28,7 @@ internal static partial class Embeds
 		Embeds = [(new EmbedProperties()
 		{
 			Author = AuthorObject,
-			Color = new((RGB == -1 && RefID != 0) ? List.GetValueOrDefault(RefID).Customization.PersonalRoleColor : (RGB == -1) ? FastRandom.Color() : RGB),
+			Color = new((RGB == -1 && RefID != 0) ? List.GetValueOrDefault(RefID).Customization.PersonalRoleColor : (RGB == -1) ? Environment.TickCount & 0xFFFFFF : RGB),
 			Description = Description,
 			Footer = FooterObject,
 			Image = new(ImageURL),
@@ -50,9 +49,10 @@ internal static partial class Embeds
 	/// <param name="FooterIconURL"> The URL of the image to display in the footer block, to the left of the <paramref name="Footer"/> text. </param>
 	/// <param name="ReplyTo"> The ID of the message being replied to with the embed. </param>
 	/// <param name="Title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="TitleURL"/>, has a 256 character limit. </param>
+	/// <param name="ThumbnailURL"> The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed. </param>
 	/// <returns> <see cref="MessageProperties"/> containing the created embed. </returns>
 	public static MessageProperties Generate(RestMessage TargetMessage, string TitleURL, string? Footer = null, string? FooterIconURL = null,
-	ulong? ReplyTo = null, string? Title = null)
+	ulong? ReplyTo = null, string? Title = null, string? ThumbnailURL = null)
 	{
 		MessageProperties msg_prop = new();
 		for (int i = 0; i < Math.Clamp(TargetMessage.Attachments.Count, 1, 10); i++)
@@ -65,6 +65,7 @@ internal static partial class Embeds
 			-1,
 			ReplyTo ?? 0,
 			TargetMessage.Attachments.Any() ? TargetMessage.Attachments.Values.ToArray()[i].Url : null,
+			ThumbnailURL,
 			Title,
 			TitleURL,
 			RefID: TargetMessage.Author.Id

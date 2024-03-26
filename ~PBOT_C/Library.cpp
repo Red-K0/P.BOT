@@ -4,15 +4,10 @@
 #include "framework.h"
 #include "library.h"
 #include <sstream>
-#include <stdio.h>
 #include <Windows.h>
 
 ///<summary> The escape sequence used for virtual terminal sequences. </summary>
 #define ESC "\x1b"
-
-//Variables
-///<summary> Is the console's altenate buffer currently active? </summary>
-bool AlternateBufferActive = false;
 
 #pragma endregion
 
@@ -69,6 +64,8 @@ bool EnableVirtual()
 		return true;
 	}
 
+#if false
+
 /// <summary> Sets the console window and buffer size to the value specified by the given parameters. </summary>
 /// <param name="X:"> The width of the console window in characters. </param>
 /// <param name="Y:"> The height of the console window in characters. </param>
@@ -80,30 +77,11 @@ void SetScreenSize(int X, int Y)
 }
 
 /// <summary> Switches the active console buffer to the alternate buffer if the main buffer is active, otherwise returns to the main console buffer. </summary>
-/// <param name="Clear:"> Optional, clears the switched-from buffer if set to true. </param>
 /// <returns> True if the switched-to buffer was the alternate buffer, otherwise returns false. </returns>
-bool SwitchScreenBuffer(bool Clear = false)
-		{
-			if (Clear) printf(ESC "[2J" ESC "[H");
-			if (!AlternateBufferActive)
-			{
-				printf(ESC "[?1049h");
-				AlternateBufferActive = true;
-				return true;
-			}
-			else
-			{
-				printf(ESC "[?1049l");
-				AlternateBufferActive = false;
-				return false;
-			}
-		}
-
-/// <summary> Is cursor blinking currently enabled? </summary>
-static bool IsBlinking;
-
-/// <summary> Is the cursor currently visible? </summary>
-static bool IsVisible;
+void SwitchScreenBuffer(bool AltBuffer)
+{
+	if (AltBuffer) printf(ESC "[?1049h"); else printf(ESC "[?1049l");
+}
 
 void RevCursorIndex()
 {
@@ -111,11 +89,9 @@ void RevCursorIndex()
 }
 
 /// <summary> Saves the cursor position to memory if 'Mode' is set to true, otherwise restores it. </summary>
-/// <param name="ANSILegacyMode:"> Optional, when set to true, uses ANSI.sys emulation for compatability. </param>
-void CursorMemory(bool Mode, bool ANSILegacyMode = false)
+void CursorMemory(bool Save)
 {
-	if (ANSILegacyMode) { if (Mode) printf(ESC "[s"); else printf(ESC "[u"); }
-	else if (Mode) printf(ESC "7"); else printf(ESC "8");
+	if (Save) printf(ESC "7"); else printf(ESC "8");
 }
 
 /// <summary> Moves the cursor according to the given parameters within the viewport, will not scroll. </summary>
@@ -146,42 +122,11 @@ bool ModCursorPosition(int Mode, int n)
 /// <param name="X:"> The horizontal position of the cursor. </param>
 /// <param name="Y:"> The vertical position of the cursor. </param>
 /// <param name="LegacyMode:"> If set to true, will perform an HVP call rather than a CUP call. </param>
-void SetCursorPosition(int X, int Y, bool LegacyMode = false)
+void SetCursorPosition(int X, int Y)
 {
 	std::ostringstream command;
-	command << ESC << '[' << Y << ';' << X;
-	if (!LegacyMode)  command << 'H'; else command << 'f';
+	command << ESC << '[' << Y << ';' << X << 'H';
 	printf(command.str().c_str());
-}
-
-/// <summary> Toggles the cursor blinking behaviour in the console. </summary>
-/// <param name="Set:"> Optional, forces the blinking off when 0, and on when 1. </param>
-/// <returns> True on a successful call, otherwise returns false. </returns>
-bool ToggleCursorBlink(int Set = -1)
-{
-	switch (Set)
-	{
-		default: return false;
-		case -1: if (IsBlinking) { printf(ESC "[?12l"); IsBlinking = false; }
-				else { printf(ESC "[?12h"); IsBlinking = true; } break;
-		case  0: printf(ESC "[?12l"); IsBlinking = false; break;
-		case  1: printf(ESC "[?12h"); IsBlinking = true; break;
-	}
-}
-
-/// <summary> Toggles the cursor visibility. </summary>
-/// <param name="Set:"> Optional, forces visibility to off when 0, and on when 1. </param>
-/// <returns> True on a successful call, otherwise returns false. </returns>
-bool ToggleCursorVisibility(int Set = -1)
-{
-	switch (Set)
-	{
-		default: return false;
-		case -1: if (IsVisible) { printf(ESC "[?25l"); IsVisible = false; }
-				else { printf(ESC "[?25h"); IsVisible = true; } break;
-		case  0: printf(ESC "[?25l"); IsVisible = false; break;
-		case  1: printf(ESC "[?25h"); IsVisible = true; break;
-	}
 }
 
 /// <summary> Sets the shape of the cursor according to the given 'Choice' parameter. </summary>
@@ -193,13 +138,13 @@ bool SetCursorShape(int Choice)
 	switch (Choice)
 	{
 		default: return false;
-		case  0: printf(ESC "[0 q"); IsBlinking = true;  break; // Default
-		case  1: printf(ESC "[1 q"); IsBlinking = true;  break; // Block Blinking
-		case  2: printf(ESC "[2 q"); IsBlinking = false; break; // Block Steady
-		case  3: printf(ESC "[3 q"); IsBlinking = true;  break; // Underline Blinking
-		case  4: printf(ESC "[4 q"); IsBlinking = false; break; // Underline Steady
-		case  5: printf(ESC "[5 q"); IsBlinking = true;  break; // Bar Blinking
-		case  6: printf(ESC "[6 q"); IsBlinking = false; break; // Bar Steady
+		case 0: printf(ESC "[0 q"); break; // Default
+		case 1: printf(ESC "[1 q"); break; // Block Blinking
+		case 2: printf(ESC "[2 q"); break; // Block Steady
+		case 3: printf(ESC "[3 q"); break; // Underline Blinking
+		case 4: printf(ESC "[4 q"); break; // Underline Steady
+		case 5: printf(ESC "[5 q"); break; // Bar Blinking
+		case 6: printf(ESC "[6 q"); break; // Bar Steady
 	}
 	return true;
 }
@@ -211,51 +156,47 @@ bool SetCursorShape(int Choice)
 /// <param name="Table:"> [ 1: Black | 2: Red | 3: Green | 4: Yellow | 5: Blue | 6: Magenta | 7: Cyan | 8: White ]
 /// Add 8 for a bright/bold version of any given color, use 0 to reset to the default color, or -1 to leave the color as is.</param>
 /// <returns> True if the given color choices were set successfully, otherwise returns false. </returns>
-bool SetColor(int ForegroundColor, int BackgroundColor)
+bool SetColor(uint8_t Color)
 {
-	switch (ForegroundColor)
+	switch (Color & 0b00001111)
 	{
 		default: return false;
-		case -1: break; // Do Nothing
-		case  0: printf(ESC "[39m"); break; // Reset
-		case  1: printf(ESC "[30m"); break; // Black
-		case  2: printf(ESC "[31m"); break; // Red
-		case  3: printf(ESC "[32m"); break; // Green
-		case  4: printf(ESC "[33m"); break; // Yellow
-		case  5: printf(ESC "[34m"); break; // Blue
-		case  6: printf(ESC "[35m"); break; // Magenta
-		case  7: printf(ESC "[36m"); break; // Cyan
-		case  8: printf(ESC "[37m"); break; // White
-		case  9: printf(ESC "[90m"); break; // Bright Black
-		case 10: printf(ESC "[91m"); break; // Bright Red
-		case 11: printf(ESC "[92m"); break; // Bright Green
-		case 12: printf(ESC "[93m"); break; // Bright Yellow
-		case 13: printf(ESC "[94m"); break; // Bright Blue
-		case 14: printf(ESC "[95m"); break; // Bright Magenta
-		case 15: printf(ESC "[96m"); break; // Bright Cyan
-		case 16: printf(ESC "[97m"); break; // Bright White
+		case 0x0: printf(ESC "[30m"); break; // Black
+		case 0x1: printf(ESC "[31m"); break; // Red
+		case 0x2: printf(ESC "[32m"); break; // Green
+		case 0x3: printf(ESC "[33m"); break; // Yellow
+		case 0x4: printf(ESC "[34m"); break; // Blue
+		case 0x5: printf(ESC "[35m"); break; // Magenta
+		case 0x6: printf(ESC "[36m"); break; // Cyan
+		case 0x7: printf(ESC "[37m"); break; // White
+		case 0x8: printf(ESC "[90m"); break; // Bright Black
+		case 0x9: printf(ESC "[91m"); break; // Bright Red
+		case 0xA: printf(ESC "[92m"); break; // Bright Green
+		case 0xB: printf(ESC "[93m"); break; // Bright Yellow
+		case 0xC: printf(ESC "[94m"); break; // Bright Blue
+		case 0xD: printf(ESC "[95m"); break; // Bright Magenta
+		case 0xE: printf(ESC "[96m"); break; // Bright Cyan
+		case 0xF: printf(ESC "[97m"); break; // Bright White
 	}
-	switch (BackgroundColor)
+	switch (Color >> 4)
 	{
 		default: return false;
-		case -1: break; // Do Nothing
-		case  0: printf(ESC "[49m");  break; // Reset
-		case  1: printf(ESC "[40m");  break; // Black
-		case  2: printf(ESC "[41m");  break; // Red
-		case  3: printf(ESC "[42m");  break; // Green
-		case  4: printf(ESC "[43m");  break; // Yellow
-		case  5: printf(ESC "[44m");  break; // Blue
-		case  6: printf(ESC "[45m");  break; // Magenta
-		case  7: printf(ESC "[46m");  break; // Cyan
-		case  8: printf(ESC "[47m");  break; // White
-		case  9: printf(ESC "[100m"); break; // Bright Black
-		case 10: printf(ESC "[101m"); break; // Bright Red
-		case 11: printf(ESC "[102m"); break; // Bright Green
-		case 12: printf(ESC "[103m"); break; // Bright Yellow
-		case 13: printf(ESC "[104m"); break; // Bright Blue
-		case 14: printf(ESC "[105m"); break; // Bright Magenta
-		case 15: printf(ESC "[106m"); break; // Bright Cyan
-		case 16: printf(ESC "[107m"); break; // Bright White
+		case 0x0: printf(ESC "[40m");  break; // Black
+		case 0x1: printf(ESC "[41m");  break; // Red
+		case 0x2: printf(ESC "[42m");  break; // Green
+		case 0x3: printf(ESC "[43m");  break; // Yellow
+		case 0x4: printf(ESC "[44m");  break; // Blue
+		case 0x5: printf(ESC "[45m");  break; // Magenta
+		case 0x6: printf(ESC "[46m");  break; // Cyan
+		case 0x7: printf(ESC "[47m");  break; // White
+		case 0x8: printf(ESC "[100m"); break; // Bright Black
+		case 0x9: printf(ESC "[101m"); break; // Bright Red
+		case 0xA: printf(ESC "[102m"); break; // Bright Green
+		case 0xB: printf(ESC "[103m"); break; // Bright Yellow
+		case 0xC: printf(ESC "[104m"); break; // Bright Blue
+		case 0xD: printf(ESC "[105m"); break; // Bright Magenta
+		case 0xE: printf(ESC "[106m"); break; // Bright Cyan
+		case 0xF: printf(ESC "[107m"); break; // Bright White
 	}
 
 	return true;
@@ -300,6 +241,7 @@ bool SetColorPalette(int Select)
 		case  4: printf(ESC "[4m"); break;
 		case  5: printf(ESC "[24m"); break;
 	}
+	return true;
 }
 
 /// <summary> Modifies the color palette value at the given index to match the given RGB value. </summary>
@@ -312,3 +254,5 @@ void ModPalette(int index, uint8_t R, uint8_t G, uint8_t B)
 	printf(command.str().c_str());
 
 }
+
+#endif

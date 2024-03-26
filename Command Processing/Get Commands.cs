@@ -6,8 +6,8 @@
 using NetCord.Services.ApplicationCommands;
 using P_BOT.Command_Processing.Helpers;
 using static P_BOT.Embeds;
-
 namespace P_BOT.Command_Processing;
+
 public sealed partial class SlashCommand
 {
 	#region Attributes

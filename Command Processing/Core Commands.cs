@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using NetCord.Services.ApplicationCommands;
 using P_BOT.Command_Processing.Helpers;
 using static P_BOT.Members;
-
 namespace P_BOT.Command_Processing;
 
 /// <summary>
@@ -91,14 +90,15 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 			  _ => "th"
 		};
 
-		string Roles = $">>> - The {index} member to join the PPP.";
+		string Roles = $">>> <@&{(IsFounder(User.ID) ? Founder : Cultist)}>\n- The {index} member of the PPP.";
 		foreach (ulong Accolade in User.Server.Roles.Where(IsEventRole))
 		{
 			Roles += Accolade switch
 			{
-				SixMonthAnniversary => $"\n<@&{SixMonthAnniversary}> \n- Attended the 6-Month Server Anniversary",
-				SecretSanta2023 => $"\n<@&{SecretSanta2023}> \n- Sent a Secret Santa Gift in 2023",
-				HyakkanoEnjoyer => $"\n<@&{HyakkanoEnjoyer}> \n- Read the first 50 Chapters of 100 Girlfriends",
+				SixMonthAnniversary => $"\n<@&{SixMonthAnniversary}>\n- Attended the 6-Month Server Anniversary",
+				    SecretSanta2023 => $"\n<@&{SecretSanta2023}>\n- Sent a Secret Santa Gift in 2023",
+				    HyakkanoEnjoyer => $"\n<@&{HyakkanoEnjoyer}>\n- Read the first 50 Chapters of 100 Girlfriends",
+				    CelesteSpeedrun => $"\n<@&{CelesteSpeedrun}>\n- Finish a celeste speedrun in under 40 minutes",
 				_ => ""
 			};
 		}
@@ -131,7 +131,7 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 
 		MessageProperties msg_prop = Embeds.Generate
 		(
-			DisplayAKA ? Parsing.MDLiteral(AKAString) : "",
+			DisplayAKA ? AKAString.ToEscapedMarkdown() : "",
 			null,
 			null,
 			Embeds.CreateFooterObject($"User requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),

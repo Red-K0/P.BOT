@@ -1,5 +1,4 @@
-﻿using P_BOT.Command_Processing.Helpers;
-namespace P_BOT.Messages;
+﻿namespace P_BOT.Messages;
 
 /// <summary>
 /// Contains methods responsible for logging messages to the console.
@@ -31,33 +30,22 @@ internal static class Logging
 	/// <param name="message"> The <see cref="Message"/> object to log. </param>
 	public static void AddMessage(in Message message)
 	{
-		if (!string.IsNullOrWhiteSpace(message.Content))
+		// Do nothing if message is empty.
+		if (string.IsNullOrEmpty(message.Content)) return;
+
+		string LogMessage = (LastAuthor != message.Author.Id) ?
+		$"\n{message.CreatedAt} {message.Author,-22} - {message.Author.Username}\n{message.Content}" : message.Content;
+
+		while (LogMessage.Contains(" http") || LogMessage.StartsWith("http"))
 		{
-			string LogMessage = message.Content;
+			int LinkStart = LogMessage.IndexOf(" http") + 1;
+			int LinkEnd = LogMessage.IndexOf(' ', LinkStart);
 
-			if (LastAuthor != message.Author.Id)
-			{
-				Console.WriteLine($"\n{message.CreatedAt} {message.Author,-22} - {message.Author.Username}");
-			}
+			if (LinkEnd == -1) LinkEnd = LogMessage.Length + 5;
 
-			while (LogMessage.Contains(" http") || LogMessage.StartsWith("http"))
-			{
-				int LinkStart = LogMessage.IndexOf(" http") + 1;
-				int LinkEnd = LogMessage.IndexOf(' ', LinkStart);
-
-				if (LinkEnd == -1) LinkEnd = LogMessage.Length + 5;
-
-				LogMessage = LogMessage.Insert(LinkStart, PBOT_C.BrightBlue).Insert(LinkEnd, PBOT_C.None);
-			}
-
-			GetAnnotation(ref LogMessage);
-			Console.WriteLine(LogMessage);
-			LastAuthor = message.Author.Id;
+			LogMessage = LogMessage.Insert(LinkStart, PBOT_C.BrightBlue).Insert(LinkEnd, PBOT_C.None);
 		}
-
-		static void GetAnnotation(ref string content) => content += content.StartsWith(".r") ?
-			$" < {(Options.DnDTextModule ? PBOT_C.Green : PBOT_C.Red)}Call to DnDTextModule {(Options.DnDTextModule ? "(Processed)" : "(Ignored)")}{PBOT_C.None}"
-			: "";
+		Console.WriteLine(LogMessage); LastAuthor = message.Author.Id;
 	}
 
 	#region Special ID Writes

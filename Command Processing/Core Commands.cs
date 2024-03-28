@@ -14,16 +14,6 @@ namespace P_BOT.Command_Processing;
 /// </summary>
 public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommandContext>
 {
-	/// <summary>
-	/// The URL to the GitHub Assets folder.
-	/// </summary>
-	private const string ASSETS = "https://raw.githubusercontent.com/Red-K0/P.BOT/master/Assets/";
-
-	/// <summary>
-	/// The hex code for standard embed gray.
-	/// </summary>
-	private const int STD_COLOR = 0x72767D;
-
 	#region Attributes
 	[SlashCommand("syscheck", "Check if the system's online.")]
 	public partial Task SystemsCheck();

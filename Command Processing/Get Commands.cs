@@ -37,12 +37,12 @@ public sealed partial class SlashCommand
 		MessageProperties msg_prop = (user.Id == BOT_ID) ?
 		Generate
 		(
-			$"Sure, [here]({ASSETS}/Bot%20Icon.png) is my avatar, if you require it in a format other than PNG, please contact <@1124777547687788626>.",
+			$"Sure, [here]({GetAssetURL("Bot Icon.png")}) is my avatar, if you require it in a format other than PNG, please contact <@1124777547687788626>.",
 			CreateAuthorObject($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
 			DateTimeOffset.UtcNow,
 			CreateFooterObject($"Avatar requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			ReplyTo: Context.User.Id,
-			ImageURL: new($"{ASSETS}/Bot%20Icon.png"),
+			ImageURL: new(GetAssetURL("Bot Icon.png")),
 			RefID: user.Id
 		) :
 		Generate
@@ -88,7 +88,7 @@ public sealed partial class SlashCommand
 		MessageProperties msg_prop = Generate
 		(
 			definition,
-			CreateAuthorObject("PPP Encyclopedia", ASSETS + "Define&20Icon.png"),
+			CreateAuthorObject("PPP Encyclopedia", GetAssetURL("Define Icon.png")),
 			DateTimeOffset.UtcNow,
 			CreateFooterObject($"Definition requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			STD_COLOR,
@@ -177,7 +177,7 @@ public sealed partial class SlashCommand
 		MessageProperties msg_prop = Generate
 		(
 			await Wikipedia.GetPage(search_term, long_format),
-			CreateAuthorObject("Wikipedia", ASSETS + "Wikipedia%20Icon.png"),
+			CreateAuthorObject("Wikipedia", GetAssetURL("Wikipedia Icon.png")),
 			DateTime.Now,
 			CreateFooterObject($"Definition requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			STD_COLOR

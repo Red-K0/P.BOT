@@ -47,7 +47,7 @@ public sealed partial class SlashCommand
 		(
 			content,
 			anonymous ?
-			CreateAuthorObject("Posted by an Anonymous User", ASSETS + "Anonymous%20Profile%20Picture.png") : // < Note the colon
+			CreateAuthorObject("Posted by an Anonymous User", GetAssetURL("Anonymous Profile Icon.png")) : // < Note the colon
 			CreateAuthorObject($"Posted by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			DateTime.Now,
 			CreateFooterObject($"Post ID: {InternalPostID}"),

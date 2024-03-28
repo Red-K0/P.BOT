@@ -32,4 +32,6 @@ internal static partial class Embeds
 		Name = Name,
 		Value = Value
 	};
+
+	public static string GetAssetURL(string FileName) => ASSETS + FileName.Replace(" ", "%20");
 }

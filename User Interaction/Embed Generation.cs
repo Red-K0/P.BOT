@@ -6,6 +6,16 @@ namespace P_BOT;
 /// </summary>
 internal static partial class Embeds
 {
+	/// <summary>
+	/// The URL to the GitHub Assets folder.
+	/// </summary>
+	private const string ASSETS = "https://raw.githubusercontent.com/Red-K0/P.BOT/master/Assets/";
+
+	/// <summary>
+	/// The hex code for standard embed gray.
+	/// </summary>
+	public const int STD_COLOR = 0x72767D;
+
 	/// <summary> Combines the specified parameters to generate an embed. </summary>
 	/// <param name="Description"> The section of the embed where the main text is contained, limited to 4096 characters. </param>
 	/// <param name="AuthorObject"> Contains the <see cref="EmbedAuthor"/> information to be used in the embed. </param>

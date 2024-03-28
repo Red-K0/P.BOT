@@ -13,6 +13,8 @@ internal static class Events
 	{
 		const ulong IGNORE_ID = 1169031557848252516;
 
+		Cache.Add(message);
+
 		// Core Message Parsing
 		if (!message.Author.IsBot)
 		{
@@ -39,8 +41,34 @@ internal static class Events
 	/// </summary>
 	public static async ValueTask MessageDeleted(MessageDeleteEventArgs message)
 	{
-		Logging.AsDiscord($"The message with ID '{message.MessageId}' was deleted.");
-		await Task.CompletedTask;
+		Message? DeletedMessage = Cache.Get(message.MessageId);
+		string Output = $"The message with ID '{message.MessageId}' was deleted, but was not cached.";
+		EmbedAuthorProperties? Author = Embeds.CreateAuthorObject("Message Deleted", Embeds.GetAssetURL("Message Deleted Icon.png"));
+		MessageProperties msg_prop;
+
+		if (DeletedMessage != null)
+		{
+			Output = $"The message with ID '{message.MessageId}' was deleted. It was originally sent by {DeletedMessage.Author.Username} at {DeletedMessage.CreatedAt}, and had the contents:\n" +
+			         $"{DeletedMessage.Content}";
+
+			EmbedFooterProperties? Footer = Embeds.CreateFooterObject($"Original sent by '{DeletedMessage.Author.Username}' with ID: {message.MessageId}.");
+
+			msg_prop = Embeds.Generate
+			(
+				DeletedMessage.Content,
+				Author,
+				DateTime.Now,
+				Footer,
+				0xda373c
+			);
+		}
+		else
+		{
+			msg_prop = Embeds.Generate("The deleted message was not cached.", Author, DateTime.Now, new() { Text = $"ID: {message.MessageId}" }, 0xda373c);
+		}
+
+		Logging.AsDiscord(Output);
+		await client.Rest.SendMessageAsync(1222917190043570207, msg_prop);
 	}
 
 	/// <summary>
@@ -50,7 +78,13 @@ internal static class Events
 	{
 		if (message.Content != null)
 		{
-			Logging.AsDiscord($"The message with ID '{message.Id}' was updated by {message.Author.Username} with the new content:");
+			Logging.AsDiscord
+			(
+			$"""
+			The message with ID '{message.Id}' was updated by {message.Author.Username} with the new content:
+			{message.Content}
+			"""
+			);
 		}
 		await Task.CompletedTask;
 	}

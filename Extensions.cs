@@ -20,6 +20,8 @@ internal static class TypeExtensions
 		Tts = Obj.Tts
 	};
 
+	public static string GetAvatar(this User user) => user.HasAvatar ? user.GetAvatarUrl().ToString() : user.DefaultAvatarUrl.ToString();
+
 	public static string ToParsedUnicode(this string Unparsed)
 	{
 		if (Unparsed == null) return "";

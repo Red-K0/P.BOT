@@ -241,3 +241,6 @@ dotnet_diagnostic.CA1305.severity = none
 
 # RCS1110: Declare type inside namespace
 dotnet_diagnostic.RCS1110.severity = none
+
+# RCS1084: Use coalesce expression instead of conditional expression
+dotnet_diagnostic.RCS1084.severity = none

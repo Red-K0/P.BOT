@@ -3,6 +3,7 @@
 using NetCord.Services.ApplicationCommands;
 namespace P_BOT.Command_Processing.Helpers;
 
+#pragma warning disable CA2211 // Non-constant fields should not be visible
 /// <summary>
 /// Contains methods and variables for storage and modification of bot settings.
 /// </summary>
@@ -11,7 +12,6 @@ public static class Options
 	/// <summary>
 	/// The current status of the module.
 	/// </summary>
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "<Pending>")]
 	public static bool DnDTextModule;
 
 	/// <summary>

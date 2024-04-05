@@ -27,38 +27,38 @@ internal static class Pages
 	public  const string PDB_ID = MAIN + @"PostDB\ID.txt";
 	#endregion
 
-	/// <summary> Reads the content at a specific <paramref name="Line"/>, from the specified <paramref name="Page"/>. </summary>
-	/// <param name="Page"> The memory page to read the <paramref name="Line"/> from. </param>
-	/// <param name="Line"> The number of the line to read the contents of. </param>
-	public static async Task<string> Read(Files Page, int Line)
+	/// <summary> Reads the content at a specific <paramref name="line"/>, from the specified <paramref name="page"/>. </summary>
+	/// <param name="page"> The memory page to read the <paramref name="line"/> from. </param>
+	/// <param name="line"> The number of the line to read the contents of. </param>
+	public static async Task<string> Read(Files page, int line)
 	{
 #if DEBUG_DISK
 		Messages.Logging.AsVerbose($"The value at line {Line} in page {Page} was read.");
 #endif
-		return (await File.ReadAllLinesAsync(Switch(Page)))[Line];
+		return (await File.ReadAllLinesAsync(Switch(page)))[line];
 	}
 
-	/// <summary> Appends the given <paramref name="NewLine"/> to the end of the <paramref name="Page"/> specified. </summary>
-	/// <param name="Page"> The memory page to append the <paramref name="NewLine"/> to. </param>
-	/// <param name="NewLine"> The <see cref="string"/> to append to the <paramref name="Page"/>. </param>
-	public static async void Append(Files Page, string NewLine)
+	/// <summary> Appends the given <paramref name="newLine"/> to the end of the <paramref name="page"/> specified. </summary>
+	/// <param name="page"> The memory page to append the <paramref name="newLine"/> to. </param>
+	/// <param name="newLine"> The <see cref="string"/> to append to the <paramref name="page"/>. </param>
+	public static async void Append(Files page, string newLine)
 	{
-		await File.WriteAllLinesAsync(Switch(Page), [.. File.ReadAllLines(Switch(Page)), NewLine]);
+		await File.WriteAllLinesAsync(Switch(page), [.. File.ReadAllLines(Switch(page)), newLine]);
 
 #if DEBUG_DISK
 		Messages.Logging.AsVerbose($"The value \"{NewLine}\" was appended to the end of the page {Page}.");
 #endif
 	}
 
-	/// <summary> Overwrites the data at <paramref name="Line"/> with the given <paramref name="NewValue"/>, at the specified <paramref name="Page"/>. </summary>
-	/// <param name="Page"> The memory page to modify. </param>
-	/// <param name="Line"> The number of the line to overwrite with the given <paramref name="NewValue"/>. </param>
-	/// <param name="NewValue"> The <see cref="string"/> to overwrite the given <paramref name="Line"/> with. </param>
-	public static async void Write(Files Page, int Line, string NewValue)
+	/// <summary> Overwrites the data at <paramref name="line"/> with the given <paramref name="newValue"/>, at the specified <paramref name="page"/>. </summary>
+	/// <param name="page"> The memory page to modify. </param>
+	/// <param name="line"> The number of the line to overwrite with the given <paramref name="newValue"/>. </param>
+	/// <param name="newValue"> The <see cref="string"/> to overwrite the given <paramref name="line"/> with. </param>
+	public static async void Write(Files page, int line, string newValue)
 	{
-		string Path = Switch(Page);
+		string Path = Switch(page);
 		string[] STR = [.. File.ReadAllLines(Path)];
-		STR.SetValue(NewValue, Line);
+		STR.SetValue(newValue, line);
 		await File.WriteAllLinesAsync(Path, STR);
 
 #if DEBUG_DISK
@@ -66,9 +66,9 @@ internal static class Pages
 #endif
 	}
 
-	/// <summary> Gets the path of a given <paramref name="Page"/>. </summary>
-	/// <param name="Page"> The page to fetch the path to. </param>
-	private static string Switch(Files Page)
+	/// <summary> Gets the path of a given <paramref name="page"/>. </summary>
+	/// <param name="page"> The page to fetch the path to. </param>
+	private static string Switch(Files page)
 	{
 #if DEBUG_DISK
 		string ReturnValue = Page switch
@@ -82,7 +82,7 @@ internal static class Pages
 		Messages.Logging.AsVerbose($"Page {Page} at path \"{ReturnValue}\" was switched to successfully.");
 		return ReturnValue;
 #else
-		return Page switch
+		return page switch
 		{
 			Files.Counters => COUNTERS,
 			Files.Starboard => STARBOARD,

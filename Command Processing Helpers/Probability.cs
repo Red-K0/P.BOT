@@ -59,40 +59,64 @@ public static class ProbabilityStateMachine
 	#endregion
 
 	#region Fields
-	/// <summary> The instance of <see cref="Random"/> used for rolling die. </summary>
+	/// <summary>
+	/// The instance of <see cref="Random"/> used for rolling die.
+	/// </summary>
 	private static readonly Random RNG = new();
 
-	/// <summary> The message currently being processed. </summary>
+	/// <summary>
+	/// The message currently being processed.
+	/// </summary>
 	private static RestMessage? CurrentMessage;
 
-	/// <summary> The string containing the prefix for the current roll type. </summary>
-	private static string Prefix = "";
-
-	/// <summary> The temporary string variable, used in extra operations. </summary>
+	/// <summary>
+	/// The temporary string variable, used in extra operations.
+	/// </summary>
 	private static string TempString = "";
 
-	/// <summary> The main string variable, used in main operations. </summary>
+	/// <summary>
+	/// The main string variable, used in main operations.
+	/// </summary>
 	private static string MainString = "";
 
-	/// <summary> The array which holds the results of individual rolls. </summary>
+	/// <summary>
+	/// The string containing the prefix for the current roll type.
+	/// </summary>
+	private static string Prefix = "";
+
+	/// <summary>
+	/// The array which holds the results of individual rolls.
+	/// </summary>
 	private static int[] Rolls = [];
 
-	/// <summary> Stores how many rolls resulted in their maximum value. </summary>
+	/// <summary>
+	/// Stores how many rolls resulted in their maximum value.
+	/// </summary>
 	private static int JesusCount;
 
-	/// <summary> Stores how many times to roll the die. </summary>
+	/// <summary>
+	/// Stores how many times to roll the die.
+	/// </summary>
 	private static int RollCount;
 
-	/// <summary> Stores the number of faces the die possesses. </summary>
+	/// <summary>
+	/// Stores the number of faces the die possesses.
+	/// </summary>
 	private static int FaceCount;
 
-	/// <summary> Stores how many rolls resulted in their minimum value. </summary>
+	/// <summary>
+	/// Stores how many rolls resulted in their minimum value.
+	/// </summary>
 	private static int MinCount;
 
-	/// <summary> Stores the sum of all rolls. </summary>
+	/// <summary>
+	/// Stores the sum of all rolls.
+	/// </summary>
 	private static int Result;
 
-	/// <summary> Stores the current roll modifier. </summary>
+	/// <summary>
+	/// Stores the current roll modifier.
+	/// </summary>
 	private static int Mod;
 	#endregion
 

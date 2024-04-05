@@ -6,7 +6,8 @@
 using Microsoft.IdentityModel.Tokens;
 using NetCord.Services.ApplicationCommands;
 using P_BOT.Command_Processing.Helpers;
-using static P_BOT.Members;
+using static P_BOT.Caches.Members;
+using static P_BOT.Embeds;
 namespace P_BOT.Command_Processing;
 
 /// <summary>
@@ -69,9 +70,10 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 	/// </summary>
 	public async partial Task DumpUserInfo(User user) // TODO | Proper details
 	{
-		UserObject @User = List[user.Id];
+		Member Member = List[user.Id];
+		GuildUser User = Member.Data.User;
 
-		string index = (Array.IndexOf([.. List.Keys], User.ID) + 1).ToString();
+		string index = (Array.IndexOf([.. List.Keys], Member.Data.User.Id) + 1).ToString();
 		index += index.Last() switch
 		{
 			'1' => "st",
@@ -80,10 +82,10 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 			  _ => "th"
 		};
 
-		string Roles = $">>> <@&{(IsFounder(User.ID) ? Founder : Cultist)}>\n- The {index} member of the PPP.";
-		foreach (ulong Accolade in User.Server.Roles.Where(IsEventRole))
+		string Roles = $">>> <@&{(Member.IsFounder ? BaseFounderRole : Cultist)}>\n- The {index} member of the PPP.";
+		foreach (ulong role in User.RoleIds.Where(IsAccolade))
 		{
-			Roles += Accolade switch
+			Roles += role switch
 			{
 				SixMonthAnniversary => $"\n<@&{SixMonthAnniversary}>\n- Attended the 6-Month Server Anniversary",
 				    SecretSanta2023 => $"\n<@&{SecretSanta2023}>\n- Sent a Secret Santa Gift in 2023",
@@ -93,15 +95,7 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 			};
 		}
 
-		string NitroType = User.PremiumType switch
-		{
-			Members.PremiumType.NitroClassic => "Classic",
-			Members.PremiumType.Nitro => "Standard",
-			Members.PremiumType.NitroBasic => "Basic",
-			_ => "None"
-		};
-
-		string? DisplayName = User.Server.Nickname?.Length != 0 ? User.Server.Nickname : User.GlobalName?.Length != 0 ? User.GlobalName : User.Username;
+		string? DisplayName = User.Nickname?.Length != 0 ? User.Nickname : User.GlobalName?.Length != 0 ? User.GlobalName : User.Username;
 
 		string AKAString = "`AKA` "; bool DisplayAKA = false;
 		if (User.Username != DisplayName)
@@ -119,42 +113,41 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 			AKAString = AKAString[..^2];
 		}
 
-		MessageProperties msg_prop = Embeds.Generate
+		MessageProperties msg_prop = Generate
 		(
-			DisplayAKA ? AKAString.ToEscapedMarkdown() : "",
+			DisplayAKA ? AKAString.ToEscapedMarkdown()	: "",
 			null,
 			null,
-			Embeds.CreateFooterObject($"User requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			CreateFooter($"User requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			-1,
 			Context.User.Id,
 			null,
-			(User.Customization.AvatarHash != null) ?
-			ImageUrl.UserAvatar(User.ID, User.Customization.AvatarHash, ImageFormat.Png).ToString() : ImageUrl.DefaultUserAvatar(User.ID).ToString(),
+			Member.Data.User.GetAvatar(),
 			DisplayName,
 			null,
 			false,
 			#region Fields
 			[
-			Embeds.CreateFieldObject("User", $"<@{User.ID}>", true),
-			Embeds.CreateFieldObject("Tag", User.Discriminator == 0 ? "None" : $"#{User.Discriminator}", true),
-			Embeds.CreateFieldObject("ID", User.ID.ToString(), true),
-			Embeds.CreateFieldObject("Joined", $"<t:{EpochTime.GetIntDate(User.Server.JoinedAt.ToUniversalTime())}>", true),
-			Embeds.CreateFieldObject("Verified", User.Server.Verified.ToString(), true),
-			Embeds.CreateFieldObject("PPP Founder", IsFounder(User.ID) ? "True" : "False", true),
-			Embeds.CreateFieldObject("Timed Out Until", User.Server.MutedUntil < DateTime.Now ? "No Timeout" : $"<t:{EpochTime.GetIntDate(User.Server.MutedUntil.ToUniversalTime())}>", true),
-			Embeds.CreateFieldObject("Muted", User.Server.IsVCMuted ? "True" : "False", true),
-			Embeds.CreateFieldObject("Deafened", User.Server.IsVCDeafened ? "True" : "False", true),
-			Embeds.CreateFieldObject("Invite Code", User.Invite.Code != "false" ? User.Invite.Code : "None", true),
-			Embeds.CreateFieldObject("Invited by", User.Invite.SenderID != 0 ? $"<@{User.Invite.SenderID}>" : "Unknown", true),
-			Embeds.CreateFieldObject("Personal Role", User.Customization.PersonalRole == 0 ? "None" : $"<@&{User.Customization.PersonalRole}>", true),
-			Embeds.CreateFieldObject("Personal Role Color", User.Customization.PersonalRoleColor == -1 ? "None" : $"#{User.Customization.PersonalRoleColor:X6}", true),
-			Embeds.CreateFieldObject("Nitro Type", NitroType, true),
-			Embeds.CreateFieldObject("Boosting Since", User.Server.NitroSince != DateTime.MinValue ? $"<t:{EpochTime.GetIntDate(User.Server.NitroSince.ToUniversalTime())}>" : "Not Boosting", true),
-			Embeds.CreateFieldObject(Inline: false),
-			Embeds.CreateFieldObject("Accolades", Roles.Length != 0 ? Roles : "None", false),
+			CreateField("User", $"<@{User.Id}>", true),
+			CreateField("Tag", User.Discriminator == 0 ? "None" : $"#{User.Discriminator}", true),
+			CreateField("ID", User.Id.ToString(), true),
+			CreateField("Joined", $"<t:{EpochTime.GetIntDate(User.JoinedAt.DateTime.ToUniversalTime())}>", true),
+			CreateField("Verified", User.Verified.GetValueOrDefault().ToString(), true),
+			CreateField("PPP Founder", Member.IsFounder ? "True" : "False", true),
+			CreateField("Timed Out Until", User.TimeOutUntil == null ? "No Timeout" : $"<t:{EpochTime.GetIntDate(User.TimeOutUntil!.Value.DateTime.ToUniversalTime())}>", true),
+			CreateField("Muted", User.Muted ? "True" : "False", true),
+			CreateField("Deafened", User.Deafened ? "True" : "False", true),
+			CreateField("Invite Code", Member.Data.SourceInviteCode != "false" ? Member.Data.SourceInviteCode : "None", true),
+			CreateField("Invited by", Member.Data.InviterId != null ? $"<@{Member.Data.InviterId}>" : "Unknown", true),
+			CreateField("Personal Role", Member.PersonalRole == 0 ? "None" : $"<@&{Member.PersonalRole}>", true),
+			CreateField("Personal Color", Member.PersonalRoleColor != -1 ? $"#{Member.PersonalRoleColor:X6}" : "None", true),
+			CreateField("Accent Color", User.AccentColor == null ? "None" : $"#{User.AccentColor:X6}", true),
+			CreateField("Boosting Since", User.GuildBoostStart != null ? $"<t:{EpochTime.GetIntDate(User.GuildBoostStart!.Value.DateTime.ToUniversalTime())}>" : "Not Boosting", true),
+			CreateField(inline: false),
+			CreateField("Accolades", Roles.Length != 0 ? Roles : "None", false),
 			],
 		#endregion
-			User.ID
+			User.Id
 		);
 		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
 	}

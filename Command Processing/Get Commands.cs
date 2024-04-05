@@ -38,12 +38,12 @@ public sealed partial class SlashCommand
 		Generate
 		(
 			$"Sure, [here]({GetAssetURL("Bot Icon.png")}) is my avatar, if you require it in a format other than PNG, please contact <@1124777547687788626>.",
-			CreateAuthorObject($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
+			CreateAuthor($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
 			DateTimeOffset.UtcNow,
-			CreateFooterObject($"Avatar requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
-			ReplyTo: Context.User.Id,
-			ImageURL: new(GetAssetURL("Bot Icon.png")),
-			RefID: user.Id
+			CreateFooter($"Avatar requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			replyTo: Context.User.Id,
+			imageURLs: [GetAssetURL("Bot Icon.png")],
+			refID: user.Id
 		) :
 		Generate
 		(
@@ -51,11 +51,11 @@ public sealed partial class SlashCommand
 			$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar." :
 			$"Sorry, <@{user.Id}> does not currently have an avatar set, [here]({user.DefaultAvatarUrl}) is the default discord avatar.",
 
-			CreateAuthorObject($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
+			CreateAuthor($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
 			DateTimeOffset.UtcNow,
-			ReplyTo: Context.User.Id,
-			ImageURL: new(user.GetAvatarUrl(format).ToString()),
-			RefID: user.Id
+			replyTo: Context.User.Id,
+			imageURLs: [user.GetAvatarUrl(format).ToString()],
+			refID: user.Id
 		);
 
 		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
@@ -88,11 +88,11 @@ public sealed partial class SlashCommand
 		MessageProperties msg_prop = Generate
 		(
 			definition,
-			CreateAuthorObject("PPP Encyclopedia", GetAssetURL("Define Icon.png")),
+			CreateAuthor("PPP Encyclopedia", GetAssetURL("Define Icon.png")),
 			DateTimeOffset.UtcNow,
-			CreateFooterObject($"Definition requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			CreateFooter($"Definition requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			STD_COLOR,
-			ReplyTo: Context.User.Id
+			replyTo: Context.User.Id
 		);
 
 		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
@@ -156,17 +156,17 @@ public sealed partial class SlashCommand
 	public partial Task GetWikiResult
 	(
 		[SlashCommandParameter(Name = "search_term", Description = "The term to find a page for if possible.")]
-		string search_term,
+		string searchTerm,
 
 		[SlashCommandParameter(Name = "full_page", Description = "Should the full page's contents be fetched?")]
-		bool long_format = false
+		bool longFormat = false
 	);
 	#endregion
 
 	/// <summary>
-	/// Searches for a Wikipedia page similar to the given <paramref name="search_term"/>, and gets its content if a page is found.
+	/// Searches for a Wikipedia page similar to the given <paramref name="searchTerm"/>, and gets its content if a page is found.
 	/// </summary>
-	public async partial Task GetWikiResult(string search_term, bool long_format)
+	public async partial Task GetWikiResult(string searchTerm, bool longFormat)
 	{
 #if DEBUG_COMMAND
 		Stopwatch Timer = Stopwatch.StartNew();
@@ -176,10 +176,10 @@ public sealed partial class SlashCommand
 		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
 		MessageProperties msg_prop = Generate
 		(
-			await Wikipedia.GetPage(search_term, long_format),
-			CreateAuthorObject("Wikipedia", GetAssetURL("Wikipedia Icon.png")),
+			await Wikipedia.GetPage(searchTerm, longFormat),
+			CreateAuthor("Wikipedia", GetAssetURL("Wikipedia Icon.png")),
 			DateTime.Now,
-			CreateFooterObject($"Definition requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			CreateFooter($"Definition requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
 			STD_COLOR
 		);
 

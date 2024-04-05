@@ -44,7 +44,7 @@ internal static class Functions
 		if (Message.ReferencedMessage != null)
 		{
 			RestMessage Reply = client.Rest.GetMessageAsync(Message.ReferencedMessage.ChannelId, Message.ReferencedMessage.Id).Result;
-			EmbedAuthorProperties Author = Embeds.CreateAuthorObject
+			EmbedAuthorProperties Author = Embeds.CreateAuthor
 			(
 				$"Replying to: {Message.ReferencedMessage.Author.Username}",
 				Message.ReferencedMessage.Author.GetAvatarUrl().ToString()
@@ -61,17 +61,16 @@ internal static class Functions
 		(
 			Message,
 			$"{SERVER_LINK}{message.ChannelId}/{message.MessageId}",
-			$"Message starred by {message.User!.Username}",
-			message.User.GetAvatarUrl().ToString(),
+			Embeds.CreateFooter($"Message starred by {message.User!.Username}", message.User.GetAvatarUrl().ToString()),
 			message.MessageId,
 			$"Starboard Entry #{StarCount}"
 		).Embeds!);
 
 		StarCount++;
+		await client.Rest.SendMessageAsync(STARBOARD, msg_prop.ToChecked().WithContent(new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10)) + "_ _"));
+
 		Pages.Append(Pages.Files.Starboard, message.MessageId.ToString());
 		Pages.Write(Pages.Files.Counters, 1, StarCount.ToString());
-
-		await client.Rest.SendMessageAsync(STARBOARD, msg_prop.WithContent("# " + new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10))));
 
 #if DEBUG_EVENTS
 		Logging.AsVerbose($"Starboard Processed [{Timer.ElapsedMilliseconds}ms]");
@@ -88,7 +87,7 @@ internal static class Functions
 #endif
 
 		//HACK | The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
-		string Scan = message.Content; string CurrentScan; RestMessage LinkedMessage; ulong ChannelID;
+		string Scan = message.Content.Replace("https://", " https://"); string CurrentScan; RestMessage LinkedMessage; 
 		int LinkCount = (Scan.Length - Scan.Replace(SERVER_LINK, "").Length) / SERVER_LINK.Length;
 		for (int i = 0; i < LinkCount; i++)
 		{
@@ -97,30 +96,16 @@ internal static class Functions
 			if (CurrentScan.Contains(' ')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf(' '));
 			if (CurrentScan.Contains('\n')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
 
-			if (CurrentScan.Contains('/'))
-			{
-				if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.IndexOf('/')), out ChannelID))
-				{
-					return;
-				}
-			}
-			else
-			{
-				return;
-			}
-
-			if (!ulong.TryParse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..].Replace('/', '\0'), out ulong MessageID))
-			{
-				return;
-			}
+			if (!CurrentScan.Contains('/') || !ulong.TryParse(CurrentScan.Remove(CurrentScan.IndexOf('/')), out ulong ChannelID)) return;
+			if (!ulong.TryParse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..].Replace('/', '\0'), out ulong MessageID)) return;
 
 			LinkedMessage = await client.Rest.GetMessageAsync(ChannelID, MessageID, null);
 
-			MessageProperties msg_prop = Embeds.Generate(
+			MessageProperties msg_prop = Embeds.Generate
+			(
 				LinkedMessage,
 				$"{SERVER_LINK}{message.ChannelId}/{message.Id}",
-				$"Message linked by {message.Author.Username}",
-				message.Author.GetAvatarUrl().ToString(),
+				Embeds.CreateFooter($"Message linked by {message.Author.Username}", message.Author.GetAvatarUrl().ToString()),
 				message.Id
 			);
 			await client.Rest.SendMessageAsync(message.ChannelId, msg_prop);

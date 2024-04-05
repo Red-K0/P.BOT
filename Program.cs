@@ -22,7 +22,7 @@ Console.OutputEncoding = System.Text.Encoding.Unicode;
 await client.StartAsync();
 await client.ReadyAsync;
 
-Members.Search();
+P_BOT.Caches.Members.Load();
 
 ApplicationCommandService<SlashCommandContext> applicationCommandService = new();
 applicationCommandService.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);

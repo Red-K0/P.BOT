@@ -9,23 +9,58 @@ internal static class TypeExtensions
 	/// <summary>
 	/// Converts the value of this instance to its equivalent <see cref="InteractionMessageProperties"/> representation.
 	/// </summary>
-	public static InteractionMessageProperties ToInteraction(this MessageProperties Obj) => new()
+	public static InteractionMessageProperties ToInteraction(this MessageProperties obj) => new()
 	{
-		AllowedMentions = Obj.AllowedMentions,
-		Attachments = Obj.Attachments,
-		Components = Obj.Components,
-		Content = Obj.Content,
-		Embeds = Obj.Embeds,
-		Flags = Obj.Flags,
-		Tts = Obj.Tts
+		AllowedMentions = obj.AllowedMentions,
+		Attachments = obj.Attachments,
+		Components = obj.Components,
+		Content = obj.Content,
+		Embeds = obj.Embeds,
+		Flags = obj.Flags,
+		Tts = obj.Tts
 	};
 
+	/// <summary>
+	/// Attempts to get the channel's name, returning null if it doesn't have one.
+	/// </summary>
+	public static bool TryGetName(this TextChannel channel, out string? name)
+	{
+		if (channel is INamedChannel Channel)
+		{
+			name = Channel.Name;
+			return true;
+		}
+		name = null;
+		return false;
+	}
+
+	/// <summary>
+	/// Caps the embed count of this instance to 10 embeds maximum.
+	/// </summary>
+	public static MessageProperties ToChecked(this MessageProperties obj)
+	{
+		if (obj.Embeds!.Count() > 10) obj.Embeds = obj.Embeds!.Take(10);
+		obj.Embeds = obj.Embeds!.Where(i => i != null);
+		return obj;
+	}
+
+	/// <summary>
+	/// Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
+	/// </summary>
 	public static string GetAvatar(this User user) => user.HasAvatar ? user.GetAvatarUrl().ToString() : user.DefaultAvatarUrl.ToString();
 
-	public static string ToParsedUnicode(this string Unparsed)
+	/// <summary>
+	/// Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
+	/// </summary>
+	public static string GetAvatar(this GuildUser user) => user.HasAvatar ? user.GetAvatarUrl().ToString() : user.DefaultAvatarUrl.ToString();
+
+	/// <summary>
+	/// Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <c>\u0041' -> 'A'</c>).
+	/// </summary>
+	public static string ToParsedUnicode(this string unparsed)
 	{
-		if (Unparsed == null) return "";
-		char[] CharArray = Unparsed.ToCharArray();
+		if (unparsed == null) return "";
+		char[] CharArray = unparsed.ToCharArray();
 
 		// Fix for escape characters in raw text, such as "\u2014" instead of '—' (U+2014 | Em Dash).
 		for (int i = 0; i < CharArray.Length - 1; i++)
@@ -52,12 +87,15 @@ internal static class TypeExtensions
 			}
 		}
 
-		Unparsed = new(CharArray);
-		return Unparsed.Replace("\0", "");
+		unparsed = new(CharArray);
+		return unparsed.Replace("\0", "");
 	}
 
-	public static string ToEscapedMarkdown(this string Unparsed) =>
-		Unparsed.Replace("\\", "\\\\").Replace("_", "\\_").Replace("-", "\\-").Replace("*", "\\*").Replace("~", "\\~");
+	/// <summary>
+	/// Converts the contents of this string into an escaped version, avoiding markdown formatting issues.
+	/// </summary>
+	public static string ToEscapedMarkdown(this string unparsed) =>
+			unparsed.Replace("\\", "\\\\").Replace("_", "\\_").Replace("-", "\\-").Replace("*", "\\*").Replace("~", "\\~");
 }
 
 /// <summary>
@@ -72,24 +110,33 @@ internal static partial class PBOT_C
 	public static partial bool EnableVirtual();
 
 	#region Control Codes
-	public const string SCI = "\x1b[";
-	public const string
-	BrightBlack   = SCI + "30m", Black   = SCI + "90m",
-	BrightRed     = SCI + "31m", Red     = SCI + "91m",
-	BrightGreen   = SCI + "32m", Green   = SCI + "92m",
-	BrightYellow  = SCI + "33m", Yellow  = SCI + "93m",
-	BrightBlue    = SCI + "34m", Blue    = SCI + "94m",
-	BrightMagenta = SCI + "35m", Magenta = SCI + "95m",
-	BrightCyan    = SCI + "36m", Cyan    = SCI + "96m",
-	None          = SCI + "37m", White   = SCI + "97m",
 
-	bBrightBlack   = SCI + "40m", bBlack   = SCI + "100m",
-	bBrightRed     = SCI + "41m", bRed     = SCI + "101m",
-	bBrightGreen   = SCI + "42m", bGreen   = SCI + "102m",
-	bBrightYellow  = SCI + "43m", bYellow  = SCI + "103m",
-	bBrightBlue    = SCI + "44m", bBlue    = SCI + "104m",
-	bBrightMagenta = SCI + "45m", bMagenta = SCI + "105m",
-	bBrightCyan    = SCI + "46m", bCyan    = SCI + "106m",
-	bBrightWhite   = SCI + "47m", bWhite   = SCI + "107m";
+	/// <summary>
+	/// Indicates the start of a virtual terminal sequence.
+	/// </summary>
+	public const string CSI = "\x1b[";
+
+	/// <summary>
+	/// Sets the console color.
+	/// </summary>
+	public const string
+		BrightBlack = CSI + "30m", Black = CSI + "90m",
+		BrightRed = CSI + "31m", Red = CSI + "91m",
+		BrightGreen = CSI + "32m", Green = CSI + "92m",
+		BrightYellow = CSI + "33m", Yellow = CSI + "93m",
+		BrightBlue = CSI + "34m", Blue = CSI + "94m",
+		BrightMagenta = CSI + "35m", Magenta = CSI + "95m",
+		BrightCyan = CSI + "36m", Cyan = CSI + "96m",
+		None = CSI + "37m", White = CSI + "97m",
+
+		bBrightBlack = CSI + "40m", bBlack = CSI + "100m",
+		bBrightRed = CSI + "41m", bRed = CSI + "101m",
+		bBrightGreen = CSI + "42m", bGreen = CSI + "102m",
+		bBrightYellow = CSI + "43m", bYellow = CSI + "103m",
+		bBrightBlue = CSI + "44m", bBlue = CSI + "104m",
+		bBrightMagenta = CSI + "45m", bMagenta = CSI + "105m",
+		bBrightCyan = CSI + "46m", bCyan = CSI + "106m",
+		bBrightWhite = CSI + "47m", bWhite = CSI + "107m";
+
 	#endregion
 }

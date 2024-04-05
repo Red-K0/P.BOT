@@ -23,12 +23,12 @@ public static class Posts
 	public static async Task<ulong> ToInternal(ulong ID) => (ulong)Array.FindIndex(await File.ReadAllLinesAsync(Pages.PDB_ID), s => s.Equals(ID));
 
 	/// <summary> Stores both the internal and external PostIDs side-by-side in the <see cref="Pages.Files.PDB_ID"/> page. </summary>
-	/// <param name="InternalPostID"> The internal ID of the post. </param>
+	/// <param name="internalPostID"> The internal ID of the post. </param>
 	/// <returns> The external ID of the post (Discord Message ID). </returns>
-	public static ulong StoreID(ulong InternalPostID)
+	public static ulong StoreID(ulong internalPostID)
 	{
 		// Reserve the ID.
-		Pages.Write(Pages.Files.Counters, 3, InternalPostID.ToString());
+		Pages.Write(Pages.Files.Counters, 3, internalPostID.ToString());
 
 		// Gets the message ID of the last sent message in the feed channel, almost always the post created by this method.
 		RestMessage ExternalPostID = client.Rest.GetMessagesAsync(CHANNEL, new() { Limit = 1 }).ToBlockingEnumerable().First();

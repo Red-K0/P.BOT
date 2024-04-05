@@ -11,28 +11,18 @@ internal static class Events
 	/// </summary>
 	public static async ValueTask MessageCreated(Message message)
 	{
-		const ulong IGNORE_ID = 1169031557848252516;
+		Caches.Messages.Add(message);
 
-		Cache.Add(message);
+		if (message.Author.IsBot) return;
 
-		// Core Message Parsing
-		if (!message.Author.IsBot)
-		{
-			Logging.AddMessage(message);
-			SpamFilter(message);
-		}
-
-		if (message.Content.Contains("https://discord.com/channels/") && message.Author.Id != IGNORE_ID)
-		{
-			ParseMessageLink(message);
-		}
+		SpamFilter(message);
+		if (message.Content.Contains(SERVER_LINK)) ParseMessageLink(message);
 
 		// Modular Message Parsing
 		if (Command_Processing.Helpers.Options.DnDTextModule && message.Content.StartsWith('.'))
-		{
 			Command_Processing.Helpers.ProbabilityStateMachine.Run(message);
-		}
 
+		Logging.AddMessage(message);
 		await ValueTask.CompletedTask;
 	}
 
@@ -41,33 +31,22 @@ internal static class Events
 	/// </summary>
 	public static async ValueTask MessageDeleted(MessageDeleteEventArgs message)
 	{
-		Message? DeletedMessage = Cache.Get(message.MessageId);
-		string Output = $"The message with ID '{message.MessageId}' was deleted, but was not cached.";
-		EmbedAuthorProperties? Author = Embeds.CreateAuthorObject("Message Deleted", Embeds.GetAssetURL("Message Deleted Icon.png"));
-		MessageProperties msg_prop;
+		Message? DeletedMessage = Caches.Messages.Get(message.MessageId);
+		if ((DeletedMessage?.Author.IsBot) != false) return;
 
-		if (DeletedMessage != null)
-		{
-			Output = $"The message with ID '{message.MessageId}' was deleted. It was originally sent by {DeletedMessage.Author.Username} at {DeletedMessage.CreatedAt}, and had the contents:\n" +
-			         $"{DeletedMessage.Content}";
+		int AttachmentCount = DeletedMessage.Attachments.Count;
+		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
 
-			EmbedFooterProperties? Footer = Embeds.CreateFooterObject($"Original sent by '{DeletedMessage.Author.Username}' with ID: {message.MessageId}.");
+		MessageProperties msg_prop = Embeds.Generate(
+			DeletedMessage,
+			SERVER_LINK + DeletedMessage.Channel!.Id.ToString(),
+			Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")),
+			title: $"Message Deleted {(DeletedMessage.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
+		);
 
-			msg_prop = Embeds.Generate
-			(
-				DeletedMessage.Content,
-				Author,
-				DateTime.Now,
-				Footer,
-				0xda373c
-			);
-		}
-		else
-		{
-			msg_prop = Embeds.Generate("The deleted message was not cached.", Author, DateTime.Now, new() { Text = $"ID: {message.MessageId}" }, 0xda373c);
-		}
+		Logging.AsDiscord($"The message with ID '{message.MessageId}' was deleted. It was originally sent by {DeletedMessage.Author.Username} at {DeletedMessage.CreatedAt}, and had the contents:\n" +
+							DeletedMessage.Content);
 
-		Logging.AsDiscord(Output);
 		await client.Rest.SendMessageAsync(1222917190043570207, msg_prop);
 	}
 

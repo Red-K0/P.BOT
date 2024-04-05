@@ -49,6 +49,9 @@ internal static class Logging
 	}
 
 	#region Special ID Writes
+	/// <summary>
+	/// Special logging ID.
+	/// </summary>
 	private const ulong NETWORK_ID = 0, DISCORD_ID = 1, VERBOSE_ID = 2;
 
 	/// <summary>

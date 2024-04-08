@@ -32,7 +32,7 @@ internal static class Events
 	public static async ValueTask MessageDeleted(MessageDeleteEventArgs message)
 	{
 		Message? DeletedMessage = Caches.Messages.Get(message.MessageId);
-		if ((DeletedMessage?.Author.IsBot) != false) return;
+		if (DeletedMessage?.Author.IsBot != false) return;
 
 		int AttachmentCount = DeletedMessage.Attachments.Count;
 		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
@@ -55,17 +55,33 @@ internal static class Events
 	/// </summary>
 	public static async ValueTask MessageUpdated(Message message)
 	{
-		if (message.Content != null)
-		{
-			Logging.AsDiscord
-			(
-			$"""
-			The message with ID '{message.Id}' was updated by {message.Author.Username} with the new content:
-			{message.Content}
-			"""
-			);
-		}
-		await Task.CompletedTask;
+		Message? OriginalMessage = Caches.Messages.Get(message.Id);
+		if (OriginalMessage?.Author.IsBot != false) return;
+		Caches.Messages.Edit(message);
+
+		MessageProperties emsg_prop = Embeds.Generate(
+			message,
+			$"{SERVER_LINK}{message.Channel!.Id}/{message.Id}",
+			title: $"Message Edited {(message.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
+		);
+
+		await client.Rest.SendMessageAsync(1222917190043570207, emsg_prop);
+
+		int AttachmentCount = OriginalMessage.Attachments.Count;
+		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
+
+		MessageProperties omsg_prop = Embeds.Generate(
+			OriginalMessage.Content,
+			Embeds.CreateAuthor("Original Message:"),
+			OriginalMessage.CreatedAt,
+			Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")),
+			-1,
+			0,
+			OriginalMessage.Attachments.GetImageURLs(),
+			refID: OriginalMessage.Author.Id
+		);
+
+		await client.Rest.SendMessageAsync(1222917190043570207, omsg_prop);
 	}
 
 	/// <summary>

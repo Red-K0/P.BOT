@@ -250,3 +250,6 @@ dotnet_diagnostic.IDE0002.severity = suggestion
 
 # IDE0079: Remove unnecessary suppression
 dotnet_diagnostic.IDE0079.severity = none
+
+# RCS1141: Add 'param' element to documentation comment
+dotnet_diagnostic.RCS1141.severity = none

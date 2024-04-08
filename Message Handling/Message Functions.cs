@@ -87,7 +87,7 @@ internal static class Functions
 #endif
 
 		//HACK | The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
-		string Scan = message.Content.Replace("https://", " https://"); string CurrentScan; RestMessage LinkedMessage; 
+		string Scan = message.Content.Replace("https://", " https://"); string CurrentScan; RestMessage LinkedMessage;
 		int LinkCount = (Scan.Length - Scan.Replace(SERVER_LINK, "").Length) / SERVER_LINK.Length;
 		for (int i = 0; i < LinkCount; i++)
 		{

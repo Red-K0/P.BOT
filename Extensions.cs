@@ -21,6 +21,16 @@ internal static class TypeExtensions
 	};
 
 	/// <summary>
+	/// Converts a set of attachments to an array of the attachments' URLs.
+	/// </summary>
+	public static string?[]? GetImageURLs(this IReadOnlyDictionary<ulong, Attachment> attachments)
+	{
+		IEnumerable<string?> ImageURLs = [];
+		foreach (KeyValuePair<ulong, Attachment> attachment in attachments) ImageURLs = ImageURLs.Append(attachment.Value.Url);
+		return ImageURLs != null ? ImageURLs.Any() ? ImageURLs.ToArray() : null : null;
+	}
+
+	/// <summary>
 	/// Attempts to get the channel's name, returning null if it doesn't have one.
 	/// </summary>
 	public static bool TryGetName(this TextChannel channel, out string? name)
@@ -120,23 +130,22 @@ internal static partial class PBOT_C
 	/// Sets the console color.
 	/// </summary>
 	public const string
-		BrightBlack = CSI + "30m", Black = CSI + "90m",
-		BrightRed = CSI + "31m", Red = CSI + "91m",
-		BrightGreen = CSI + "32m", Green = CSI + "92m",
-		BrightYellow = CSI + "33m", Yellow = CSI + "93m",
-		BrightBlue = CSI + "34m", Blue = CSI + "94m",
-		BrightMagenta = CSI + "35m", Magenta = CSI + "95m",
-		BrightCyan = CSI + "36m", Cyan = CSI + "96m",
-		None = CSI + "37m", White = CSI + "97m",
-
-		bBrightBlack = CSI + "40m", bBlack = CSI + "100m",
-		bBrightRed = CSI + "41m", bRed = CSI + "101m",
-		bBrightGreen = CSI + "42m", bGreen = CSI + "102m",
-		bBrightYellow = CSI + "43m", bYellow = CSI + "103m",
-		bBrightBlue = CSI + "44m", bBlue = CSI + "104m",
-		bBrightMagenta = CSI + "45m", bMagenta = CSI + "105m",
-		bBrightCyan = CSI + "46m", bCyan = CSI + "106m",
-		bBrightWhite = CSI + "47m", bWhite = CSI + "107m";
+	BrightBlack    = CSI + "30m", Black    = CSI + "90m",
+	BrightRed      = CSI + "31m", Red      = CSI + "91m",
+	BrightGreen    = CSI + "32m", Green    = CSI + "92m",
+	BrightYellow   = CSI + "33m", Yellow   = CSI + "93m",
+	BrightBlue     = CSI + "34m", Blue     = CSI + "94m",
+	BrightMagenta  = CSI + "35m", Magenta  = CSI + "95m",
+	BrightCyan     = CSI + "36m", Cyan     = CSI + "96m",
+	None           = CSI + "37m", White    = CSI + "97m",
+	bBrightBlack   = CSI + "40m", bBlack   = CSI + "100m",
+	bBrightRed     = CSI + "41m", bRed     = CSI + "101m",
+	bBrightGreen   = CSI + "42m", bGreen   = CSI + "102m",
+	bBrightYellow  = CSI + "43m", bYellow  = CSI + "103m",
+	bBrightBlue    = CSI + "44m", bBlue    = CSI + "104m",
+	bBrightMagenta = CSI + "45m", bMagenta = CSI + "105m",
+	bBrightCyan    = CSI + "46m", bCyan    = CSI + "106m",
+	bBrightWhite   = CSI + "47m", bWhite   = CSI + "107m";
 
 	#endregion
 }

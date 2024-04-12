@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>XML to HTML</title>
+	<script>
+		fetch("")
+			.then(response => response.text())
+			.then(xmlString => {
+				let parser = new DOMParser();
+				let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+
+				let books = xmlDoc.getElementsByTagName('book');
+				let table = document.createElement('table');
+
+				let header = table.createTHead();
+				let row = header.insertRow(0);
+				['Title', 'Author', 'Price'].forEach(text => {
+					let th = document.createElement('th');
+					th.textContent = text;
+					row.appendChild(th);
+				});
+
+				for (let book of books) {
+					let row = table.insertRow();
+					['title', 'author', 'price'].forEach(tag => {
+						let cell = row.insertCell();
+						cell.textContent = book.getElementsByTagName(tag)[0].textContent;
+					});
+				}
+
+				document.body.appendChild(table);
+			});
+	</script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,30 @@
+/* Main page CSS */
+
+body {
+	background: #2f2f2f;
+	color: darkgrey;
+	font: medium Helvetica;
+	font-size: medium;
+	font-weight: 400;
+}
+
+h1 {
+	color: whitesmoke;
+	line-height: normal;
+	font-size: xx-large;
+	font-weight: 400;
+}
+
+h3 {
+	color: whitesmoke;
+	line-height: normal;
+	font-size: x-large;
+	font-weight: 400;
+}
+
+h4 {
+	color: whitesmoke;
+	line-height: normal;
+	font-size: large;
+	font-weight: 400;
+}

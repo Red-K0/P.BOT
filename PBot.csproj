@@ -56,10 +56,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove=".gitattributes" />
+    <None Remove=".gitignore" />
     <None Remove="dllmain.cpp" />
     <None Remove="framework.h" />
+    <None Remove="index.html" />
     <None Remove="Library.cpp" />
     <None Remove="Library.h" />
+    <None Remove="PBOT_C.dll" />
     <None Remove="pch.cpp" />
     <None Remove="pch.h" />
     <None Remove="VTs.vcxproj.filters" />
@@ -104,9 +108,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="PBOT_C.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="VTs.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

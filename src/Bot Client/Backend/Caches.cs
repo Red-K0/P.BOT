@@ -76,10 +76,10 @@ internal static partial class Members
 	/// <summary>
 	/// Initializes the class with data from the <c>members-search</c> endpoint.
 	/// </summary>
-	public static async void Load()
+	public static void Load()
 	{
 		IEnumerable<KeyValuePair<ulong, Member>> TempList = [];
-		await foreach (var item in client.Rest.SearchGuildUsersAsync(1131100534250680433)) TempList = TempList.Append(new KeyValuePair<ulong, Member>(item.User.Id, new(item)));
+		foreach (var item in client.Rest.SearchGuildUsersAsync(1131100534250680433).ToBlockingEnumerable()) TempList = TempList.Append(new KeyValuePair<ulong, Member>(item.User.Id, new(item)));
 		List = TempList.Reverse().ToDictionary();
 	}
 

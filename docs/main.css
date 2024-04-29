@@ -9,22 +9,24 @@ body {
 }
 
 h1 {
-	color: whitesmoke;
+	color: white;
 	line-height: normal;
 	font-size: xx-large;
 	font-weight: 400;
 }
 
 h3 {
-	color: whitesmoke;
+	color: white;
 	line-height: normal;
 	font-size: x-large;
 	font-weight: 400;
 }
 
 h4 {
-	color: whitesmoke;
+	color: white;
 	line-height: normal;
 	font-size: large;
 	font-weight: 400;
 }
+
+m1 {}

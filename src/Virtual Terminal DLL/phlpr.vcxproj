@@ -92,9 +92,8 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)Bot Client\"
-copy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)HTML Documentation Generator\"</Command>
-      <Message>Copying phlpr.dll to projects...</Message>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)Bot Client\"</Command>
+      <Message>Copying phlpr.dll to Bot Client...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -15,6 +15,7 @@
     <UserSecretsId>00fd273c-e691-4c01-8d8e-f6afd8339d21</UserSecretsId>
     <ApplicationIcon>~Data\Bot Icon.ico</ApplicationIcon>
     <PackageIcon>Bot Icon.png</PackageIcon>
+    <DocumentationFile>F:\!PBOT\src\HTML Documentation Generator\Source.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -96,6 +97,7 @@
     <Using Include="NetCord" />
     <Using Include="NetCord.Gateway" />
     <Using Include="NetCord.Rest" />
+    <Using Include="NetCord.Services" />
     <Using Include="PBot" />
     <Using Include="System.Diagnostics" />
   </ItemGroup>

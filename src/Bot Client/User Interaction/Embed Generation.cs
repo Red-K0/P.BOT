@@ -9,7 +9,7 @@ internal static partial class Embeds
 	/// <summary>
 	/// The URL to the GitHub Assets folder.
 	/// </summary>
-	private const string ASSETS = "https://raw.githubusercontent.com/Red-K0/P.BOT/master/Assets/";
+	private const string ASSETS = "https://raw.githubusercontent.com/Red-K0/P.BOT/master/src/Bot%20Client/Assets/";
 
 	/// <summary>
 	/// The hex code for standard embed gray.
@@ -37,7 +37,7 @@ internal static partial class Embeds
 	{
 		MessageProperties msg_prop = new()
 		{
-			Embeds = [(new EmbedProperties()
+			Embeds = [new EmbedProperties()
 			{
 				Author = authorObject,
 				Color = new((RGB == -1 && refID != 0) ? List[refID].PersonalRoleColor : (RGB == -1) ? Environment.TickCount & 0xFFFFFF : RGB),
@@ -49,7 +49,7 @@ internal static partial class Embeds
 				Thumbnail = new(thumbnailURL),
 				Url = titleURL,
 				Fields = fieldObjects
-			})],
+			}],
 			MessageReference = (replyTo != 0) ? new(replyTo) : null,
 			Flags = ephemral ? MessageFlags.Ephemeral : null
 		};
@@ -88,7 +88,7 @@ internal static partial class Embeds
 
 		return Generate(
 			targetMessage.Content,
-			CreateAuthor(targetMessage.Author.Username, targetMessage.Author.GetAvatar()),
+			CreateAuthor(targetMessage.Author.GetDisplayName(), targetMessage.Author.GetAvatar()),
 			targetMessage.CreatedAt,
 			footerObject,
 			-1,
@@ -100,4 +100,17 @@ internal static partial class Embeds
 			refID: targetMessage.Author.Id
 		);
 	}
+
+	/// <summary>
+	/// Creates a <see cref="MessageProperties"/> object suitable for <see cref="Processing.SlashCommand.GetDefinition(Processing.Helpers.Definition.Choices)"/>.
+	/// </summary>
+	public static MessageProperties Generate(string title, EmbedFieldProperties[] contents, ulong authorID = 0) => new()
+	{
+		Embeds = [new EmbedProperties()
+		{
+			Color = new(authorID == 0 ? Environment.TickCount & 0xFFFFFF : List[authorID].PersonalRoleColor),
+			Fields = contents,
+			Title = title,
+		}]
+	};
 }

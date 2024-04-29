@@ -17,7 +17,7 @@ internal static class Constants
 	public static HttpClient client_h = new();
 
 	/// <summary>
-	/// The start of the server's URL.
+	/// The start of the server URL.
 	/// </summary>
 	public const string SERVER_LINK = "https://discord.com/channels/1131100534250680433/";
 }

@@ -1,4 +1,5 @@
 ﻿using static PBot.Messages.Functions;
+using static PBot.Messages.Logging;
 namespace PBot.Messages;
 
 /// <summary>
@@ -7,47 +8,60 @@ namespace PBot.Messages;
 internal static class Events
 {
 	/// <summary>
+	/// Used by <see cref="Filter(Message)"/> to pass a message to <see cref="MessageDeleted(MessageDeleteEventArgs)"/>, bypassing the cache.
+	/// </summary>
+	public static Message? DeletedSpamMessage;
+
+	/// <summary>
+	/// Maps the <see cref="client"/>'s events to their appropriate response method.
+	/// </summary>
+	public static void MapClientHandlers()
+	{
+		client.Log                += LogNetworkMessage;
+		client.MessageCreate      += MessageCreated;
+		client.MessageDelete      += MessageDeleted;
+		client.MessageUpdate      += MessageUpdated;
+		client.MessageReactionAdd += ReactionAdded;
+	}
+
+	/// <summary>
 	/// Processes new messages.
 	/// </summary>
 	public static async ValueTask MessageCreated(Message message)
 	{
+		// Massive performance save.
+		// While this leads to a repeated reference, it skips a lot of unnecessary computation.
+		if (message.Author.IsBot) { Caches.Messages.Add(message); return; }
+
+		if (await Filter(message)) return;
+
 		Caches.Messages.Add(message);
 
-		if (message.Author.IsBot) return;
+		if (message.Content.Contains(SERVER_LINK)) ParseLinks(message);
 
-		SpamFilter(message);
-		if (message.Content.Contains(SERVER_LINK)) ParseMessageLink(message);
+		// TODO: New command processor
 
-		// Modular Message Parsing
-		if (Command_Processing.Helpers.Options.DnDTextModule && message.Content.StartsWith('.'))
-			Command_Processing.Helpers.ProbabilityStateMachine.Run(message);
-
-		Logging.AddMessage(message);
-		await ValueTask.CompletedTask;
+		LogCreatedMessage(message);
 	}
 
 	/// <summary>
 	/// Logs message deletions.
 	/// </summary>
-	public static async ValueTask MessageDeleted(MessageDeleteEventArgs message)
+	public static async ValueTask MessageDeleted(MessageDeleteEventArgs deleteArgs)
 	{
-		Message? DeletedMessage = Caches.Messages.Get(message.MessageId);
-		if (DeletedMessage?.Author.IsBot != false) return;
+		// If DeletedSpamMessage isn't null, this event was a result of the message filter, so just use the value passed there.
+		// This removes the cost of caching the message and retrieving it.
+		Message? message = DeletedSpamMessage ?? Caches.Messages.Get(deleteArgs.MessageId);
+		if (DeletedSpamMessage != null) DeletedSpamMessage = null;
 
-		int AttachmentCount = DeletedMessage.Attachments.Count;
-		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
+		// If this check passes, message isn't null.
+		if (message?.Author.IsBot != true)
+		{
+			await LogDeletedMessage(message!);
+			return;
+		}
 
-		MessageProperties msg_prop = Embeds.Generate(
-			DeletedMessage,
-			SERVER_LINK + DeletedMessage.Channel!.Id.ToString(),
-			Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")),
-			title: $"Message Deleted {(DeletedMessage.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
-		);
-
-		Logging.AsDiscord($"The message with ID '{message.MessageId}' was deleted. It was originally sent by {DeletedMessage.Author.Username} at {DeletedMessage.CreatedAt}, and had the contents:\n" +
-							DeletedMessage.Content);
-
-		await client.Rest.SendMessageAsync(1222917190043570207, msg_prop);
+		WriteAsID($"The message with ID '{deleteArgs.MessageId}' was deleted, but not cached.", SpecialId.Discord);
 	}
 
 	/// <summary>
@@ -55,33 +69,14 @@ internal static class Events
 	/// </summary>
 	public static async ValueTask MessageUpdated(Message message)
 	{
+		// Don't process bot messages.
+		// Roo expensive computationally, as a lot of bots rely on frequent edits.
+		if (message.Author.IsBot) return;
+
 		Message? OriginalMessage = Caches.Messages.Get(message.Id);
-		if (OriginalMessage?.Author.IsBot != false) return;
 		Caches.Messages.Edit(message);
 
-		MessageProperties emsg_prop = Embeds.Generate(
-			message,
-			$"{SERVER_LINK}{message.Channel!.Id}/{message.Id}",
-			title: $"Message Edited {(message.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
-		);
-
-		await client.Rest.SendMessageAsync(1222917190043570207, emsg_prop);
-
-		int AttachmentCount = OriginalMessage.Attachments.Count;
-		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
-
-		MessageProperties omsg_prop = Embeds.Generate(
-			OriginalMessage.Content,
-			Embeds.CreateAuthor("Original Message:"),
-			OriginalMessage.CreatedAt,
-			Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")),
-			-1,
-			0,
-			OriginalMessage.Attachments.GetImageURLs(),
-			refID: OriginalMessage.Author.Id
-		);
-
-		await client.Rest.SendMessageAsync(1222917190043570207, omsg_prop);
+		if (OriginalMessage != null) await LogUpdatedMessage(OriginalMessage, message);
 	}
 
 	/// <summary>
@@ -94,6 +89,5 @@ internal static class Events
 		{
 			AddToStarBoard(message);
 		}
-		await ValueTask.CompletedTask;
 	}
 }

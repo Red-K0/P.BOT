@@ -3,10 +3,12 @@
 // An example of these commands is the GetAvatar() command, which gets a user's avatar.
 // Commands in this file rely frequently on web requests, and the related mess there.
 
+using Microsoft.IdentityModel.Tokens;
 using NetCord.Services.ApplicationCommands;
-using PBot.Command_Processing.Helpers;
+using PBot.Processing.Helpers;
+using static PBot.Caches.Members;
 using static PBot.Embeds;
-namespace PBot.Command_Processing;
+namespace PBot.Processing;
 
 public sealed partial class SlashCommand
 {
@@ -38,9 +40,9 @@ public sealed partial class SlashCommand
 		Generate
 		(
 			$"Sure, [here]({GetAssetURL("Bot Icon.png")}) is my avatar, if you require it in a format other than PNG, please contact <@1124777547687788626>.",
-			CreateAuthor($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
+			CreateAuthor($"{user.GetDisplayName()}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
 			DateTimeOffset.UtcNow,
-			CreateFooter($"Avatar requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			CreateFooter($"Avatar requested by {Context.User.GetDisplayName()}", Context.User.GetAvatarUrl().ToString()),
 			replyTo: Context.User.Id,
 			imageURLs: [GetAssetURL("Bot Icon.png")],
 			refID: user.Id
@@ -51,7 +53,7 @@ public sealed partial class SlashCommand
 			$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar." :
 			$"Sorry, <@{user.Id}> does not currently have an avatar set, [here]({user.DefaultAvatarUrl}) is the default discord avatar.",
 
-			CreateAuthor($"{user.Username}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
+			CreateAuthor($"{user.GetDisplayName()}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
 			DateTimeOffset.UtcNow,
 			replyTo: Context.User.Id,
 			imageURLs: [user.GetAvatarUrl(format).ToString()],
@@ -83,19 +85,7 @@ public sealed partial class SlashCommand
 #if DEBUG_COMMAND
 		Stopwatch Timer = Stopwatch.StartNew();
 #endif
-
-		Definition.Values.TryGetValue(term, out string? definition);
-		MessageProperties msg_prop = Generate
-		(
-			definition,
-			CreateAuthor("PPP Encyclopedia", GetAssetURL("Define Icon.png")),
-			DateTimeOffset.UtcNow,
-			CreateFooter($"Definition requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
-			STD_COLOR,
-			replyTo: Context.User.Id
-		);
-
-		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
+		await RespondAsync(InteractionCallback.Message(Definition.Entries.GetValueOrDefault(term)!.ToInteraction()));
 
 #if DEBUG_COMMAND
 		Messages.Logging.AsVerbose($"GetDefinition Completed [{Timer.ElapsedMilliseconds}ms]");
@@ -138,7 +128,7 @@ public sealed partial class SlashCommand
 			await Translation.Process(input, source_lang, target_lang),
 			CreateAuthorObject("Translation Processed", ASSETS + "Translator%20Icon.png"),
 			DateTime.Now,
-			CreateFooterObject($"Translation requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			CreateFooterObject($"Translation requested by {Context.User.GetDisplayName()}", Context.User.GetAvatarUrl().ToString()),
 			STD_COLOR
 		);
 
@@ -150,6 +140,80 @@ public sealed partial class SlashCommand
 #endif
 	}
 #endif
+
+	#region Attributes
+	[SlashCommand("user", "Displays data relevant to a specified user.")]
+	public partial Task GetUser
+	(
+		[SlashCommandParameter(Name = "user", Description = "The user to display data for.")]
+		User user
+	);
+	#endregion
+
+	/// <summary>
+	/// Dumps user info.
+	/// </summary>
+	public async partial Task GetUser(User user)
+	{
+		Member Member = List[user.Id];
+		GuildUser User = Member.Data.User;
+
+		string DisplayName = Member.DisplayName;
+
+		string AKAString = "`AKA` "; bool DisplayAKA = false;
+		if (User.GetDisplayName() != DisplayName)
+		{
+			AKAString += $"{User.GetDisplayName()}, ";
+			DisplayAKA = true;
+		}
+		if (User.GlobalName != DisplayName && !string.IsNullOrWhiteSpace(User.GlobalName))
+		{
+			AKAString += User.GlobalName;
+			DisplayAKA = true;
+		}
+		else
+		{
+			AKAString = AKAString[..^2];
+		}
+
+		MessageProperties msg_prop = Generate
+		(
+			DisplayAKA ? AKAString.ToEscapedMarkdown() : "",
+			null,
+			null,
+			CreateFooter($"User requested by {Context.User.GetDisplayName()}", Context.User.GetAvatarUrl().ToString()),
+			-1,
+			Context.User.Id,
+			null,
+			Member.Data.User.GetAvatar(),
+			DisplayName,
+			null,
+			false,
+			#region Fields
+			[
+			CreateField("User", $"<@{User.Id}>", true),
+			CreateField("Tag", User.Discriminator == 0 ? "None" : $"#{User.Discriminator}", true),
+			CreateField("ID", User.Id.ToString(), true),
+			CreateField("Joined", $"<t:{EpochTime.GetIntDate(User.JoinedAt.DateTime.ToUniversalTime())}>", true),
+			CreateField("Verified", User.Verified.GetValueOrDefault().ToString(), true),
+			CreateField("PPP Founder", Member.IsFounder ? "True" : "False", true),
+			CreateField("Timed Out Until", User.TimeOutUntil == null ? "No Timeout" : $"<t:{EpochTime.GetIntDate(User.TimeOutUntil!.Value.DateTime.ToUniversalTime())}>", true),
+			CreateField("Muted", User.Muted ? "True" : "False", true),
+			CreateField("Deafened", User.Deafened ? "True" : "False", true),
+			CreateField("Invite Code", Member.Data.SourceInviteCode != "false" ? Member.Data.SourceInviteCode : "None", true),
+			CreateField("Invited by", Member.Data.InviterId != null ? $"<@{Member.Data.InviterId}>" : "Unknown", true),
+			CreateField("Personal Role", Member.PersonalRole == 0 ? "None" : $"<@&{Member.PersonalRole}>", true),
+			CreateField("Personal Color", Member.PersonalRoleColor != -1 ? $"#{Member.PersonalRoleColor:X6}" : "None", true),
+			CreateField("Accent Color", User.AccentColor == null ? "None" : $"#{User.AccentColor:X6}", true),
+			CreateField("Boosting Since", User.GuildBoostStart != null ? $"<t:{EpochTime.GetIntDate(User.GuildBoostStart!.Value.DateTime.ToUniversalTime())}>" : "Not Boosting", true),
+			CreateField(inline: false),
+			CreateField("Accolades", GetUserAccolades(Member), false),
+			],
+		#endregion
+			User.Id
+		);
+		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
+	}
 
 	#region Attributes
 	[SlashCommand("wikidefine", "Define a given term via Wikipedia.")]
@@ -179,7 +243,7 @@ public sealed partial class SlashCommand
 			await Wikipedia.GetPage(searchTerm, longFormat),
 			CreateAuthor("Wikipedia", GetAssetURL("Wikipedia Icon.png")),
 			DateTime.Now,
-			CreateFooter($"Definition requested by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			CreateFooter($"Definition requested by {Context.User.GetDisplayName()}", Context.User.GetAvatarUrl().ToString()),
 			STD_COLOR
 		);
 

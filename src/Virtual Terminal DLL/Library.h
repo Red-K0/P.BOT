@@ -4,7 +4,7 @@
 
 #define API __declspec(dllexport)
 
-extern "C" API bool EnableVirtual();
+extern "C" API bool EnableVirtualAndHideCursor();
 
 #if false
 

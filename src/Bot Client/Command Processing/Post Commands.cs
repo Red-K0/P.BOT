@@ -4,9 +4,9 @@
 // Commands in this file heavily rely on content found in the PostDB folder.
 
 using NetCord.Services.ApplicationCommands;
-using static PBot.Command_Processing.Helpers.Posts;
+using static PBot.Processing.Helpers.Posts;
 using static PBot.Embeds;
-namespace PBot.Command_Processing;
+namespace PBot.Processing;
 
 public sealed partial class SlashCommand
 {
@@ -48,7 +48,7 @@ public sealed partial class SlashCommand
 			content,
 			anonymous ?
 			CreateAuthor("Posted by an Anonymous User", GetAssetURL("Anonymous Profile Icon.png")) : // < Note the colon
-			CreateAuthor($"Posted by {Context.User.Username}", Context.User.GetAvatarUrl().ToString()),
+			CreateAuthor($"Posted by {Context.User.GetDisplayName()}", Context.User.GetAvatarUrl().ToString()),
 			DateTime.Now,
 			CreateFooter($"Post ID: {InternalPostID}"),
 			imageURLs: [image?.Url],

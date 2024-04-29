@@ -8,12 +8,17 @@ internal static class Logging
 	/// <summary>
 	/// The ID of the latest logged user.
 	/// </summary>
-	private static ulong? LastAuthor = 0;
+	private static ulong LastAuthor;
+
+	/// <summary>
+	/// The ID of the channel to send logs to.
+	/// </summary>
+	private const ulong LOG_CHANNEL = 1222917190043570207;
 
 	/// <summary>
 	/// Logs messages from the system.
 	/// </summary>
-	public static async ValueTask Log(LogMessage message)
+	public static async ValueTask LogNetworkMessage(LogMessage message)
 	{
 		const string EMPTY_TRACE = "\"at System.Linq.Enumerable.ToDictionary[TSource,TKey,TElement](IEnumerable`1 source, Func`2 keySelector, Func`2 elementSelector)\"";
 		const string EMPTY_ERROR = "Value cannot be null.";
@@ -22,78 +27,124 @@ internal static class Logging
 		if (message.Exception is { StackTrace: string stackTrace   } &&  (stackTrace.Contains(EMPTY_TRACE) || stackTrace.Contains(EMPTY_ERROR))) return;
 		if (message.Exception is {    Message: string errorMessage } && errorMessage.Contains(EMPTY_ERROR)) return;
 
-		AsNetwork(ref message);
+		WriteAsID(message.Message, SpecialId.Network);
 		await Task.CompletedTask;
 	}
 
-	/// <summary> Logs a given <paramref name="message"/> to the console. </summary>
-	/// <param name="message"> The <see cref="Message"/> object to log. </param>
-	public static void AddMessage(in Message message)
+	/// <summary>
+	/// Logs new discord messages.
+	/// </summary>
+	public static void LogCreatedMessage(Message message)
 	{
 		// Do nothing if message is empty.
 		if (string.IsNullOrEmpty(message.Content)) return;
 
-		string LogMessage = (LastAuthor != message.Author.Id) ?
-		$"\n{message.CreatedAt} {message.Author,-22} - {message.Author.Username}\n{message.Content}" : message.Content;
+		string Message = (LastAuthor != message.Author.Id) ?
+		$"\n{message.CreatedAt.ToString()[..^7]} {message.Author,-22} - {message.Author.GetDisplayName()}\n{message.Content}" : message.Content;
 
-		while (LogMessage.Contains(" http") || LogMessage.StartsWith("http"))
+		if (Message.Contains("https://") || Message.Contains("http://"))
 		{
-			int LinkStart = LogMessage.IndexOf(" http") + 1;
-			int LinkEnd = LogMessage.IndexOf(' ', LinkStart);
+			// For markdown, inline, and multiple link support.
+			int LinkStart, LinkEnd;
+			while (Message.Contains(" http"))
+			{
+				LinkStart = Message.IndexOf(" http") + 1;
+				LinkEnd = Message.IndexOf(' ', LinkStart);
 
-			if (LinkEnd == -1) LinkEnd = LogMessage.Length + 5;
+				if (LinkEnd == -1) LinkEnd = Message.Length;
 
-			LogMessage = LogMessage.Insert(LinkStart, PHelper.BrightBlue).Insert(LinkEnd, PHelper.None);
+				Message = Message.Insert(LinkStart, PHelper.BrightBlue).Insert(LinkEnd, PHelper.None);
+			}
+			while (Message.Contains("[http"))
+			{
+				LinkStart = Message.IndexOf("[http") + 1;
+				LinkEnd = Message.IndexOf(']', LinkStart);
+				Message = Message.Insert(LinkStart, PHelper.BrightBlue).Insert(LinkEnd, PHelper.None);
+			}
+
+			if (Message.StartsWith("http"))
+			{
+				LinkEnd = Message.IndexOf(' ', 0);
+				Message = PHelper.BrightBlue + Message.Insert(LinkEnd, PHelper.None);
+			}
 		}
-		Console.WriteLine(LogMessage); LastAuthor = message.Author.Id;
+
+		Console.WriteLine(Message); LastAuthor = message.Author.Id;
 	}
 
-	#region Special ID Writes
 	/// <summary>
-	/// Special logging ID.
+	/// Logs deleted discord messages.
 	/// </summary>
-	private const ulong NETWORK_ID = 0, DISCORD_ID = 1, VERBOSE_ID = 2;
-
-	/// <summary>
-	/// Logs network client responses.
-	/// </summary>
-	/// <param name="message"> The text to log. </param>
-	private static void AsNetwork(ref LogMessage message)
+	public static async ValueTask LogDeletedMessage(Message message)
 	{
-		if (LastAuthor != NETWORK_ID)
-		{
-			Console.Write('\n');
-		}
-		Console.WriteLine($"{PHelper.Green}Network:{PHelper.None} {message.Message}");
-		LastAuthor = NETWORK_ID;
+		int AttachmentCount = message.Attachments.Count;
+		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
+
+		MessageProperties msg_prop = Embeds.Generate(
+			message,
+			SERVER_LINK + message.Channel!.Id.ToString(),
+			Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")),
+			title: $"Message Deleted {(message.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
+		);
+
+		await client.Rest.SendMessageAsync(LOG_CHANNEL, msg_prop);
+
+		WriteAsID(
+		$"The message with ID '{message.Id}' was deleted. It was sent by {message.Author.GetDisplayName()} @ {message.CreatedAt.ToString()[..^7]}" +
+		$" with contents:\n{message.Content}", SpecialId.Discord);
 	}
 
 	/// <summary>
-	/// Logs discord responses.
+	/// Logs edited discord messages.
 	/// </summary>
-	/// <param name="message"> The text to log. </param>
-	public static void AsDiscord(string message)
+	public static async ValueTask LogUpdatedMessage(Message originalMessage,Message editedMessage)
 	{
-		if (LastAuthor != DISCORD_ID)
-		{
-			Console.Write('\n');
-		}
-		Console.WriteLine($"{PHelper.Blue}Discord:{PHelper.None} {message}");
-		LastAuthor = DISCORD_ID;
+		MessageProperties emsg_prop = Embeds.Generate(
+			editedMessage,
+			$"{SERVER_LINK}{editedMessage.Channel!.Id}/{editedMessage.Id}",
+			title: $"Message Edited {(editedMessage.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
+		);
+
+		await client.Rest.SendMessageAsync(LOG_CHANNEL, emsg_prop);
+
+		int AttachmentCount = originalMessage.Attachments.Count;
+		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
+
+		MessageProperties omsg_prop = Embeds.Generate(
+			originalMessage.Content,
+			Embeds.CreateAuthor("Original Message:"),
+			originalMessage.CreatedAt,
+			Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")),
+			-1,
+			0,
+			originalMessage.Attachments.GetImageURLs(),
+			refID: originalMessage.Author.Id
+		);
+
+		await client.Rest.SendMessageAsync(LOG_CHANNEL, omsg_prop);
 	}
 
 	/// <summary>
-	/// Logs verbose output.
+	/// Writes a message to the console using a specified <see cref="SpecialId"/>.
 	/// </summary>
-	/// <param name="message"> The text to log. </param>
-	public  static void AsVerbose(string message)
+	public static void WriteAsID(string message, SpecialId id)
 	{
-		if (LastAuthor != VERBOSE_ID)
+		string IdString = "\n" + id switch
 		{
-			Console.Write('\n');
-		}
-		Console.WriteLine($"{PHelper.Red}Command:{PHelper.None} {message}");
-		LastAuthor = VERBOSE_ID;
+			SpecialId.Network => $"{PHelper.Green}Network",
+			SpecialId.Discord => $"{PHelper.Blue}Discord",
+			SpecialId.Verbose => $"{PHelper.Red}Command",
+			_ => "Unknown"
+		};
+
+		Console.WriteLine($"{IdString[((LastAuthor != (ulong)id) ? 0 : 1)..]}:{PHelper.None} {message}");
+		LastAuthor = (ulong)id;
 	}
-	#endregion
+
+	public enum SpecialId : ulong
+	{
+		Network = 0,
+		Discord = 1,
+		Verbose = 2,
+	}
 }

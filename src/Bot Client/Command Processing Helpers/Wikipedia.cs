@@ -1,7 +1,7 @@
 ﻿// The helper class supporting the /wikidefine command.
 
 using System.Text.RegularExpressions;
-namespace PBot.Command_Processing.Helpers;
+namespace PBot.Processing.Helpers;
 
 /// <summary>
 /// Contains the Wikipedia API constant, as well as the method responsible for page retrieval.

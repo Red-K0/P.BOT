@@ -1,7 +1,7 @@
 ﻿// The helper class supporting the /toggle command.
 
 using NetCord.Services.ApplicationCommands;
-namespace PBot.Command_Processing.Helpers;
+namespace PBot.Processing.Helpers;
 
 #pragma warning disable CA2211 // Non-constant fields should not be visible
 /// <summary>

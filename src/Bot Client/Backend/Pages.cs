@@ -7,9 +7,9 @@ internal static class Pages
 {
 	#region Path Constants
 	/// <summary>
-	/// The main path containing all the memory files..BOT.
+	/// The main path containing all the memory files used by P.BOT.
 	/// </summary>
-	private const string MAIN = @"F:\!PBOT\~Data\";
+	private const string MAIN = @"F:\!PBOT\src\Bot Client\~Data\";
 
 	/// <summary>
 	/// Contains data related to basic operation, such as incremental counters.

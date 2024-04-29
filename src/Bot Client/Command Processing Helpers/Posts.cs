@@ -1,6 +1,6 @@
 ﻿// The helper class supporting the /post command.
 
-namespace PBot.Command_Processing.Helpers;
+namespace PBot.Processing.Helpers;
 
 /// <summary>
 /// Contains methods and variables related to the post system.

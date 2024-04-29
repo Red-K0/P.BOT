@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace PBot;
 
 /// <summary>
@@ -106,6 +108,22 @@ internal static class TypeExtensions
 	/// </summary>
 	public static string ToEscapedMarkdown(this string unparsed) =>
 			unparsed.Replace("\\", "\\\\").Replace("_", "\\_").Replace("-", "\\-").Replace("*", "\\*").Replace("~", "\\~");
+
+	public static async Task<RestMessage?> GetMessage(this string messageLink)
+	{
+		if (!messageLink.Contains(SERVER_LINK) || messageLink.Length <= (messageLink.IndexOf(SERVER_LINK) + 49)) return null;
+		string CurrentScan = messageLink[(messageLink.IndexOf(SERVER_LINK) + 49)..];
+
+		if (CurrentScan.Contains(' '))  CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf(' '));
+		if (CurrentScan.Contains('\n')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
+
+		if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.LastIndexOf('/')),  out ulong ChannelID)) return null;
+		if (!ulong.TryParse(CurrentScan[(CurrentScan.LastIndexOf('/') + 1)..], out ulong MessageID)) return null;
+
+		return await client.Rest.GetMessageAsync(ChannelID, MessageID);
+	}
+
+	public static string GetDisplayName(this User user) => Caches.Members.List[user.Id].DisplayName;
 }
 
 /// <summary>
@@ -113,11 +131,11 @@ internal static class TypeExtensions
 /// </summary>
 internal static partial class PHelper
 {
-	/// <summary> Unmanaged method imported via 'phlpr.dll', enables the use of virtual terminal sequences globally. </summary>
+	/// <summary> Unmanaged method imported via 'phlpr.dll', enables the use of virtual terminal sequences globally, and hides the cursor. </summary>
 	/// <returns> True if successful, otherwise returns false. </returns>
 	[LibraryImport("phlpr.dll", SetLastError = true)]
 	[return: MarshalAs(UnmanagedType.Bool)]
-	public static partial bool EnableVirtual();
+	public static partial bool EnableVirtualAndHideCursor();
 
 	#region Control Codes
 

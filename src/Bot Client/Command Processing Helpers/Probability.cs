@@ -2,7 +2,7 @@
 
 using System.Globalization;
 using System.Text;
-namespace PBot.Command_Processing.Helpers;
+namespace PBot.Processing.Helpers;
 
 /// <summary>
 /// Contains constants, variables and the function responsible for probability calculations and roll results.
@@ -235,7 +235,7 @@ public static class ProbabilityStateMachine
 		Rolls = [];
 
 		#if DEBUG
-		Messages.Logging.AsVerbose($"Probability Processed [{Timer.ElapsedMilliseconds}ms]");
+		Messages.Logging.WriteAsID($"Probability Processed [{Timer.ElapsedMilliseconds}ms]", Messages.Logging.SpecialId.Verbose);
 		Timer.Reset();
 		#endif
 	}

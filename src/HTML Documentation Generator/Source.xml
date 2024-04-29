@@ -1,0 +1,818 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Bot Client</name>
+    </assembly>
+    <members>
+        <member name="T:PBot.Caches.Messages">
+            <summary>
+            Contains the recent messages cache and its relevant methods.
+            </summary>
+        </member>
+        <member name="F:PBot.Caches.Messages.RECENT_CACHE_SIZE_MAX">
+            <summary>
+            The maximum number of entries in the <see cref="F:PBot.Caches.Messages.Recent"/> list.
+            </summary>
+        </member>
+        <member name="F:PBot.Caches.Messages.Recent">
+            <summary>
+            Contains the most recent messages in the bot's cache.
+            </summary>
+        </member>
+        <member name="M:PBot.Caches.Messages.Get(System.UInt64)">
+            <summary>
+            Iterates through the <see cref="F:PBot.Caches.Messages.Recent"/> list in reverse order, returning the <see cref="T:NetCord.Gateway.Message"/> corresponding to the given <paramref name="ID"/> if it's found, returning <see langword="null"/> otherwise.
+            </summary>
+        </member>
+        <member name="M:PBot.Caches.Messages.Add(NetCord.Gateway.Message)">
+            <summary>
+            Adds the given <see cref="T:NetCord.Gateway.Message"/> to the <see cref="F:PBot.Caches.Messages.Recent"/> list, removing the oldest message if the list size is at <see cref="F:PBot.Caches.Messages.RECENT_CACHE_SIZE_MAX"/>.
+            </summary>
+        </member>
+        <member name="M:PBot.Caches.Messages.Edit(NetCord.Gateway.Message)">
+            <summary>
+            Updates a message in the cache if it's found, otherwise creating it as a new entry.
+            </summary>
+        </member>
+        <member name="T:PBot.Caches.Members">
+            <summary>
+            Contains the cahced members list, role list, and their relevant methods.
+            </summary>
+        </member>
+        <member name="F:PBot.Caches.Members.List">
+            <summary>
+            The bot's internal member list, generated from the <c>members-search</c> endpoint.
+            </summary>
+        </member>
+        <member name="F:PBot.Caches.Members.Roles">
+            <summary>
+            The bot's internal role list, generated with <see cref="M:NetCord.Rest.RestClient.GetGuildRolesAsync(System.UInt64,NetCord.Rest.RequestProperties)"/>.
+            </summary>
+        </member>
+        <member name="M:PBot.Caches.Members.Load">
+            <summary>
+            Initializes the class with data from the <c>members-search</c> endpoint.
+            </summary>
+        </member>
+        <member name="M:PBot.Caches.Members.IsAccolade(System.UInt64)">
+            <summary>
+            Checks if the role referenced by the ID is an event role.
+            </summary>
+            <param name="ID"> The ID to check. </param>
+        </member>
+        <member name="T:PBot.Pages">
+            <summary>
+            Contains methods and constants used for persistent data storage.
+            </summary>
+        </member>
+        <member name="F:PBot.Pages.MAIN">
+            <summary>
+            The main path containing all the memory files used by P.BOT.
+            </summary>
+        </member>
+        <member name="F:PBot.Pages.COUNTERS">
+            <summary>
+            Contains data related to basic operation, such as incremental counters.
+            </summary>
+        </member>
+        <member name="F:PBot.Pages.STARBOARD">
+            <summary>
+            Contains a list of starred messages.
+            </summary>
+        </member>
+        <member name="F:PBot.Pages.PDB_ID">
+            <summary>
+            Contains a list of info related to post IDs.
+            </summary>
+        </member>
+        <member name="M:PBot.Pages.Read(PBot.Pages.Files,System.Int32)">
+            <summary> Reads the content at a specific <paramref name="line"/>, from the specified <paramref name="page"/>. </summary>
+            <param name="page"> The memory page to read the <paramref name="line"/> from. </param>
+            <param name="line"> The number of the line to read the contents of. </param>
+        </member>
+        <member name="M:PBot.Pages.Append(PBot.Pages.Files,System.String)">
+            <summary> Appends the given <paramref name="newLine"/> to the end of the <paramref name="page"/> specified. </summary>
+            <param name="page"> The memory page to append the <paramref name="newLine"/> to. </param>
+            <param name="newLine"> The <see cref="T:System.String"/> to append to the <paramref name="page"/>. </param>
+        </member>
+        <member name="M:PBot.Pages.Write(PBot.Pages.Files,System.Int32,System.String)">
+            <summary> Overwrites the data at <paramref name="line"/> with the given <paramref name="newValue"/>, at the specified <paramref name="page"/>. </summary>
+            <param name="page"> The memory page to modify. </param>
+            <param name="line"> The number of the line to overwrite with the given <paramref name="newValue"/>. </param>
+            <param name="newValue"> The <see cref="T:System.String"/> to overwrite the given <paramref name="line"/> with. </param>
+        </member>
+        <member name="M:PBot.Pages.Switch(PBot.Pages.Files)">
+            <summary> Gets the path of a given <paramref name="page"/>. </summary>
+            <param name="page"> The page to fetch the path to. </param>
+        </member>
+        <member name="T:PBot.Pages.Files">
+            <summary>
+            A list of memory pages used by P.BOT.
+            </summary>
+        </member>
+        <member name="F:PBot.Pages.Files.Counters">
+            <summary> Contains data related to basic operations, such as incremental counters. </summary>
+        </member>
+        <member name="F:PBot.Pages.Files.Starboard">
+            <summary> Contains a list of starred messages. </summary>
+        </member>
+        <member name="F:PBot.Pages.Files.PDB_ID">
+            <summary> Contains a list of info related to post IDs. </summary>
+        </member>
+        <member name="T:PBot.Processing.Helpers.Definition">
+            <summary>
+            Contains data involving dictionaries and the <see cref="M:PBot.Processing.SlashCommand.GetDefinition(PBot.Processing.Helpers.Definition.Choices)"/> command.
+            </summary>
+        </member>
+        <member name="T:PBot.Processing.Helpers.Definition.Choices">
+            <summary>
+            A list of possible choices for the <see cref="M:PBot.Processing.SlashCommand.GetDefinition(PBot.Processing.Helpers.Definition.Choices)"/> command.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.Definition.Choices.MeaningOf_PPP">
+            <summary>
+            The meaning of the PPP Abbreviation.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.Definition.Choices.WhatIs_ThePPP">
+            <summary>
+            The history of the PPP.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.Definition.Choices.IcelandGuide">
+            <summary>
+            Angel's Iceland travel guide.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.Definition.Entries">
+            <summary>
+            Contains definitions used for the <see cref="M:PBot.Processing.SlashCommand.GetDefinition(PBot.Processing.Helpers.Definition.Choices)"/> command.
+            </summary>
+        </member>
+        <member name="T:PBot.Processing.Helpers.Options">
+            <summary>
+            Contains methods and variables for storage and modification of bot settings.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.Options.DnDTextModule">
+            <summary>
+            The current status of the module.
+            </summary>
+        </member>
+        <member name="T:PBot.Processing.Helpers.Options.Modules">
+            <summary>
+            A list of optional modules used by P.BOT.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.Options.Modules.DnDTextModule">
+            <summary>
+            The module responsible for rolling dice, as well as message parsing related to so.
+            </summary>
+        </member>
+        <member name="T:PBot.Processing.Helpers.Posts">
+            <summary>
+            Contains methods and variables related to the post system.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.Posts.CHANNEL">
+            <summary>
+            The channel to send posts and other data to.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.Helpers.Posts.ToExternal(System.UInt64)">
+            <summary>
+            Gets the ExternalID tied to the given <paramref name="ID"/>.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.Helpers.Posts.ToInternal(System.UInt64)">
+            <summary>
+            Gets the InternalID tied to the given <paramref name="ID"/>.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.Helpers.Posts.StoreID(System.UInt64)">
+            <summary> Stores both the internal and external PostIDs side-by-side in the <see cref="F:PBot.Pages.Files.PDB_ID"/> page. </summary>
+            <param name="internalPostID"> The internal ID of the post. </param>
+            <returns> The external ID of the post (Discord Message ID). </returns>
+        </member>
+        <member name="T:PBot.Processing.Helpers.ProbabilityStateMachine">
+            <summary>
+            Contains constants, variables and the function responsible for probability calculations and roll results.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.ERROR_MESSAGE">
+            <summary>
+            The format string to pass for the error message in this module.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.ERROR_TRIGGER">
+            <summary>
+            The string to set <see cref="F:PBot.Processing.Helpers.ProbabilityStateMachine.Prefix"/> to, in order to trigger an error report.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.ROLL_SEPERATOR">
+            <summary>
+            The literal used as a separator in the nXn roll format.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.SPACE_CHAR">
+            <summary>
+            <c>U+0020 SPACE [SP]</c>
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.PREFIX_LDETAIL">
+            <summary>
+            The prefix used to trigger a low-detail roll.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.PREFIX_HDETAIL">
+            <summary>
+            The prefix used to trigger a high-detail roll.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.PREFIX_ANALYZE">
+            <summary>
+            The prefix used to trigger a roll analysis.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.RNG">
+            <summary>
+            The instance of <see cref="T:System.Random"/> used for rolling die.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.CurrentMessage">
+            <summary>
+            The message currently being processed.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.TempString">
+            <summary>
+            The temporary string variable, used in extra operations.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.MainString">
+            <summary>
+            The main string variable, used in main operations.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.Prefix">
+            <summary>
+            The string containing the prefix for the current roll type.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.Rolls">
+            <summary>
+            The array which holds the results of individual rolls.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.JesusCount">
+            <summary>
+            Stores how many rolls resulted in their maximum value.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.RollCount">
+            <summary>
+            Stores how many times to roll the die.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.FaceCount">
+            <summary>
+            Stores the number of faces the die possesses.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.MinCount">
+            <summary>
+            Stores how many rolls resulted in their minimum value.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.Result">
+            <summary>
+            Stores the sum of all rolls.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.ProbabilityStateMachine.Mod">
+            <summary>
+            Stores the current roll modifier.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.Helpers.ProbabilityStateMachine.Run(NetCord.Gateway.Message)">
+            <summary> Applies the appropriate logic to use based on the given <paramref name="message"/>. </summary>
+            <param name="message"> The message to operate with. </param>
+        </member>
+        <member name="T:PBot.Processing.Helpers.Wikipedia">
+            <summary>
+            Contains the Wikipedia API constant, as well as the method responsible for page retrieval.
+            </summary>
+        </member>
+        <member name="F:PBot.Processing.Helpers.Wikipedia.WIKI_API">
+            <summary>
+            The URL and preset parameters for the Wikipedia content API.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.Helpers.Wikipedia.GetPage(System.String,System.Boolean)">
+            <summary>
+            Sends the request responsible for retrieving the page, and formats it properly.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.Helpers.Wikipedia.Alphanumeric">
+            <remarks>
+            Pattern:<br/>
+            <code>[A-Z0-9]?</code><br/>
+            Explanation:<br/>
+            <code>
+            ○ Match a character in the set [0-9A-Z] atomically, optionally.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="T:PBot.Processing.SlashCommand">
+            <summary>
+            Contains the commands used by P.BOT and their associated tasks.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.SlashCommand.SystemsCheck">
+            <summary>
+            Command task. Checks if P.BOT's system is active.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.SlashCommand.ToggleModule(PBot.Processing.Helpers.Options.Modules)">
+            <summary>
+            Toggles the state of the module specified in the <paramref name="module"/> parameter.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.SlashCommand.GetAvatar(NetCord.User,NetCord.ImageFormat)">
+            <summary>
+            Command task. Gets the avatar of the <paramref name="user"/>, in a specific format if specified in <paramref name="format"/>.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.SlashCommand.GetDefinition(PBot.Processing.Helpers.Definition.Choices)">
+            <summary>
+            Command task. Gets the definition of the term specified in the <paramref name="term"/> parameter.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.SlashCommand.GetUser(NetCord.User)">
+            <summary>
+            Dumps user info.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.SlashCommand.GetWikiResult(System.String,System.Boolean)">
+            <summary>
+            Searches for a Wikipedia page similar to the given <paramref name="searchTerm"/>, and gets its content if a page is found.
+            </summary>
+        </member>
+        <member name="M:PBot.Processing.SlashCommand.CreatePost(System.String,NetCord.Attachment,System.Boolean,System.Boolean)">
+            <summary>
+            Creates a post, experimental.
+            </summary>
+        </member>
+        <member name="T:PBot.TypeExtensions">
+            <summary>
+            Convenience class for simple type conversions.
+            </summary>
+        </member>
+        <member name="M:PBot.TypeExtensions.ToInteraction(NetCord.Rest.MessageProperties)">
+            <summary>
+            Converts the value of this instance to its equivalent <see cref="T:NetCord.Rest.InteractionMessageProperties"/> representation.
+            </summary>
+        </member>
+        <member name="M:PBot.TypeExtensions.GetImageURLs(System.Collections.Generic.IReadOnlyDictionary{System.UInt64,NetCord.Attachment})">
+            <summary>
+            Converts a set of attachments to an array of the attachments' URLs.
+            </summary>
+        </member>
+        <member name="M:PBot.TypeExtensions.TryGetName(NetCord.TextChannel,System.String@)">
+            <summary>
+            Attempts to get the channel's name, returning null if it doesn't have one.
+            </summary>
+        </member>
+        <member name="M:PBot.TypeExtensions.ToChecked(NetCord.Rest.MessageProperties)">
+            <summary>
+            Caps the embed count of this instance to 10 embeds maximum.
+            </summary>
+        </member>
+        <member name="M:PBot.TypeExtensions.GetAvatar(NetCord.User)">
+            <summary>
+            Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
+            </summary>
+        </member>
+        <member name="M:PBot.TypeExtensions.GetAvatar(NetCord.GuildUser)">
+            <summary>
+            Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
+            </summary>
+        </member>
+        <member name="M:PBot.TypeExtensions.ToParsedUnicode(System.String)">
+            <summary>
+            Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <c>\u0041' -> 'A'</c>).
+            </summary>
+        </member>
+        <member name="M:PBot.TypeExtensions.ToEscapedMarkdown(System.String)">
+            <summary>
+            Converts the contents of this string into an escaped version, avoiding markdown formatting issues.
+            </summary>
+        </member>
+        <member name="T:PBot.PHelper">
+            <summary>
+            Contains constants and method calls related to unmanaged code in 'phlpr.dll'.
+            </summary>
+        </member>
+        <member name="M:PBot.PHelper.EnableVirtualAndHideCursor">
+            <summary> Unmanaged method imported via 'phlpr.dll', enables the use of virtual terminal sequences globally, and hides the cursor. </summary>
+            <returns> True if successful, otherwise returns false. </returns>
+        </member>
+        <member name="F:PBot.PHelper.CSI">
+            <summary>
+            Indicates the start of a virtual terminal sequence.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightBlack">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Black">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightRed">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Red">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightGreen">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Green">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightYellow">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Yellow">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightBlue">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Blue">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightMagenta">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Magenta">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightCyan">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Cyan">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.None">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.White">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightBlack">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBlack">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightRed">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bRed">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightGreen">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bGreen">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightYellow">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bYellow">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightBlue">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBlue">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightMagenta">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bMagenta">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightCyan">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bCyan">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightWhite">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bWhite">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="T:PBot.Messages.Events">
+            <summary>
+            Contains methods responsible for handling message events.
+            </summary>
+        </member>
+        <member name="F:PBot.Messages.Events.DeletedSpamMessage">
+            <summary>
+            Used by <see cref="M:PBot.Messages.Functions.Filter(NetCord.Gateway.Message)"/> to pass a message to <see cref="M:PBot.Messages.Events.MessageDeleted(NetCord.Gateway.MessageDeleteEventArgs)"/>, bypassing the cache.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Events.MapClientHandlers">
+            <summary>
+            Maps the <see cref="F:Constants.client"/>'s events to their appropriate response method.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Events.MessageCreated(NetCord.Gateway.Message)">
+            <summary>
+            Processes new messages.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Events.MessageDeleted(NetCord.Gateway.MessageDeleteEventArgs)">
+            <summary>
+            Logs message deletions.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Events.MessageUpdated(NetCord.Gateway.Message)">
+            <summary>
+            Logs message edits and updates.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Events.ReactionAdded(NetCord.Gateway.MessageReactionAddEventArgs)">
+            <summary>
+            Logs reactions to messages.
+            </summary>
+        </member>
+        <member name="T:PBot.Messages.Functions">
+            <summary>
+            Contains methods and variables used for basic message functionality and parsing.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Functions.AddToStarBoard(NetCord.Gateway.MessageReactionAddEventArgs)">
+            <summary> Parses the contents of a given <see cref="T:NetCord.Gateway.MessageReactionAddEventArgs"/> and adds the result to the starboard. </summary>
+            <param name="message"> The <see cref="T:NetCord.Gateway.MessageReactionAddEventArgs"/> containing the message to add to the starboard. </param>
+        </member>
+        <member name="M:PBot.Messages.Functions.ParseLinks(NetCord.Gateway.Message)">
+            <summary>
+            Parses a given <paramref name="message"/> to check for message links, and displays their content if possible.
+            </summary>
+            <param name="message"> The <see cref="T:NetCord.Gateway.Message"/> object to check for and parse links in. </param>
+        </member>
+        <member name="M:PBot.Messages.Functions.Filter(NetCord.Gateway.Message)">
+            <summary>
+            Compares a given message's attributes to other messages by the same user, and deletes it if the filter's criteria are met.
+            </summary>
+            <param name="message">The <see cref="T:NetCord.Gateway.Message"/> object to perform comparison on.</param>
+        </member>
+        <member name="T:PBot.Messages.Logging">
+            <summary>
+            Contains methods responsible for logging messages to the console.
+            </summary>
+        </member>
+        <member name="F:PBot.Messages.Logging.LastAuthor">
+            <summary>
+            The ID of the latest logged user.
+            </summary>
+        </member>
+        <member name="F:PBot.Messages.Logging.LOG_CHANNEL">
+            <summary>
+            The ID of the channel to send logs to.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Logging.LogNetworkMessage(NetCord.Gateway.LogMessage)">
+            <summary>
+            Logs messages from the system.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Logging.LogCreatedMessage(NetCord.Gateway.Message)">
+            <summary>
+            Logs new discord messages.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Logging.LogDeletedMessage(NetCord.Gateway.Message)">
+            <summary>
+            Logs deleted discord messages.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Logging.LogUpdatedMessage(NetCord.Gateway.Message,NetCord.Gateway.Message)">
+            <summary>
+            Logs edited discord messages.
+            </summary>
+        </member>
+        <member name="M:PBot.Messages.Logging.WriteAsID(System.String,PBot.Messages.Logging.SpecialId)">
+            <summary>
+            Writes a message to the console using a specified <see cref="T:PBot.Messages.Logging.SpecialId"/>.
+            </summary>
+        </member>
+        <member name="T:PBot.Embeds">
+            <summary>
+            Contains functions for the creation of embeds and their components.
+            </summary>
+        </member>
+        <member name="M:PBot.Embeds.CreateAuthor(System.String,System.String,System.String)">
+            <summary> Creates an <see cref="T:NetCord.Rest.EmbedAuthorProperties"/> object for use in an <see cref="T:NetCord.Embed"/>. </summary>
+            <param name="authorText"> The <see cref="T:System.String"/> to display, used for the <see cref="P:NetCord.Rest.EmbedAuthorProperties.Name"/> property. </param>
+            <param name="iconURL"> The <see cref="T:System.String"/> containing the URL of the image to display to the left of the text, used for the <see cref="P:NetCord.Rest.EmbedAuthorProperties.IconUrl"/> property. </param>
+            <param name="textURL"> The <see cref="T:System.String"/> containing the URL to set <paramref name="authorText"/> as a hyperlink towards, used for the <see cref="P:NetCord.Rest.EmbedAuthorProperties.Url"/> property.</param>
+        </member>
+        <member name="M:PBot.Embeds.CreateFooter(System.String,System.String)">
+            <summary> Creates an <see cref="T:NetCord.Rest.EmbedAuthorProperties"/> object for use in an <see cref="T:NetCord.Embed"/>. </summary>
+            <param name="footerText"> The <see cref="T:System.String"/> to display, used for the <see cref="P:NetCord.Rest.EmbedFooterProperties.Text"/> property. </param>
+            <param name="iconURL"> The <see cref="T:System.String"/> containing the URL of the image to display to the left of the text, used for the <see cref="P:NetCord.Rest.EmbedFooterProperties.IconUrl"/> property. </param>
+        </member>
+        <member name="M:PBot.Embeds.CreateField(System.String,System.String,System.Boolean)">
+            <summary> Creates an <see cref="T:NetCord.Rest.EmbedFieldProperties"/> object for use in an <see cref="T:NetCord.Embed"/>. </summary>
+            <param name="name"> The <see cref="T:System.String"/> to display at the field title, used for the <see cref="P:NetCord.Rest.EmbedFieldProperties.Name"/> property. </param>
+            <param name="value"> The <see cref="T:System.String"/> to display in the field, used for the <see cref="P:NetCord.Rest.EmbedFieldProperties.Value"/> property. </param>
+            <param name="inline"> Whether or not to display the field inline. </param>
+        </member>
+        <member name="M:PBot.Embeds.GetAssetURL(System.String)">
+            <summary>
+            Gets the GitHub hosted URL of the given asset.
+            </summary>
+            <param name="fileName"> The name of the hosted file. </param>
+        </member>
+        <member name="F:PBot.Embeds.ASSETS">
+            <summary>
+            The URL to the GitHub Assets folder.
+            </summary>
+        </member>
+        <member name="F:PBot.Embeds.STD_COLOR">
+            <summary>
+            The hex code for standard embed gray.
+            </summary>
+        </member>
+        <member name="M:PBot.Embeds.Generate(System.String,NetCord.Rest.EmbedAuthorProperties,System.Nullable{System.DateTimeOffset},NetCord.Rest.EmbedFooterProperties,System.Int32,System.UInt64,System.String[],System.String,System.String,System.String,System.Boolean,NetCord.Rest.EmbedFieldProperties[],System.UInt64)">
+            <summary> Combines the specified parameters to generate an embed. </summary>
+            <param name="description"> The section of the embed where the main text is contained, limited to 4096 characters. </param>
+            <param name="authorObject"> Contains the <see cref="T:NetCord.EmbedAuthor"/> information to be used in the embed. </param>
+            <param name="timestamp"> Displays time in a format similar to a message timestamp. Located next to the <paramref name="footerObject"/>. </param>
+            <param name="footerObject"> Contains the <see cref="T:NetCord.EmbedFooter"/> information to be used in the embed. </param>
+            <param name="RGB"> The hex code indicating an embed's accent color. Defaults to a random value when not set or -1. </param>
+            <param name="replyTo"> The ID of the message being replied to with the embed. </param>
+            <param name="imageURLs"> An array of URIs for the attachments included in the embed, displayed below the <paramref name="description"/> element. </param>
+            <param name="thumbnailURL"> The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed. </param>
+            <param name="title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="titleURL"/>, has a 256 character limit. </param>
+            <param name="titleURL"> A link to an address of a webpage. When set, the <paramref name="title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
+            <param name="ephemral"> Creates an ephemeral message when set to true.</param>
+            <param name="fieldObjects"> Contains an array of <see cref="T:NetCord.EmbedField"/>s to include in the embed </param>
+            <param name="refID"> The ID of the user responsible for the embed's creation. </param>
+            <returns> <see cref="T:NetCord.Rest.MessageProperties"/> containing the created embed. </returns>
+        </member>
+        <member name="M:PBot.Embeds.Generate(NetCord.Rest.RestMessage,System.String,NetCord.Rest.EmbedFooterProperties,System.Nullable{System.UInt64},System.String,System.String)">
+            <summary> Combines the specified parameters with parameters extracted from a given <see cref="T:NetCord.Rest.RestMessage"/> to generate an embed. </summary>
+            <param name="targetMessage"> The <see cref="T:NetCord.Rest.RestMessage"/> object to extract parameters from. </param>
+            <param name="titleURL"> A link to an address of a webpage. When set, the <paramref name="title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
+            <param name="footerObject"> Contains the <see cref="T:NetCord.EmbedFooter"/> information to be used in the embed. </param>
+            <param name="replyTo"> The ID of the message being replied to with the embed. </param>
+            <param name="title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="titleURL"/>, has a 256 character limit. </param>
+            <param name="thumbnailURL"> The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed. </param>
+            <returns> <see cref="T:NetCord.Rest.MessageProperties"/> containing the created embed. </returns>
+        </member>
+        <member name="M:PBot.Embeds.Generate(System.String,NetCord.Rest.EmbedFieldProperties[],System.UInt64)">
+            <summary>
+            Creates a <see cref="T:NetCord.Rest.MessageProperties"/> object suitable for <see cref="M:PBot.Processing.SlashCommand.GetDefinition(PBot.Processing.Helpers.Definition.Choices)"/>.
+            </summary>
+        </member>
+        <member name="T:Client">
+            <summary>
+            Contains methods for initializing and preparing the bot's client.
+            </summary>
+        </member>
+        <member name="M:Client.Start">
+            <summary>
+            Starts the bot's client, initializes event handlers, and prepares caches.
+            </summary>
+        </member>
+        <member name="M:Client.StartInteractionHandler">
+            <summary>
+            Starts the bot's interaction handler and assigns it to the client.
+            </summary>
+        </member>
+        <member name="F:Constants.client">
+            <summary>
+            P.BOT's main client.
+            </summary>
+        </member>
+        <member name="F:Constants.client_h">
+            <summary>
+            P.BOT's HTTP client, used for external network requests.
+            </summary>
+        </member>
+        <member name="F:Constants.SERVER_LINK">
+            <summary>
+            The start of the server URL.
+            </summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.Alphanumeric_0">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the Alphanumeric method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Alphanumeric_0.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Alphanumeric_0.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.Alphanumeric_0.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Alphanumeric_0.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.Alphanumeric_0.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Alphanumeric_0.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Alphanumeric_0.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.Utilities">
+            <summary>Helper methods used by generated <see cref="T:System.Text.RegularExpressions.Regex"/>-derived implementations.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout">
+            <summary>Default timeout value set in <see cref="T:System.AppContext"/>, or <see cref="F:System.Text.RegularExpressions.Regex.InfiniteMatchTimeout"/> if none was set.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_hasTimeout">
+            <summary>Whether <see cref="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout"/> is non-infinite.</summary>
+        </member>
+    </members>
+</doc>

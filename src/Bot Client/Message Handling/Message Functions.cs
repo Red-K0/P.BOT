@@ -5,28 +5,6 @@
 /// </summary>
 internal static class Functions
 {
-	#region Filter Fields
-	/// <summary>
-	/// The <see cref="Attachment.FileName"/> of the last <see cref="Attachment"/> sent.
-	/// </summary>
-	private static string LastAttachment = "";
-
-	/// <summary>
-	/// The <see cref="RestMessage.Content"/> of the last <see cref="RestMessage"/> sent.
-	/// </summary>
-	private static string LastContent = "";
-
-	/// <summary>
-	/// The number of identical <see cref="Attachment"/> objects sent.
-	/// </summary>
-	private static int AttachmentFilterLimit;
-
-	/// <summary>
-	/// The number of identical <see cref="RestMessage.Content"/> objects sent.
-	/// </summary>
-	private static int MessageFilterLimit;
-	#endregion
-
 	/// <summary> Parses the contents of a given <see cref="MessageReactionAddEventArgs"/> and adds the result to the starboard. </summary>
 	/// <param name="message"> The <see cref="MessageReactionAddEventArgs"/> containing the message to add to the starboard. </param>
 	public static async void AddToStarBoard(MessageReactionAddEventArgs message)
@@ -46,7 +24,7 @@ internal static class Functions
 			RestMessage Reply = client.Rest.GetMessageAsync(Message.ReferencedMessage.ChannelId, Message.ReferencedMessage.Id).Result;
 			EmbedAuthorProperties Author = Embeds.CreateAuthor
 			(
-				$"Replying to: {Message.ReferencedMessage.Author.Username}",
+				$"Replying to: {Message.ReferencedMessage.Author.GetDisplayName()}",
 				Message.ReferencedMessage.Author.GetAvatarUrl().ToString()
 			);
 
@@ -61,7 +39,7 @@ internal static class Functions
 		(
 			Message,
 			$"{SERVER_LINK}{message.ChannelId}/{message.MessageId}",
-			Embeds.CreateFooter($"Message starred by {message.User!.Username}", message.User.GetAvatarUrl().ToString()),
+			Embeds.CreateFooter($"Message starred by {message.User!.GetDisplayName()}", message.User!.GetAvatarUrl().ToString()),
 			message.MessageId,
 			$"Starboard Entry #{StarCount}"
 		).Embeds!);
@@ -78,39 +56,37 @@ internal static class Functions
 #endif
 	}
 
-	/// <summary> Parses a given <paramref name="message"/> to check for message links, and displays their content if possible. </summary>
+	/// <summary>
+	/// Parses a given <paramref name="message"/> to check for message links, and displays their content if possible.
+	/// </summary>
 	/// <param name="message"> The <see cref="Message"/> object to check for and parse links in. </param>
-	public static async void ParseMessageLink(Message message)
+	public static async void ParseLinks(Message message)
 	{
 #if DEBUG_EVENTS
 		Stopwatch Timer = Stopwatch.StartNew();
 #endif
 
-		//HACK | The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
-		string Scan = message.Content.Replace("https://", " https://"); string CurrentScan; RestMessage LinkedMessage;
+		//HACK: The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
+		string Scan = message.Content.Replace("https://", " https://"); RestMessage? LinkedMessage; int i = 0;
 		int LinkCount = (Scan.Length - Scan.Replace(SERVER_LINK, "").Length) / SERVER_LINK.Length;
-		for (int i = 0; i < LinkCount; i++)
+		do
 		{
-			CurrentScan = Scan[(Scan.IndexOf(SERVER_LINK) + 49)..];
-
-			if (CurrentScan.Contains(' ')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf(' '));
-			if (CurrentScan.Contains('\n')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
-
-			if (!CurrentScan.Contains('/') || !ulong.TryParse(CurrentScan.Remove(CurrentScan.IndexOf('/')), out ulong ChannelID)) return;
-			if (!ulong.TryParse(CurrentScan[(CurrentScan.IndexOf('/') + 1)..].Replace('/', '\0'), out ulong MessageID)) return;
-
-			LinkedMessage = await client.Rest.GetMessageAsync(ChannelID, MessageID, null);
+			i++;
+			if ((LinkedMessage = await Scan.GetMessage()) == null) goto InvalidLink;
 
 			MessageProperties msg_prop = Embeds.Generate
 			(
 				LinkedMessage,
 				$"{SERVER_LINK}{message.ChannelId}/{message.Id}",
-				Embeds.CreateFooter($"Message linked by {message.Author.Username}", message.Author.GetAvatarUrl().ToString()),
+				Embeds.CreateFooter($"Message linked by {message.Author.GetDisplayName()}", message.Author.GetAvatarUrl().ToString()),
 				message.Id
 			);
-			await client.Rest.SendMessageAsync(message.ChannelId, msg_prop);
-			Scan = Scan.Remove(Scan.IndexOf(SERVER_LINK) + 49 + CurrentScan.Length);
+			await client.Rest.SendMessageAsync(message.ChannelId, msg_prop.ToChecked());
+
+		InvalidLink:
+			if (i != LinkCount) Scan = Scan[(Scan.IndexOf(SERVER_LINK) + SERVER_LINK.Length)..];
 		}
+		while (i < LinkCount);
 
 #if DEBUG_EVENTS
 		Logging.AsVerbose($"Link Parsed [{Timer.ElapsedMilliseconds}ms]");
@@ -118,68 +94,80 @@ internal static class Functions
 #endif
 	}
 
-	/// <summary> Monitors and deletes messages to avoid spam. </summary>
-	/// <param name="message"> The <see cref="RestMessage"/> object to filter. </param>
-	public static async void SpamFilter(Message message)
+	/// <summary>
+	/// Compares a given message's attributes to other messages by the same user, and deletes it if the filter's criteria are met.
+	/// </summary>
+	/// <param name="message">The <see cref="Message"/> object to perform comparison on.</param>
+	public static async Task<bool> Filter(Message message)
 	{
-		ulong ID = message.Author.Id;
-		bool filter = false;
-		string response;
+		Caches.Members.Member Member = Caches.Members.List[message.Author.Id];
 
-		if (message.Content.StartsWith("# ") && message.Content.Equals(message.Content, StringComparison.Ordinal))
+		if (message.Content.StartsWith("# "))
 		{
-			if (MessageFilterLimit < 4)
+			if (Member.SpamLastMessageHeading)
 			{
-				MessageFilterLimit = 4;
+				return await FilterHit();
 			}
 			else
 			{
-				MessageFilterLimit++;
+				Member.SpamLastMessageHeading = true;
 			}
-
-			filter = true;
 		}
 
-		if (message.Content == LastContent) { filter = true; MessageFilterLimit++; }
-		else if (!filter) { MessageFilterLimit = Math.Max(MessageFilterLimit - 1, 0); }
-		LastContent = message.Content;
-
-		foreach (KeyValuePair<ulong, Attachment> Attachment in (KeyValuePair<ulong, Attachment>[])([.. message.Attachments]))
+		if (message.Content == Member.SpamLastMessage)
 		{
-			if (Attachment.Value.FileName is "image.png" or "unknown.png")
-			{
-				continue;
-			}
-
-			if (Attachment.Value.FileName == LastAttachment) { filter = true; AttachmentFilterLimit++; }
-			else { filter = false; AttachmentFilterLimit = Math.Max(AttachmentFilterLimit - 1, 0); }
-			LastAttachment = Attachment.Value.FileName;
+			if (Member.SpamSameMessageCount++ > 1) return await FilterHit();
+		}
+		else
+		{
+			if (Member.SpamSameMessageCount != 0) Member.SpamSameMessageCount--;
+			Member.SpamLastMessage = message.Content;
 		}
 
-		if ((AttachmentFilterLimit >= 3 || MessageFilterLimit >= 5) && filter)
-		{
-			response = AttachmentFilterLimit switch
-			{
-				3 => $"<@{ID}> please avoid spamming.",
-				4 => $"<@{ID}> spamming interrupts others and the flow of chat, please avoid so.",
-				5 => $"<@{ID}> avoid spamming, final warning.",
-				6 => "<@&1147933921829470399> spam limit reached, timeout necessary.",
-				_ => ""
-			};
-			response = MessageFilterLimit switch
-			{
-				5 => $"<@{ID}> please avoid spamming.",
-				6 => $"<@{ID}> spamming interrupts others and the flow of chat, please avoid so.",
-				7 => $"<@{ID}> avoid spamming, final warning.",
-				8 => "<@&1147933921829470399> spam limit reached, timeout necessary.",
-				_ => response
-			};
+		// If there are no attachments, save state and exit early.
+		if (!message.Attachments.Any()) goto NoAttachments;
 
-			if (!string.IsNullOrWhiteSpace(response))
-			{
-				_ = await client.Rest.SendMessageAsync(message.ChannelId, response);
-			}
+		if (message.Attachments.First().Value.FileName == Member.SpamLastAttachment)
+		{
+			if (Member.SpamSameMessageCount++ > 1) return await FilterHit();
+		}
+		else
+		{
+			if (Member.SpamSameMessageCount != 0) Member.SpamSameMessageCount--;
+			Member.SpamLastAttachment = message.Attachments.First().Value.FileName;
+		}
+
+	NoAttachments:
+		Caches.Members.List[message.Author.Id] = Member;
+		return false;
+
+		async Task<bool> FilterHit()
+		{
+			// This passes the message to the deleted message handler directly.
+			// More information on this is in the handler's code.
+			Events.DeletedSpamMessage = message;
 			await client.Rest.DeleteMessageAsync(message.ChannelId, message.Id);
+
+			if (Member.SpamSameMessageCount > 5)
+			{
+				await client.Rest.ModifyGuildUserAsync(1131100534250680433, message.Author.Id, u => u.WithTimeOutUntil(new(DateTime.Now.AddMinutes(30))));
+				Member.SpamSameMessageCount = 0;
+				goto UpdateMember;
+			}
+
+			// No reason to have a default case, it's bounded by the surrounding code.
+			#pragma warning disable CS8509
+			await client.Rest.SendMessageAsync(message.ChannelId, Member.SpamSameMessageCount switch
+			{
+				3 => $"<@{message.Author.Id}> please avoid spamming.",
+				4 => $"<@{message.Author.Id}> spamming interrupts others and the flow of chat, please avoid so.",
+				5 => $"<@{message.Author.Id}> avoid spamming, final warning."
+			});
+			#pragma warning restore CS8509
+
+		UpdateMember:
+			Caches.Members.List[message.Author.Id] = Member;
+			return true;
 		}
 	}
 }

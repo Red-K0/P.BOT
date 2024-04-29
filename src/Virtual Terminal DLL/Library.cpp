@@ -13,7 +13,7 @@
 
 /// <summary> Modifies the console output mode to handle virtual sequences. Necessary to utilize any virtual sequences. </summary>
 /// <returns> True if successful, otherwise returns false. </returns> 
-bool EnableVirtual()
+bool EnableVirtualAndHideCursor()
 	{
 		// Set output mode to handle virtual terminal sequences
 		HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -21,6 +21,7 @@ bool EnableVirtual()
 		{
 			return false;
 		}
+
 		HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
 		if (hIn == INVALID_HANDLE_VALUE)
 		{
@@ -56,6 +57,9 @@ bool EnableVirtual()
 			// Failed to set VT input mode, can't do anything here.
 			return false;
 		}
+
+		// Hide the cursor, because there's no reason to do this in C#.
+		printf(ESC "[?25l");
 
 		return true;
 	}

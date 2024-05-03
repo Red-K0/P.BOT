@@ -5,13 +5,9 @@ const string ignoredHashFilePath = "ignored_hash.txt";
 const string sourceXmlPath       = "Source.xml";
 
 const string htmlPageTitle       = "P.BOT Documenation";
-const string cssFilePath         = "main.css";
+const string cssString = "body{background:#191c1e;color:#c2c2c2;font:medium Helvetica;font-size:medium;font-weight:400;}red{color:#e0474b}lime{color:#e4ff10}yellow{color:#ffd702}blue{color:#1a94ff}pink{color:#d86ac2}orange{color:#efa553}paleblue{color:#8c90e5}lightblue{color:#86dbfd}";
 
-const string baseHTML            = "<!DOCTYPE html><html><head><title>" 
-                                 + htmlPageTitle
-								 + "</title><link href=\""
-								 + cssFilePath +
-								 "\"rel=\"stylesheet\"type=\"text/css\"/></head><body>";
+const string baseHTML            = $"<!DOCTYPE html><html><head><title>{htmlPageTitle}</title><style>{cssString}</style></head><body>";
 
 string xmlContent = File.ReadAllText(sourceXmlPath);
 uint hash1 = 5381;
@@ -37,7 +33,7 @@ for (int i = 0; i < memberCount; i++)
 
 	if (nameString.Contains("RegularExpressions")) continue;
 
-	string descString = workingString.Replace("\n", null);
+	string descString = workingString.Replace("\r\n", null);
 	string paramString = "";
 
 	descString = descString[(descString.IndexOf("<summary>") + 9)..].Trim();
@@ -53,14 +49,14 @@ for (int i = 0; i < memberCount; i++)
 		for (int j = 0; j < paramCount; j++)
 		{
 			paramString += "<li><orange>";
-			paramString += paramWorkingString.Remove(paramWorkingString.IndexOf('>') - 1)[(paramWorkingString.IndexOf("<param name") + 13)..] + "</orange>: ";
-			paramString += paramOriginalString.Remove(paramOriginalString.IndexOf("</param>"))[(paramOriginalString.IndexOf('>') + 1)..].Replace("<", "&lt;").Replace(">", "&gt;") + "</li>";
+			paramString += paramWorkingString.Remove(paramWorkingString.IndexOf('>') - 1)[(paramWorkingString.IndexOf("<param name") + 13)..] + "</orange>:";
+			paramString += paramOriginalString.Remove(paramOriginalString.IndexOf("</param>"))[(paramOriginalString.IndexOf('>') + 1)..].Trim().Replace("<", "&lt;").Replace(">", "&gt;") + "</li>";
 			paramOriginalString = paramOriginalString[(paramOriginalString.IndexOf("</param>") + 8)..];
 			paramWorkingString = paramOriginalString;
 		}
 	}
 
-	xmlContents += $"<br>{(Parse(nameString).Contains('.')?Parse(nameString) :$"<blue>{Parse(nameString)}</blue>")}<br>{descString}<br>" + (paramString != "" ? $"Parameters:{paramString}" : "");
+	xmlContents += $"<br>{(Parse(nameString).Contains('.')?Parse(nameString).Trim() :$"<blue>{Parse(nameString).Trim()}</blue>")}<br>{descString.Trim()}<br>" + (paramString != "" ? $"Parameters:{paramString.Trim()}" : "");
 	xmlContent = xmlContent[(xmlContent.IndexOf(nameString) + nameString.Length)..];
 }
 
@@ -184,6 +180,18 @@ xmlContents = xmlContents
 .Replace("EmbedFieldProperties<",  "<blue>EmbedFieldProperties</blue><");
 
 xmlContents = baseHTML + xmlContents + "</body></html>";
+
+// Minifying pass
+xmlContents = xmlContents.Trim()
+.Replace("paleblue>",  "f>").Replace("paleblue{",  "f{")
+.Replace("lightblue>", "m>").Replace("lightblue{", "m{")
+.Replace("blue>",      "x>").Replace("blue{",      "x{")
+.Replace("orange>",    "o>").Replace("orange{",    "o{")
+.Replace("yellow>",    "y>").Replace("yellow{",    "y{")
+.Replace("red>",       "r>").Replace("red{",       "r{")
+.Replace("pink>",      "k>").Replace("pink{",      "k{")
+.Replace("lime>",      "k>").Replace("lime{",      "l{")
+.Replace("\u007f",     null);
 
 File.WriteAllText("F:\\!PBOT\\docs\\index.html", xmlContents);
 

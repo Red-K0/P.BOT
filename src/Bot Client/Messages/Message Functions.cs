@@ -116,6 +116,8 @@ internal static class Functions
 
 		if (message.Content == Member.SpamLastMessage)
 		{
+			// Double penalize link spam.
+			if (message.Content.Contains("://")) Member.SpamSameMessageCount++;
 			if (Member.SpamSameMessageCount++ > 1) return await FilterHit();
 		}
 		else
@@ -127,14 +129,14 @@ internal static class Functions
 		// If there are no attachments, save state and exit early.
 		if (!message.Attachments.Any()) goto NoAttachments;
 
-		if (message.Attachments.First().Value.FileName == Member.SpamLastAttachment)
+		if (message.Attachments.First().Value.Size == Member.SpamLastAttachmentSize)
 		{
 			if (Member.SpamSameMessageCount++ > 1) return await FilterHit();
 		}
 		else
 		{
 			if (Member.SpamSameMessageCount != 0) Member.SpamSameMessageCount--;
-			Member.SpamLastAttachment = message.Attachments.First().Value.FileName;
+			Member.SpamLastAttachmentSize = message.Attachments.First().Value.Size;
 		}
 
 	NoAttachments:
@@ -157,13 +159,15 @@ internal static class Functions
 
 			// No reason to have a default case, it's bounded by the surrounding code.
 			#pragma warning disable CS8509
-			await client.Rest.SendMessageAsync(message.ChannelId, Member.SpamSameMessageCount switch
+			string Reply = Member.SpamSameMessageCount switch
 			{
 				3 => $"<@{message.Author.Id}> please avoid spamming.",
 				4 => $"<@{message.Author.Id}> spamming interrupts others and the flow of chat, please avoid so.",
 				5 => $"<@{message.Author.Id}> avoid spamming, final warning."
-			});
+			};
 			#pragma warning restore CS8509
+
+			await client.Rest.SendMessageAsync(message.ChannelId, Reply);
 
 		UpdateMember:
 			Caches.Members.List[message.Author.Id] = Member;

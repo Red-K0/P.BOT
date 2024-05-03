@@ -4,13 +4,13 @@
 // Commands in this file should be minimal and concise, as well as being able to run entirely locally.
 
 using NetCord.Services.ApplicationCommands;
-using PBot.Processing.Helpers;
-namespace PBot.Processing;
+using static PBot.Commands.TextCommands;
+namespace PBot.Commands;
 
 /// <summary>
-/// Contains the commands used by P.BOT and their associated tasks.
+/// Contains the slash commands used by P.BOT and their associated tasks.
 /// </summary>
-public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommandContext>
+public sealed partial class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 {
 	#region Attributes
 	[SlashCommand("syscheck", "Check if the system's online.")]
@@ -32,24 +32,23 @@ public sealed partial class SlashCommand : ApplicationCommandModule<SlashCommand
 	}
 
 	#region Attributes
-	[SlashCommand("toggle", "Toggle the status of a text-based command module.")]
+	[SlashCommand("toggle", "Toggle the status of a text command module.")]
 	public partial Task ToggleModule
 	(
 		[SlashCommandParameter(Name = "module", Description = "The module to turn on, or off.")]
-		Options.Modules module
+		Modules module
 	);
 	#endregion
 
 	/// <summary>
 	/// Toggles the state of the module specified in the <paramref name="module"/> parameter.
 	/// </summary>
-	public async partial Task ToggleModule(Options.Modules module)
+	public async partial Task ToggleModule(Modules module)
 	{
-		bool result = false;
 		switch (module)
 		{
-			case Options.Modules.DnDTextModule: Options.DnDTextModule ^= true; result = Options.DnDTextModule; break;
+			case Modules.ProbabilityModule: State ^= 0b0000_0001; break;
 		}
-		await RespondAsync(InteractionCallback.Message(result ? $"The module '{module}' has been successfully enabled." : $"The module '{module}' has been successfully disabled."));
+		await RespondAsync(InteractionCallback.Message(IsActive(Modules.ProbabilityModule) ? $"The module '{module}' has been successfully enabled." : $"The module '{module}' has been successfully disabled."));
 	}
 }

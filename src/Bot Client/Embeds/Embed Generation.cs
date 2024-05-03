@@ -18,9 +18,9 @@ internal static partial class Embeds
 
 	/// <summary> Combines the specified parameters to generate an embed. </summary>
 	/// <param name="description"> The section of the embed where the main text is contained, limited to 4096 characters. </param>
-	/// <param name="authorObject"> Contains the <see cref="EmbedAuthor"/> information to be used in the embed. </param>
+	/// <param name="authorObject"> Contains the <see cref="EmbedAuthorProperties"/> to be used in the embed. </param>
 	/// <param name="timestamp"> Displays time in a format similar to a message timestamp. Located next to the <paramref name="footerObject"/>. </param>
-	/// <param name="footerObject"> Contains the <see cref="EmbedFooter"/> information to be used in the embed. </param>
+	/// <param name="footerObject"> Contains the <see cref="EmbedFooterProperties"/> to be used in the embed. </param>
 	/// <param name="RGB"> The hex code indicating an embed's accent color. Defaults to a random value when not set or -1. </param>
 	/// <param name="replyTo"> The ID of the message being replied to with the embed. </param>
 	/// <param name="imageURLs"> An array of URIs for the attachments included in the embed, displayed below the <paramref name="description"/> element. </param>
@@ -73,7 +73,7 @@ internal static partial class Embeds
 	/// <summary> Combines the specified parameters with parameters extracted from a given <see cref="RestMessage"/> to generate an embed. </summary>
 	/// <param name="targetMessage"> The <see cref="RestMessage"/> object to extract parameters from. </param>
 	/// <param name="titleURL"> A link to an address of a webpage. When set, the <paramref name="title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
-	/// <param name="footerObject"> Contains the <see cref="EmbedFooter"/> information to be used in the embed. </param>
+	/// <param name="footerObject"> Contains the <see cref="EmbedFooterProperties"/> to be used in the embed. </param>
 	/// <param name="replyTo"> The ID of the message being replied to with the embed. </param>
 	/// <param name="title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="titleURL"/>, has a 256 character limit. </param>
 	/// <param name="thumbnailURL"> The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed. </param>
@@ -102,7 +102,7 @@ internal static partial class Embeds
 	}
 
 	/// <summary>
-	/// Creates a <see cref="MessageProperties"/> object suitable for <see cref="Processing.SlashCommand.GetDefinition(Processing.Helpers.Definition.Choices)"/>.
+	/// Creates a <see cref="MessageProperties"/> object suitable for <see cref="Commands.SlashCommands.GetDefinition(Commands.Helpers.Definition.Choices)"/>.
 	/// </summary>
 	public static MessageProperties Generate(string title, EmbedFieldProperties[] contents, ulong authorID = 0) => new()
 	{

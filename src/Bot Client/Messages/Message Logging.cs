@@ -36,20 +36,27 @@ internal static class Logging
 	/// </summary>
 	public static void LogCreatedMessage(Message message)
 	{
-		// Do nothing if message is empty.
-		if (string.IsNullOrEmpty(message.Content)) return;
-
 		string Message = (LastAuthor != message.Author.Id) ?
-		$"\n{message.CreatedAt.ToString()[..^7]} {message.Author,-22} - {message.Author.GetDisplayName()}\n{message.Content}" : message.Content;
+		$"\n{message.CreatedAt.ToString()[..^7]} {message.Author,-22} - {message.Author.GetDisplayName()}\n" : "";
 
-		if (Message.Contains("https://") || Message.Contains("http://"))
+		if (message.ReferencedMessage?.Content != null)
+		{
+			Message += $"↳ {message.ReferencedMessage.Content.Replace("\n", "\n  ")}\n{message.Content}";
+		}
+		else
+		{
+			Message += message.Content;
+		}
+
+		// Parse for links to color.
+		if (Message.Contains("://"))
 		{
 			// For markdown, inline, and multiple link support.
-			int LinkStart, LinkEnd;
+			int LinkStart;
 			while (Message.Contains(" http"))
 			{
 				LinkStart = Message.IndexOf(" http") + 1;
-				LinkEnd = Message.IndexOf(' ', LinkStart);
+				int LinkEnd = Math.Min(Message.IndexOf(' ', LinkStart), Message.IndexOf('\n', LinkStart));
 
 				if (LinkEnd == -1) LinkEnd = Message.Length;
 
@@ -58,14 +65,12 @@ internal static class Logging
 			while (Message.Contains("[http"))
 			{
 				LinkStart = Message.IndexOf("[http") + 1;
-				LinkEnd = Message.IndexOf(']', LinkStart);
-				Message = Message.Insert(LinkStart, PHelper.BrightBlue).Insert(LinkEnd, PHelper.None);
+				Message = Message.Insert(LinkStart, PHelper.BrightBlue).Insert(Message.IndexOf(']', LinkStart), PHelper.None);
 			}
 
 			if (Message.StartsWith("http"))
 			{
-				LinkEnd = Message.IndexOf(' ', 0);
-				Message = PHelper.BrightBlue + Message.Insert(LinkEnd, PHelper.None);
+				Message = PHelper.BrightBlue + Message.Insert(Math.Min(Message.IndexOf(' '), Message.IndexOf('\n')), PHelper.None);
 			}
 		}
 

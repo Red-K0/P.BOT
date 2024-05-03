@@ -1,4 +1,5 @@
-﻿using static PBot.Messages.Functions;
+﻿using PBot.Commands;
+using static PBot.Messages.Functions;
 using static PBot.Messages.Logging;
 namespace PBot.Messages;
 
@@ -33,13 +34,18 @@ internal static class Events
 		// While this leads to a repeated reference, it skips a lot of unnecessary computation.
 		if (message.Author.IsBot) { Caches.Messages.Add(message); return; }
 
+		// If a command runs, do nothing else.
+		if (TextCommands.State != 0 && message.Content[0] == '.')
+		{
+			TextCommands.Parse(message);
+			return;
+		}
+
 		if (await Filter(message)) return;
 
 		Caches.Messages.Add(message);
 
 		if (message.Content.Contains(SERVER_LINK)) ParseLinks(message);
-
-		// TODO: New command processor
 
 		LogCreatedMessage(message);
 	}
@@ -55,7 +61,7 @@ internal static class Events
 		if (DeletedSpamMessage != null) DeletedSpamMessage = null;
 
 		// If this check passes, message isn't null.
-		if (message?.Author.IsBot != true)
+		if (message?.Author.IsBot == false)
 		{
 			await LogDeletedMessage(message!);
 			return;

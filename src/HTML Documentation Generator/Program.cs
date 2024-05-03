@@ -27,8 +27,8 @@ string fileHash = hash1.ToString();
 if (!string.IsNullOrWhiteSpace(File.ReadAllText(ignoredHashFilePath)) && fileHash == File.ReadAllText(ignoredHashFilePath)) Environment.Exit(0);
 else File.WriteAllText(ignoredHashFilePath, fileHash);
 
-string xmlContents = baseHTML;
-int memberCount    = ((xmlContent.Length - xmlContent.Replace("<member name", "").Length) / "<member name".Length) + 1;
+string xmlContents = "";
+int memberCount    = ((xmlContent.Length - xmlContent.Replace("<member name", null).Length) / "<member name".Length) + 1;
 
 for (int i = 0; i < memberCount; i++)
 {
@@ -37,7 +37,7 @@ for (int i = 0; i < memberCount; i++)
 
 	if (nameString.Contains("RegularExpressions")) continue;
 
-	string descString = workingString.Replace("\n", "");
+	string descString = workingString.Replace("\n", null);
 	string paramString = "";
 
 	descString = descString[(descString.IndexOf("<summary>") + 9)..].Trim();
@@ -49,28 +49,293 @@ for (int i = 0; i < memberCount; i++)
 		paramWorkingString = paramWorkingString.Remove(paramWorkingString.IndexOf("</member>"));
 		string paramOriginalString = paramWorkingString;
 
-		int paramCount = ((paramWorkingString.Length - paramWorkingString.Replace("</param>", "").Length) / "</param>".Length);
+		int paramCount = ((paramWorkingString.Length - paramWorkingString.Replace("</param>", null).Length) / "</param>".Length);
 		for (int j = 0; j < paramCount; j++)
 		{
-			paramString += "<li><m1>";
-			paramString += paramWorkingString.Remove(paramWorkingString.IndexOf('>') - 1)[(paramWorkingString.IndexOf("<param name") + 13)..] + ":</m1> ";
-			paramString += paramOriginalString.Remove(paramOriginalString.IndexOf("</param>"))[(paramOriginalString.IndexOf('>') + 1)..] + "</li>";
+			paramString += "<li><orange>";
+			paramString += paramWorkingString.Remove(paramWorkingString.IndexOf('>') - 1)[(paramWorkingString.IndexOf("<param name") + 13)..] + "</orange>: ";
+			paramString += paramOriginalString.Remove(paramOriginalString.IndexOf("</param>"))[(paramOriginalString.IndexOf('>') + 1)..].Replace("<", "&lt;").Replace(">", "&gt;") + "</li>";
 			paramOriginalString = paramOriginalString[(paramOriginalString.IndexOf("</param>") + 8)..];
 			paramWorkingString = paramOriginalString;
 		}
 	}
-	xmlContents += $"<br><m1>Member:</m1> {nameString}<br><m1>Summary:</m1> {descString}<br>" + (paramString != "" ? $"<m1>Parameters:</m1>{paramString}" : "");
+
+	xmlContents += $"<br>{(Parse(nameString).Contains('.')?Parse(nameString) :$"<blue>{Parse(nameString)}</blue>")}<br>{descString}<br>" + (paramString != "" ? $"Parameters:{paramString}" : "");
 	xmlContent = xmlContent[(xmlContent.IndexOf(nameString) + nameString.Length)..];
 }
 
-xmlContents = new Regex(Regex.Escape("<br>"))
-.Replace(xmlContents, "", 1)
-.Replace("&lt;c&gt;", "").Replace("&lt;/c&gt;", "")
-.Replace("M:", "").Replace("F:", "").Replace("T:", "")
-.Replace(",", ", ").Replace(",  ", ", ")
-.Replace("&lt;see cref=\"", "'").Replace("&lt;see langword=\"", "'").Replace("\"/&gt;", "'")
-.Replace("&lt;paramref name=\"", "'");
+xmlContents = new Regex(Regex.Escape("<br>")).Replace(xmlContents, "", 1)
 
-xmlContents += "</body></html>";
+// Tag removal
+.Replace("&lt;c&gt;", null)
+.Replace("&lt;/c&gt;", null)
+.Replace("&lt;see cref=", null)
+.Replace("&lt;see langword=", null)
+.Replace("&lt;paramref name=", null)
+
+// Type specifier removal
+.Replace("M:", null)
+.Replace("F:", null)
+.Replace("T:", null)
+.Replace("P:", null)
+
+// Simple Highlighting
+.Replace("Nullable{", "<blue>Nullable</blue>{");
+
+byte highlight = 0;
+string target; bool procTarget = true;
+
+// Syntax highlighting
+for (int i = 0; i < xmlContents.Length; i++)
+{
+	if (xmlContents[i] == '(')
+	{
+		if (xmlContents[i - 1] != ' ')
+		{
+			for (int ii = 2; ii < int.MaxValue; ii++)
+			{
+				if (xmlContents[i - ii] == '.')
+				{
+					xmlContents = xmlContents.Insert(i - ii + 12, "<lime>");
+					xmlContents = xmlContents.Insert(i + 6, "</lime>");
+					break;
+				}
+			}
+			i = xmlContents.IndexOf('(', i);
+		}
+	}
+
+	// Brace match highlighing
+	if (xmlContents[i] is '(' or '[' or '{')
+	{
+		switch (highlight % 3)
+		{
+			case 0:
+				xmlContents = xmlContents.Insert(i, "<yellow>");
+				xmlContents = xmlContents.Insert(i + 9, "</yellow>");
+				i += 17;
+				break;
+			case 1:
+				xmlContents = xmlContents.Insert(i, "<blue>");
+				xmlContents = xmlContents.Insert(i + 7, "</blue>");
+				i += 13;
+				break;
+			case 2:
+				xmlContents = xmlContents.Insert(i, "<pink>");
+				xmlContents = xmlContents.Insert(i + 7, "</pink>");
+				i += 13;
+				break;
+		}
+		highlight++;
+		continue;
+	}
+	if (xmlContents[i] is ')' or ']' or '}')
+	{
+		highlight--;
+		switch (highlight% 3)
+		{
+			case 0:
+				xmlContents = xmlContents.Insert(i, "<yellow>");
+				xmlContents = xmlContents.Insert(i + 9, "</yellow>");
+				i += 17;
+				break;
+			case 1:
+				xmlContents = xmlContents.Insert(i, "<blue>");
+				xmlContents = xmlContents.Insert(i + 7, "</blue>");
+				i += 13;
+				break;
+			case 2:
+				xmlContents = xmlContents.Insert(i, "<pink>");
+				xmlContents = xmlContents.Insert(i + 7, "</pink>");
+				i += 13;
+				break;
+		}
+		continue;
+	}
+
+	// Highlight references
+	if (xmlContents[i] == '"')
+	{
+		xmlContents = xmlContents.Insert(i, "<orange>"); i += 9;
+		if (procTarget)
+		{
+			target = xmlContents[i..xmlContents.IndexOf('"', i + 1)];
+			Console.WriteLine(target + "\n");
+
+			xmlContents = xmlContents[..i] + Parse(target) + xmlContents[xmlContents.IndexOf('"', i + 1)..];
+
+			procTarget = false;
+		}
+		else
+		{
+			procTarget = true;
+		}
+		xmlContents = xmlContents.Insert(i, "</orange>"); i += 8;
+		continue;
+	}
+}
+
+// Second highlight pass
+xmlContents = xmlContents
+.Replace("\"", "")
+.Replace("/&gt;", null)
+.Replace("EmbedAuthorProperties<", "<blue>EmbedAuthorProperties</blue><")
+.Replace("EmbedFooterProperties<", "<blue>EmbedFooterProperties</blue><")
+.Replace("EmbedFieldProperties<",  "<blue>EmbedFieldProperties</blue><");
+
+xmlContents = baseHTML + xmlContents + "</body></html>";
 
 File.WriteAllText("F:\\!PBOT\\docs\\index.html", xmlContents);
+
+static string Parse(string member)
+{
+	member = member
+	// Global namespace removal
+	.Replace("System.",  null)
+	.Replace("PBot.",    null)
+	.Replace("NetCord.", null)
+	.Replace("Rest.",    null)
+	.Replace("Gateway.", null)
+
+	//Highlight known classes
+	.Replace("RestClient.",                     "<blue>RestClient</blue>.")
+	.Replace("Client.",                         "<blue>Client</blue>.")
+	.Replace("Embeds.",                         "<blue>Embeds</blue>.")
+	.Replace("Extensions.",                     "<blue>Extensions</blue>.")
+	.Replace("Pages.",                          "<blue>Pages</blue>.")
+	.Replace("PHelper.",                        "<blue>PHelper</blue>.")
+
+	// Caches namespace
+	.Replace(".Messages",                       ".<blue>Messages</blue>")
+	.Replace(".Members",                        ".<blue>Members</blue>")
+
+	// Commands namespace
+	.Replace(".SlashCommands",                  ".<blue>SlashCommands</blue>")
+	.Replace(".TextCommands",                   ".<blue>TextCommands</blue>")
+
+	// Commands.Helpers namespace
+	.Replace(".Definition",                     ".<blue>Definition</blue>")
+	.Replace(".Posts",                          ".<blue>Posts</blue>")
+	.Replace(".ProbabilityStateMachine",        ".<blue>ProbabilityStateMachine</blue>")
+	.Replace(".Wikipedia",                      ".<blue>Wikipedia</blue>")
+
+	// Messages namespace
+	.Replace(".Functions",                      ".<blue>Functions</blue>")
+	.Replace(".Events",                         ".<blue>Events</blue>")
+	.Replace(".Logging",                        ".<blue>Logging</blue>")
+
+	// Parameterless method fix
+	.Replace(".Alphanumeric",                   ".Alphanumeric()")
+	.Replace(".EnableVirtualAndHideCursor",     ".EnableVirtualAndHideCursor()")
+	.Replace(".InitXShift128",                  ".InitXShift128()")
+	.Replace(".Load" ,                          ".Load()")
+	.Replace(".MapClientHandlers" ,             ".MapClientHandlers()")
+	.Replace(".Start",                          ".Start()")
+	.Replace(".Start()InteractionHandler",      ".StartInteractionHandler()") // Account for line above.
+	.Replace(".SystemsCheck",                   ".SystemsCheck()")
+
+	// Dot seperator highlighting
+	.Replace(".",                         "<paleblue>.</paleblue>")
+
+	// Add parameter spacing
+	.Replace(",", ", ");
+
+	// Member highlighting
+	for (int i = 0; i < member.Length; i++)
+	{
+		// Constant and member highlighting
+		if (member[i] == '.')
+		{
+			if (member.IndexOf('.', i + 1) != -1) continue;
+
+			if (member.IndexOf('(', i) == -1)
+			{
+				member = member.Insert(i + 12, "<lightblue>");
+				member += "</lightblue>";
+			}
+			continue;
+		}
+
+		// Out syntax conversion
+		if (member[i] == '@')
+		{
+			for (int ii = i - 1; ii > -1; ii--)
+			{
+				if (member[ii] == ' ')
+				{
+					member = member.Insert(ii, " <red>out</red>");
+					break;
+				}
+			}
+			member = string.Concat(member.Remove(i + 15), member.AsSpan(i + 16));
+			continue;
+		}
+
+		if (member[i] == 'E')
+		{
+			if (member[i + 1] == 'v')
+			{
+				if (member.Substring(i, 9) == "EventArgs")
+				{
+					for (int ii = i - 1; ii > -1; ii--)
+					{
+						if (member[ii] is ' ' or '(')
+						{
+							member = member.Insert(ii + 1, "<blue>");
+							member = member.Insert(i + 15, "</blue>");
+							break;
+						}
+						if (ii == 0)
+						{
+							member = "<blue>" + member.Insert(i + 9, "</blue>");
+						}
+					}
+					i += 16;
+					continue;
+				}
+			}
+		}
+	}
+
+	string types;
+
+	if (member.Contains('(')) types = member[member.IndexOf('(')..];
+	else if (!member.Contains('.')) types = member;
+	else if (!member.Contains('<')) return "<orange>" + member + "</orange>";
+	else return member;
+
+	types = types
+		// Integral type highlighting
+		.Replace("SByte",                          "<red>sbyte</red>")
+		.Replace("Byte",                           "<red>byte</red>")
+		.Replace("UInt16",                         "<red>ushort</red>")
+		.Replace("Int16",                          "<red>short</red>")
+		.Replace("UInt32",                         "<red>uint</red>")
+		.Replace("Int32",                          "<red>int</red>")
+		.Replace("UInt64",                         "<red>ulong</red>")
+		.Replace("Int64",                          "<red>long</red>")
+
+		// Base type highlighting
+		.Replace("String",                         "<red>string</red>")
+		.Replace("Boolean",                        "<red>bool</red>")
+		.Replace("null",                           "<red>null</red>")
+
+		// Message with its fixes
+		.Replace("InteractionMessageProperties",   "<blue>InteractionMessageProperties</blue>")
+		.Replace("MessageProperties",              "<blue>MessageProperties</blue>")
+		.Replace("RestMessage",                    "<blue>RestMessage</blue>")
+		.Replace("LogMessage",                     "<blue>LogMessage</blue>")
+		.Replace("Message",                        "<blue>Message</blue>")
+		.Replace("<blue>Message</blue>s",          "Messages")
+
+		.Replace("EmbedAuthorProperties",          "<blue>EmbedAuthorProperties</blue>")
+		.Replace("EmbedFooterProperties",          "<blue>EmbedFooterProperties</blue>")
+		.Replace("EmbedFieldProperties",           "<blue>EmbedFieldProperties</blue>");
+
+	if (member.Contains('(')) member = member.Remove(member.IndexOf('(')) + types;
+	else member = types;
+
+	if (!member.Contains('<') && member[0].ToString().ToUpper() != member[0].ToString()) return "<orange>" + member + "</orange>";
+
+	return member;
+}

@@ -5,12 +5,12 @@
 
 using Microsoft.IdentityModel.Tokens;
 using NetCord.Services.ApplicationCommands;
-using PBot.Processing.Helpers;
+using PBot.Commands.Helpers;
 using static PBot.Caches.Members;
 using static PBot.Embeds;
-namespace PBot.Processing;
+namespace PBot.Commands;
 
-public sealed partial class SlashCommand
+public sealed partial class SlashCommands
 {
 	#region Attributes
 	[SlashCommand("getavatar", "Get a user's avatar.")]

@@ -253,3 +253,6 @@ dotnet_diagnostic.IDE0079.severity = none
 
 # RCS1141: Add 'param' element to documentation comment
 dotnet_diagnostic.RCS1141.severity = none
+
+# CA1050: Declare types in namespaces
+dotnet_diagnostic.CA1050.severity = none

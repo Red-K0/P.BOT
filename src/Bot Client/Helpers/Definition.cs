@@ -1,15 +1,15 @@
 ﻿// The helper class supporting the /define command.
 
 using NetCord.Services.ApplicationCommands;
-namespace PBot.Processing.Helpers;
+namespace PBot.Commands.Helpers;
 
 /// <summary>
-/// Contains data involving dictionaries and the <see cref="SlashCommand.GetDefinition(Choices)"/> command.
+/// Contains data involving dictionaries and the <see cref="SlashCommands.GetDefinition(Choices)"/> command.
 /// </summary>
 public static class Definition
 {
 	/// <summary>
-	/// A list of possible choices for the <see cref="SlashCommand.GetDefinition(Choices)"/> command.
+	/// A list of possible choices for the <see cref="SlashCommands.GetDefinition(Choices)"/> command.
 	/// </summary>
 	public enum Choices
 	{
@@ -132,7 +132,7 @@ public static class Definition
 	#endregion
 
 	/// <summary>
-	/// Contains definitions used for the <see cref="SlashCommand.GetDefinition(Choices)"/> command.
+	/// Contains definitions used for the <see cref="SlashCommands.GetDefinition(Choices)"/> command.
 	/// </summary>
 	public static readonly Dictionary<Choices, MessageProperties> Entries = new([Codex_PPP, Guide_Iceland]);
 }

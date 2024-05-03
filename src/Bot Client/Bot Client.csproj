@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
-    <RootNamespace>P_BOT</RootNamespace>
+    <RootNamespace>PBot</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
@@ -37,39 +37,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="C++ Helper\**" />
-    <Compile Remove="PBOT_C\**" />
-    <Compile Remove="VTs\**" />
-    <Compile Remove="~PBOT_C\**" />
-    <EmbeddedResource Remove="C++ Helper\**" />
-    <EmbeddedResource Remove="PBOT_C\**" />
-    <EmbeddedResource Remove="VTs\**" />
-    <EmbeddedResource Remove="~PBOT_C\**" />
-    <None Remove="C++ Helper\**" />
-    <None Remove="PBOT_C\**" />
-    <None Remove="VTs\**" />
-    <None Remove="~PBOT_C\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Command Processing Helpers\~Template.cs" />
-    <Compile Remove="Command Processing\~Template.cs" />
+    <Compile Remove="Helpers\~Template.cs" />
+    <Compile Remove="Commands\~Template.cs" />
     <Compile Remove="CommonFunctions.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove=".gitattributes" />
     <None Remove=".gitignore" />
-    <None Remove="dllmain.cpp" />
-    <None Remove="framework.h" />
-    <None Remove="index.html" />
-    <None Remove="Library.cpp" />
-    <None Remove="Library.h" />
-    <None Remove="PBOT_C.dll" />
-    <None Remove="pch.cpp" />
-    <None Remove="pch.h" />
-    <None Remove="PHelper.dll" />
-    <None Remove="VTs.vcxproj.filters" />
   </ItemGroup>
 
   <ItemGroup>
@@ -91,14 +66,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Constants">
-      <Static>True</Static>
-    </Using>
     <Using Include="NetCord" />
     <Using Include="NetCord.Gateway" />
     <Using Include="NetCord.Rest" />
     <Using Include="NetCord.Services" />
     <Using Include="PBot" />
+    <Using Include="PBot.Client">
+      <Static>True</Static>
+    </Using>
     <Using Include="System.Diagnostics" />
   </ItemGroup>
 
@@ -107,16 +82,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Command Processing Helpers\~Template.cs" />
-    <None Include="Command Processing\~Template.cs" />
+    <None Include="Helpers\~Template.cs" />
+    <None Include="Commands\~Template.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="phlpr.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="VTs.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

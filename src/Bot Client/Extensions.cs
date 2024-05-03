@@ -1,12 +1,10 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using System.Runtime.InteropServices;
 namespace PBot;
 
 /// <summary>
 /// Convenience class for simple type conversions.
 /// </summary>
-internal static class TypeExtensions
+internal static class Extensions
 {
 	/// <summary>
 	/// Converts the value of this instance to its equivalent <see cref="InteractionMessageProperties"/> representation.
@@ -109,6 +107,9 @@ internal static class TypeExtensions
 	public static string ToEscapedMarkdown(this string unparsed) =>
 			unparsed.Replace("\\", "\\\\").Replace("_", "\\_").Replace("-", "\\-").Replace("*", "\\*").Replace("~", "\\~");
 
+	/// <summary>
+	/// Gets the relevant <see cref="Message"/> object from a Discord message URL.
+	/// </summary>
 	public static async Task<RestMessage?> GetMessage(this string messageLink)
 	{
 		if (!messageLink.Contains(SERVER_LINK) || messageLink.Length <= (messageLink.IndexOf(SERVER_LINK) + 49)) return null;
@@ -123,6 +124,9 @@ internal static class TypeExtensions
 		return await client.Rest.GetMessageAsync(ChannelID, MessageID);
 	}
 
+	/// <summary>
+	/// Gets a <see cref="User"/>'s displayed discord name using the cached member list.
+	/// </summary>
 	public static string GetDisplayName(this User user) => Caches.Members.List[user.Id].DisplayName;
 }
 

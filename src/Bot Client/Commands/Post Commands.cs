@@ -4,11 +4,11 @@
 // Commands in this file heavily rely on content found in the PostDB folder.
 
 using NetCord.Services.ApplicationCommands;
-using static PBot.Processing.Helpers.Posts;
+using static PBot.Commands.Helpers.Posts;
 using static PBot.Embeds;
-namespace PBot.Processing;
+namespace PBot.Commands;
 
-public sealed partial class SlashCommand
+public sealed partial class SlashCommands
 {
 	#region Attributes
 	[SlashCommand("post", "Create a post (WIP).")]

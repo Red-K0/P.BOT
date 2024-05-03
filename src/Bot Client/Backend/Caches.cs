@@ -59,7 +59,7 @@ internal static class Messages
 }
 
 /// <summary>
-/// Contains the cahced members list, role list, and their relevant methods.
+/// Contains the cached members list, role list, and their relevant methods.
 /// </summary>
 internal static partial class Members
 {

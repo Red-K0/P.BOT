@@ -190,7 +190,7 @@ xmlContents = xmlContents.Trim()
 .Replace("yellow>",    "y>").Replace("yellow{",    "y{")
 .Replace("red>",       "r>").Replace("red{",       "r{")
 .Replace("pink>",      "k>").Replace("pink{",      "k{")
-.Replace("lime>",      "k>").Replace("lime{",      "l{")
+.Replace("lime>",      "l>").Replace("lime{",      "l{")
 .Replace("\u007f",     null);
 
 File.WriteAllText("F:\\!PBOT\\docs\\index.html", xmlContents);

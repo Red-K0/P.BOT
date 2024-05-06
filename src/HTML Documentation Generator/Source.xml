@@ -85,9 +85,238 @@
             Starts the bot's client, initializes event handlers, and prepares caches.
             </summary>
         </member>
-        <member name="M:PBot.Client.StartInteractionHandler">
+        <member name="M:PBot.Client.Restart">
             <summary>
-            Starts the bot's interaction handler and assigns it to the client.
+            Stops the client, releases its resources, and restarts the bot client.
+            </summary>
+        </member>
+        <member name="T:PBot.Extensions">
+            <summary>
+            Convenience class for simple type conversions.
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.ToInteraction(NetCord.Rest.MessageProperties)">
+            <summary>
+            Converts the value of this instance to its equivalent <see cref="T:NetCord.Rest.InteractionMessageProperties"/> representation.
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.GetImageURLs(System.Collections.Generic.IReadOnlyDictionary{System.UInt64,NetCord.Attachment})">
+            <summary>
+            Converts a set of attachments to an array of the attachments' URLs.
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.TryGetName(NetCord.TextChannel,System.String@)">
+            <summary>
+            Attempts to get the channel's name, returning null if it doesn't have one.
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.ToChecked(NetCord.Rest.MessageProperties)">
+            <summary>
+            Caps the embed count of this instance to 10 embeds maximum.
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.GetAvatar(NetCord.User)">
+            <summary>
+            Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.GetAvatar(NetCord.GuildUser)">
+            <summary>
+            Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.ToParsedUnicode(System.String)">
+            <summary>
+            Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <c>\u0041' -> 'A'</c>).
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.ToEscapedMarkdown(System.String)">
+            <summary>
+            Converts the contents of this string into an escaped version, avoiding markdown formatting issues.
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.GetMessage(System.String)">
+            <summary>
+            Gets the relevant <see cref="T:NetCord.Gateway.Message"/> object from a Discord message URL.
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.GetDisplayName(NetCord.User)">
+            <summary>
+            Gets a <see cref="T:NetCord.User"/>'s displayed discord name using the cached member list.
+            </summary>
+        </member>
+        <member name="T:PBot.PHelper">
+            <summary>
+            Contains constants and method calls related to unmanaged code in 'phlpr.dll'.
+            </summary>
+        </member>
+        <member name="M:PBot.PHelper.EnableVirtualAndHideCursor">
+            <summary> Unmanaged method imported via 'phlpr.dll', enables the use of virtual terminal sequences globally, and hides the cursor. </summary>
+            <returns> True if successful, otherwise returns false. </returns>
+        </member>
+        <member name="F:PBot.PHelper.CSI">
+            <summary>
+            Indicates the start of a virtual terminal sequence.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightBlack">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Black">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightRed">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Red">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightGreen">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Green">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightYellow">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Yellow">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightBlue">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Blue">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightMagenta">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Magenta">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.BrightCyan">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.Cyan">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.None">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.White">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightBlack">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBlack">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightRed">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bRed">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightGreen">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bGreen">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightYellow">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bYellow">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightBlue">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBlue">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightMagenta">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bMagenta">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightCyan">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bCyan">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bBrightWhite">
+            <summary>
+            Sets the console color.
+            </summary>
+        </member>
+        <member name="F:PBot.PHelper.bWhite">
+            <summary>
+            Sets the console color.
             </summary>
         </member>
         <member name="T:PBot.Pages">
@@ -376,235 +605,6 @@
         <member name="M:PBot.Embeds.Generate(System.String,NetCord.Rest.EmbedFieldProperties[],System.UInt64)">
             <summary>
             Creates a <see cref="T:NetCord.Rest.MessageProperties"/> object suitable for <see cref="M:PBot.Commands.SlashCommands.GetDefinition(PBot.Commands.Helpers.Definition.Choices)"/>.
-            </summary>
-        </member>
-        <member name="T:PBot.Extensions">
-            <summary>
-            Convenience class for simple type conversions.
-            </summary>
-        </member>
-        <member name="M:PBot.Extensions.ToInteraction(NetCord.Rest.MessageProperties)">
-            <summary>
-            Converts the value of this instance to its equivalent <see cref="T:NetCord.Rest.InteractionMessageProperties"/> representation.
-            </summary>
-        </member>
-        <member name="M:PBot.Extensions.GetImageURLs(System.Collections.Generic.IReadOnlyDictionary{System.UInt64,NetCord.Attachment})">
-            <summary>
-            Converts a set of attachments to an array of the attachments' URLs.
-            </summary>
-        </member>
-        <member name="M:PBot.Extensions.TryGetName(NetCord.TextChannel,System.String@)">
-            <summary>
-            Attempts to get the channel's name, returning null if it doesn't have one.
-            </summary>
-        </member>
-        <member name="M:PBot.Extensions.ToChecked(NetCord.Rest.MessageProperties)">
-            <summary>
-            Caps the embed count of this instance to 10 embeds maximum.
-            </summary>
-        </member>
-        <member name="M:PBot.Extensions.GetAvatar(NetCord.User)">
-            <summary>
-            Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
-            </summary>
-        </member>
-        <member name="M:PBot.Extensions.GetAvatar(NetCord.GuildUser)">
-            <summary>
-            Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
-            </summary>
-        </member>
-        <member name="M:PBot.Extensions.ToParsedUnicode(System.String)">
-            <summary>
-            Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <c>\u0041' -> 'A'</c>).
-            </summary>
-        </member>
-        <member name="M:PBot.Extensions.ToEscapedMarkdown(System.String)">
-            <summary>
-            Converts the contents of this string into an escaped version, avoiding markdown formatting issues.
-            </summary>
-        </member>
-        <member name="M:PBot.Extensions.GetMessage(System.String)">
-            <summary>
-            Gets the relevant <see cref="T:NetCord.Gateway.Message"/> object from a Discord message URL.
-            </summary>
-        </member>
-        <member name="M:PBot.Extensions.GetDisplayName(NetCord.User)">
-            <summary>
-            Gets a <see cref="T:NetCord.User"/>'s displayed discord name using the cached member list.
-            </summary>
-        </member>
-        <member name="T:PBot.PHelper">
-            <summary>
-            Contains constants and method calls related to unmanaged code in 'phlpr.dll'.
-            </summary>
-        </member>
-        <member name="M:PBot.PHelper.EnableVirtualAndHideCursor">
-            <summary> Unmanaged method imported via 'phlpr.dll', enables the use of virtual terminal sequences globally, and hides the cursor. </summary>
-            <returns> True if successful, otherwise returns false. </returns>
-        </member>
-        <member name="F:PBot.PHelper.CSI">
-            <summary>
-            Indicates the start of a virtual terminal sequence.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.BrightBlack">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.Black">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.BrightRed">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.Red">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.BrightGreen">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.Green">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.BrightYellow">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.Yellow">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.BrightBlue">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.Blue">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.BrightMagenta">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.Magenta">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.BrightCyan">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.Cyan">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.None">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.White">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bBrightBlack">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bBlack">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bBrightRed">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bRed">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bBrightGreen">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bGreen">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bBrightYellow">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bYellow">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bBrightBlue">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bBlue">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bBrightMagenta">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bMagenta">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bBrightCyan">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bCyan">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bBrightWhite">
-            <summary>
-            Sets the console color.
-            </summary>
-        </member>
-        <member name="F:PBot.PHelper.bWhite">
-            <summary>
-            Sets the console color.
             </summary>
         </member>
         <member name="T:PBot.Messages.Events">

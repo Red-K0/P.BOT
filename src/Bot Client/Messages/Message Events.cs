@@ -1,4 +1,5 @@
-﻿using PBot.Commands;
+﻿using NetCord.Services.ApplicationCommands;
+using PBot.Commands;
 using static PBot.Messages.Functions;
 using static PBot.Messages.Logging;
 namespace PBot.Messages;
@@ -16,13 +17,29 @@ internal static class Events
 	/// <summary>
 	/// Maps the <see cref="client"/>'s events to their appropriate response method.
 	/// </summary>
-	public static void MapClientHandlers()
+	public static async Task MapClientHandlers()
 	{
 		client.Log                += LogNetworkMessage;
 		client.MessageCreate      += MessageCreated;
 		client.MessageDelete      += MessageDeleted;
 		client.MessageUpdate      += MessageUpdated;
 		client.MessageReactionAdd += ReactionAdded;
+
+		ApplicationCommandService<SlashCommandContext> cmdSrv = new();
+		cmdSrv.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);
+		await cmdSrv.CreateCommandsAsync(client.Rest, client.Id);
+
+		client.InteractionCreate += async interaction =>
+		{
+			try
+			{
+				if (interaction is SlashCommandInteraction sCmd && await cmdSrv.ExecuteAsync(new SlashCommandContext(sCmd, client)) is IFailResult fRes)
+				{
+					WriteAsID(fRes.Message, SpecialId.Network);
+				}
+			}
+			catch { }
+		};
 	}
 
 	/// <summary>
@@ -35,7 +52,7 @@ internal static class Events
 		if (message.Author.IsBot) { Caches.Messages.Add(message); return; }
 
 		// If a command runs, do nothing else.
-		if (TextCommands.State != 0 && message.Content[0] == '.')
+		if (TextCommands.State != 0 && message.Content.Length > 3 && message.Content[0] == '.')
 		{
 			TextCommands.Parse(message);
 			return;

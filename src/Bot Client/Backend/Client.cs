@@ -1,9 +1,8 @@
 ﻿namespace PBot;
 
 using Microsoft.Extensions.Configuration;
-using NetCord.Services.ApplicationCommands;
+using PBot.Commands.Helpers;
 using PBot.Messages;
-using static PBot.Messages.Logging;
 
 /// <summary>
 /// Contains methods for initializing and preparing the bot's client.
@@ -16,7 +15,10 @@ public static class Client
 	public static readonly GatewayClient client = new
 	(
 		new BotToken(new ConfigurationBuilder().AddUserSecrets<Program>().Build().GetSection("Discord")["Token"]!),
-		new GatewayClientConfiguration() { Intents = GatewayIntents.All }
+		new GatewayClientConfiguration()
+		{
+			Intents = GatewayIntents.All
+		}
 	);
 
 	/// <summary>
@@ -34,31 +36,23 @@ public static class Client
 	/// </summary>
 	public static async void Start()
 	{
-		Events.MapClientHandlers();
+		await Events.MapClientHandlers();
 		await client.StartAsync();
 		await client.ReadyAsync;
 		Caches.Members.Load();
+
+		ProbabilityStateMachine.InitXShift128();
 	}
 
 	/// <summary>
-	/// Starts the bot's interaction handler and assigns it to the client.
+	/// Stops the client, releases its resources, and restarts the bot client.
 	/// </summary>
-	public static async void StartInteractionHandler()
+	public static async Task Restart()
 	{
-		ApplicationCommandService<SlashCommandContext> cmdSrv = new();
-		cmdSrv.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);
-		await cmdSrv.CreateCommandsAsync(client.Rest, client.Id);
+		await client.CloseAsync();
+		client.Dispose();
 
-		client.InteractionCreate += async interaction =>
-		{
-			try
-			{
-				if (interaction is SlashCommandInteraction sCmd && await cmdSrv.ExecuteAsync(new SlashCommandContext(sCmd, client)) is IFailResult fRes)
-				{
-					WriteAsID(fRes.Message, SpecialId.Network);
-				}
-			}
-			catch { }
-		};
+		Process.Start(Environment.ProcessPath!, Environment.GetCommandLineArgs());
+		Process.GetCurrentProcess().Kill();
 	}
 }

@@ -9,14 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="ignored_hash.txt" />
     <None Remove="Source.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="ignored_hash.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Source.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

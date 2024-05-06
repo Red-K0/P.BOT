@@ -30,7 +30,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <WarningLevel>9999</WarningLevel>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <DebugType>full</DebugType>
+    <DebugType>none</DebugType>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <Deterministic>False</Deterministic>
     <Optimize>True</Optimize>

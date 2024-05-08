@@ -40,7 +40,7 @@ internal static partial class Embeds
 			Embeds = [new EmbedProperties()
 			{
 				Author = authorObject,
-				Color = new((RGB == -1 && refID != 0) ? List[refID].PersonalRoleColor : (RGB == -1) ? Environment.TickCount & 0xFFFFFF : RGB),
+				Color = new((RGB == -1 && refID != 0 && List.TryGetValue(refID, out Member? member)) ? member.PersonalRoleColor : (RGB == -1) ? Environment.TickCount & 0xFFFFFF : RGB),
 				Description = description,
 				Footer = footerObject,
 				Image = (imageURLs == null) ? null : new(imageURLs[0]),
@@ -102,7 +102,7 @@ internal static partial class Embeds
 	}
 
 	/// <summary>
-	/// Creates a <see cref="MessageProperties"/> object suitable for <see cref="Commands.SlashCommands.GetDefinition(Commands.Helpers.Definition.Choices)"/>.
+	/// Creates a <see cref="MessageProperties"/> object suitable for <see cref="Commands.SlashCommands.GetTitle(Commands.Helpers.Library.Titles)"/>.
 	/// </summary>
 	public static MessageProperties Generate(string title, EmbedFieldProperties[] contents, ulong authorID = 0) => new()
 	{

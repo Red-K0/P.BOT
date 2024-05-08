@@ -48,32 +48,6 @@ internal static class Logging
 			Message += message.Content;
 		}
 
-		// Parse for links to color.
-		if (Message.Contains("://"))
-		{
-			// For markdown, inline, and multiple link support.
-			int LinkStart;
-			while (Message.Contains(" http"))
-			{
-				LinkStart = Message.IndexOf(" http") + 1;
-				int LinkEnd = Math.Min(Message.IndexOf(' ', LinkStart), Message.IndexOf('\n', LinkStart));
-
-				if (LinkEnd == -1) LinkEnd = Message.Length;
-
-				Message = Message.Insert(LinkStart, PHelper.BrightBlue).Insert(LinkEnd, PHelper.None);
-			}
-			while (Message.Contains("[http"))
-			{
-				LinkStart = Message.IndexOf("[http") + 1;
-				Message = Message.Insert(LinkStart, PHelper.BrightBlue).Insert(Message.IndexOf(']', LinkStart), PHelper.None);
-			}
-
-			if (Message.StartsWith("http"))
-			{
-				Message = PHelper.BrightBlue + Message.Insert(Math.Min(Message.IndexOf(' '), Message.IndexOf('\n')), PHelper.None);
-			}
-		}
-
 		Console.WriteLine(Message); LastAuthor = message.Author.Id;
 	}
 

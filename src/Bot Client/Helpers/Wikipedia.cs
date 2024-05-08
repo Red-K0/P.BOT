@@ -11,14 +11,14 @@ public static partial class Wikipedia
 	/// <summary>
 	/// The URL and preset parameters for the Wikipedia content API.
 	/// </summary>
-	private const string WIKI_API = "https://en.wikipedia.org/w/api.php?action=query&generator=prefixsearch&redirects=1&gpslimit=1&explaintext=0&format=json&prop=extracts&";
+	private const string WIKI_API = "https://en.wikipedia.org/w/api.php?action=query&generator=prefixsearch&redirects=1&gpslimit=1&explaintext=0&format=json&prop=extracts&gpssearch=";
 
 	/// <summary>
 	/// Sends the request responsible for retrieving the page, and formats it properly.
 	/// </summary>
 	public static async Task<string> GetPage(string searchTerm, bool longFormat)
 	{
-		string Query = $"{WIKI_API}gpssearch={searchTerm}{(longFormat ? "" : "&exintro=1")}";
+		string Query = WIKI_API + searchTerm + (longFormat ? "" : "&exintro=1");
 		string FailResponse = $"Wikipedia does not have a definition for '{searchTerm}'.";
 
 		string Response = await client_h.GetStringAsync(Query);

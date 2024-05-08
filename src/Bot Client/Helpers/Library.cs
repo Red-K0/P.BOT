@@ -4,14 +4,14 @@ using NetCord.Services.ApplicationCommands;
 namespace PBot.Commands.Helpers;
 
 /// <summary>
-/// Contains data involving dictionaries and the <see cref="SlashCommands.GetDefinition(Choices)"/> command.
+/// Contains data involving dictionaries and the <see cref="SlashCommands.GetTitle(Titles)"/> command.
 /// </summary>
-public static class Definition
+public static class Library
 {
 	/// <summary>
-	/// A list of possible choices for the <see cref="SlashCommands.GetDefinition(Choices)"/> command.
+	/// A list of possible choices for the <see cref="SlashCommands.GetTitle(Titles)"/> command.
 	/// </summary>
-	public enum Choices
+	public enum Titles
 	{
 		/// <summary>
 		/// The meaning of the PPP Abbreviation.
@@ -30,7 +30,7 @@ public static class Definition
 	}
 
 	#region Key-Value pair defintions
-	private static readonly KeyValuePair<Choices, MessageProperties> Codex_PPP = new(Choices.WhatIs_ThePPP, Embeds.Generate
+	private static readonly KeyValuePair<Titles, MessageProperties> Codex_PPP = new(Titles.WhatIs_ThePPP, Embeds.Generate
 	(
 		"PPP Codex",
 		[
@@ -70,7 +70,7 @@ public static class Definition
 		1124777547687788626
 	));
 
-	private static readonly KeyValuePair<Choices, MessageProperties> Guide_Iceland = new(Choices.IcelandGuide, Embeds.Generate
+	private static readonly KeyValuePair<Titles, MessageProperties> Guide_Iceland = new(Titles.IcelandGuide, Embeds.Generate
 	(
 		"🏔 Angel's Iceland Travel Guide 🏔",
 		[
@@ -132,7 +132,7 @@ public static class Definition
 	#endregion
 
 	/// <summary>
-	/// Contains definitions used for the <see cref="SlashCommands.GetDefinition(Choices)"/> command.
+	/// Contains definitions used for the <see cref="SlashCommands.GetTitle(Titles)"/> command.
 	/// </summary>
-	public static readonly Dictionary<Choices, MessageProperties> Entries = new([Codex_PPP, Guide_Iceland]);
+	public static readonly Dictionary<Titles, MessageProperties> Entries = new([Codex_PPP, Guide_Iceland]);
 }

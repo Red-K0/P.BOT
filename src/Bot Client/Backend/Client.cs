@@ -10,16 +10,17 @@ using PBot.Messages;
 public static class Client
 {
 	/// <summary>
+	/// Allows the fetching of private data from user secrets.
+	/// </summary>
+	public static readonly IConfigurationRoot secrets = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
+
+	/// <summary>
 	/// P.BOT's main client.
 	/// </summary>
-	public static readonly GatewayClient client = new
-	(
-		new BotToken(new ConfigurationBuilder().AddUserSecrets<Program>().Build().GetSection("Discord")["Token"]!),
-		new GatewayClientConfiguration()
-		{
-			Intents = GatewayIntents.All
-		}
-	);
+	public static readonly GatewayClient client = new(new BotToken(secrets.GetSection("Discord")["Token"]!), new GatewayClientConfiguration()
+	{
+		Intents = GatewayIntents.All
+	});
 
 	/// <summary>
 	/// P.BOT's HTTP client, used for external network requests.

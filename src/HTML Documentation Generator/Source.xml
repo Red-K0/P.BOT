@@ -65,6 +65,11 @@
             Contains methods for initializing and preparing the bot's client.
             </summary>
         </member>
+        <member name="F:PBot.Client.secrets">
+            <summary>
+            Allows the fetching of private data from user secrets.
+            </summary>
+        </member>
         <member name="F:PBot.Client.client">
             <summary>
             P.BOT's main client.
@@ -145,14 +150,69 @@
             Gets a <see cref="T:NetCord.User"/>'s displayed discord name using the cached member list.
             </summary>
         </member>
+        <member name="T:PBot.Pages">
+            <summary>
+            Contains methods and constants used for persistent data storage.
+            </summary>
+        </member>
+        <member name="F:PBot.Pages.MAIN">
+            <summary>
+            The main path containing all the memory files used by P.BOT.
+            </summary>
+        </member>
+        <member name="F:PBot.Pages.COUNTERS">
+            <summary>
+            Contains data related to basic operation, such as incremental counters.
+            </summary>
+        </member>
+        <member name="F:PBot.Pages.STARBOARD">
+            <summary>
+            Contains a list of starred messages.
+            </summary>
+        </member>
+        <member name="F:PBot.Pages.PDB_ID">
+            <summary>
+            Contains a list of info related to post IDs.
+            </summary>
+        </member>
+        <member name="M:PBot.Pages.Read(PBot.Pages.Files,System.Int32)">
+            <summary> Reads the content at a specific <paramref name="line"/>, from the specified <paramref name="page"/>. </summary>
+            <param name="page"> The memory page to read the <paramref name="line"/> from. </param>
+            <param name="line"> The number of the line to read the contents of. </param>
+        </member>
+        <member name="M:PBot.Pages.Append(PBot.Pages.Files,System.String)">
+            <summary> Appends the given <paramref name="newLine"/> to the end of the <paramref name="page"/> specified. </summary>
+            <param name="page"> The memory page to append the <paramref name="newLine"/> to. </param>
+            <param name="newLine"> The <see cref="T:System.String"/> to append to the <paramref name="page"/>. </param>
+        </member>
+        <member name="M:PBot.Pages.Write(PBot.Pages.Files,System.Int32,System.String)">
+            <summary> Overwrites the data at <paramref name="line"/> with the given <paramref name="newValue"/>, at the specified <paramref name="page"/>. </summary>
+            <param name="page"> The memory page to modify. </param>
+            <param name="line"> The number of the line to overwrite with the given <paramref name="newValue"/>. </param>
+            <param name="newValue"> The <see cref="T:System.String"/> to overwrite the given <paramref name="line"/> with. </param>
+        </member>
+        <member name="M:PBot.Pages.Switch(PBot.Pages.Files)">
+            <summary> Gets the path of a given <paramref name="page"/>. </summary>
+            <param name="page"> The page to fetch the path to. </param>
+        </member>
+        <member name="T:PBot.Pages.Files">
+            <summary>
+            A list of memory pages used by P.BOT.
+            </summary>
+        </member>
+        <member name="F:PBot.Pages.Files.Counters">
+            <summary> Contains data related to basic operations, such as incremental counters. </summary>
+        </member>
+        <member name="F:PBot.Pages.Files.Starboard">
+            <summary> Contains a list of starred messages. </summary>
+        </member>
+        <member name="F:PBot.Pages.Files.PDB_ID">
+            <summary> Contains a list of info related to post IDs. </summary>
+        </member>
         <member name="T:PBot.PHelper">
             <summary>
             Contains constants and method calls related to unmanaged code in 'phlpr.dll'.
             </summary>
-        </member>
-        <member name="M:PBot.PHelper.EnableVirtualAndHideCursor">
-            <summary> Unmanaged method imported via 'phlpr.dll', enables the use of virtual terminal sequences globally, and hides the cursor. </summary>
-            <returns> True if successful, otherwise returns false. </returns>
         </member>
         <member name="F:PBot.PHelper.CSI">
             <summary>
@@ -319,64 +379,9 @@
             Sets the console color.
             </summary>
         </member>
-        <member name="T:PBot.Pages">
-            <summary>
-            Contains methods and constants used for persistent data storage.
-            </summary>
-        </member>
-        <member name="F:PBot.Pages.MAIN">
-            <summary>
-            The main path containing all the memory files used by P.BOT.
-            </summary>
-        </member>
-        <member name="F:PBot.Pages.COUNTERS">
-            <summary>
-            Contains data related to basic operation, such as incremental counters.
-            </summary>
-        </member>
-        <member name="F:PBot.Pages.STARBOARD">
-            <summary>
-            Contains a list of starred messages.
-            </summary>
-        </member>
-        <member name="F:PBot.Pages.PDB_ID">
-            <summary>
-            Contains a list of info related to post IDs.
-            </summary>
-        </member>
-        <member name="M:PBot.Pages.Read(PBot.Pages.Files,System.Int32)">
-            <summary> Reads the content at a specific <paramref name="line"/>, from the specified <paramref name="page"/>. </summary>
-            <param name="page"> The memory page to read the <paramref name="line"/> from. </param>
-            <param name="line"> The number of the line to read the contents of. </param>
-        </member>
-        <member name="M:PBot.Pages.Append(PBot.Pages.Files,System.String)">
-            <summary> Appends the given <paramref name="newLine"/> to the end of the <paramref name="page"/> specified. </summary>
-            <param name="page"> The memory page to append the <paramref name="newLine"/> to. </param>
-            <param name="newLine"> The <see cref="T:System.String"/> to append to the <paramref name="page"/>. </param>
-        </member>
-        <member name="M:PBot.Pages.Write(PBot.Pages.Files,System.Int32,System.String)">
-            <summary> Overwrites the data at <paramref name="line"/> with the given <paramref name="newValue"/>, at the specified <paramref name="page"/>. </summary>
-            <param name="page"> The memory page to modify. </param>
-            <param name="line"> The number of the line to overwrite with the given <paramref name="newValue"/>. </param>
-            <param name="newValue"> The <see cref="T:System.String"/> to overwrite the given <paramref name="line"/> with. </param>
-        </member>
-        <member name="M:PBot.Pages.Switch(PBot.Pages.Files)">
-            <summary> Gets the path of a given <paramref name="page"/>. </summary>
-            <param name="page"> The page to fetch the path to. </param>
-        </member>
-        <member name="T:PBot.Pages.Files">
-            <summary>
-            A list of memory pages used by P.BOT.
-            </summary>
-        </member>
-        <member name="F:PBot.Pages.Files.Counters">
-            <summary> Contains data related to basic operations, such as incremental counters. </summary>
-        </member>
-        <member name="F:PBot.Pages.Files.Starboard">
-            <summary> Contains a list of starred messages. </summary>
-        </member>
-        <member name="F:PBot.Pages.Files.PDB_ID">
-            <summary> Contains a list of info related to post IDs. </summary>
+        <member name="M:PBot.PHelper.EnableVirtualAndHideCursor">
+            <summary> Unmanaged method imported via 'phlpr.dll', enables the use of virtual terminal sequences globally, and hides the cursor. </summary>
+            <returns> True if successful, otherwise returns false. </returns>
         </member>
         <member name="T:PBot.Commands.SlashCommands">
             <summary>
@@ -388,19 +393,14 @@
             Command task. Checks if P.BOT's system is active.
             </summary>
         </member>
-        <member name="M:PBot.Commands.SlashCommands.ToggleModule(PBot.Commands.TextCommands.Modules)">
-            <summary>
-            Toggles the state of the module specified in the <paramref name="module"/> parameter.
-            </summary>
-        </member>
         <member name="M:PBot.Commands.SlashCommands.GetAvatar(NetCord.User,NetCord.ImageFormat)">
             <summary>
             Command task. Gets the avatar of the <paramref name="user"/>, in a specific format if specified in <paramref name="format"/>.
             </summary>
         </member>
-        <member name="M:PBot.Commands.SlashCommands.GetDefinition(PBot.Commands.Helpers.Definition.Choices)">
+        <member name="M:PBot.Commands.SlashCommands.GetTitle(PBot.Commands.Helpers.Library.Titles)">
             <summary>
-            Command task. Gets the definition of the term specified in the <paramref name="term"/> parameter.
+            Command task. Gets the library entry of the title specified in the <paramref name="title"/> parameter.
             </summary>
         </member>
         <member name="M:PBot.Commands.SlashCommands.GetUser(NetCord.User)">
@@ -408,7 +408,7 @@
             Dumps user info.
             </summary>
         </member>
-        <member name="M:PBot.Commands.SlashCommands.GetWikiResult(System.String,System.Boolean)">
+        <member name="M:PBot.Commands.SlashCommands.GetWiki(System.String,System.Boolean)">
             <summary>
             Searches for a Wikipedia page similar to the given <paramref name="searchTerm"/>, and gets its content if a page is found.
             </summary>
@@ -423,34 +423,39 @@
             Contains the text commands used by P.BOT and their associated tasks.
             </summary>
         </member>
-        <member name="T:PBot.Commands.Helpers.Definition">
+        <member name="M:PBot.Commands.TextCommands.Parse(NetCord.Gateway.Message)">
             <summary>
-            Contains data involving dictionaries and the <see cref="M:PBot.Commands.SlashCommands.GetDefinition(PBot.Commands.Helpers.Definition.Choices)"/> command.
+            Parses a given message, running the associated text command if a valid prefix is found.
             </summary>
         </member>
-        <member name="T:PBot.Commands.Helpers.Definition.Choices">
+        <member name="T:PBot.Commands.Helpers.Library">
             <summary>
-            A list of possible choices for the <see cref="M:PBot.Commands.SlashCommands.GetDefinition(PBot.Commands.Helpers.Definition.Choices)"/> command.
+            Contains data involving dictionaries and the <see cref="M:PBot.Commands.SlashCommands.GetTitle(PBot.Commands.Helpers.Library.Titles)"/> command.
             </summary>
         </member>
-        <member name="F:PBot.Commands.Helpers.Definition.Choices.MeaningOf_PPP">
+        <member name="T:PBot.Commands.Helpers.Library.Titles">
+            <summary>
+            A list of possible choices for the <see cref="M:PBot.Commands.SlashCommands.GetTitle(PBot.Commands.Helpers.Library.Titles)"/> command.
+            </summary>
+        </member>
+        <member name="F:PBot.Commands.Helpers.Library.Titles.MeaningOf_PPP">
             <summary>
             The meaning of the PPP Abbreviation.
             </summary>
         </member>
-        <member name="F:PBot.Commands.Helpers.Definition.Choices.WhatIs_ThePPP">
+        <member name="F:PBot.Commands.Helpers.Library.Titles.WhatIs_ThePPP">
             <summary>
             The history of the PPP.
             </summary>
         </member>
-        <member name="F:PBot.Commands.Helpers.Definition.Choices.IcelandGuide">
+        <member name="F:PBot.Commands.Helpers.Library.Titles.IcelandGuide">
             <summary>
             Angel's Iceland travel guide.
             </summary>
         </member>
-        <member name="F:PBot.Commands.Helpers.Definition.Entries">
+        <member name="F:PBot.Commands.Helpers.Library.Entries">
             <summary>
-            Contains definitions used for the <see cref="M:PBot.Commands.SlashCommands.GetDefinition(PBot.Commands.Helpers.Definition.Choices)"/> command.
+            Contains definitions used for the <see cref="M:PBot.Commands.SlashCommands.GetTitle(PBot.Commands.Helpers.Library.Titles)"/> command.
             </summary>
         </member>
         <member name="T:PBot.Commands.Helpers.Posts">
@@ -604,7 +609,7 @@
         </member>
         <member name="M:PBot.Embeds.Generate(System.String,NetCord.Rest.EmbedFieldProperties[],System.UInt64)">
             <summary>
-            Creates a <see cref="T:NetCord.Rest.MessageProperties"/> object suitable for <see cref="M:PBot.Commands.SlashCommands.GetDefinition(PBot.Commands.Helpers.Definition.Choices)"/>.
+            Creates a <see cref="T:NetCord.Rest.MessageProperties"/> object suitable for <see cref="M:PBot.Commands.SlashCommands.GetTitle(PBot.Commands.Helpers.Library.Titles)"/>.
             </summary>
         </member>
         <member name="T:PBot.Messages.Events">

@@ -22,33 +22,14 @@ public sealed partial class SlashCommands : ApplicationCommandModule<SlashComman
 	/// </summary>
 	public async partial Task SystemsCheck()
 	{
-		const string response =
-		"""
-		
-		System is active and running.
-		
-		""";
-		await RespondAsync(InteractionCallback.Message(response));
-	}
+		Process currentProcess = Process.GetCurrentProcess();
+		string timeSinceStart = (DateTime.Now - currentProcess.StartTime).ToString();
 
-	#region Attributes
-	[SlashCommand("toggle", "Toggle the status of a text command module.")]
-	public partial Task ToggleModule
-	(
-		[SlashCommandParameter(Name = "module", Description = "The module to turn on, or off.")]
-		Modules module
-	);
-	#endregion
+		currentProcess.Refresh();
 
-	/// <summary>
-	/// Toggles the state of the module specified in the <paramref name="module"/> parameter.
-	/// </summary>
-	public async partial Task ToggleModule(Modules module)
-	{
-		switch (module)
-		{
-			case Modules.ProbabilityModule: State ^= 0b0000_0001; break;
-		}
-		await RespondAsync(InteractionCallback.Message(IsActive(Modules.ProbabilityModule) ? $"The module '{module}' has been successfully enabled." : $"The module '{module}' has been successfully disabled."));
+		await RespondAsync(InteractionCallback.Message($"""
+			Time since client start: `{timeSinceStart.Remove(timeSinceStart.IndexOf('.'))}`
+			RAM in use: `{currentProcess.WorkingSet64 / 1024 / 1024}MB`
+			"""));
 	}
 }

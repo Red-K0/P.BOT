@@ -52,7 +52,7 @@ internal static class Events
 		if (message.Author.IsBot) { Caches.Messages.Add(message); return; }
 
 		// If a command runs, do nothing else.
-		if (TextCommands.State != 0 && message.Content.Length > 3 && message.Content[0] == '.')
+		if (message.Content.Length > 3 && message.Content[0] == '.')
 		{
 			TextCommands.Parse(message);
 			return;

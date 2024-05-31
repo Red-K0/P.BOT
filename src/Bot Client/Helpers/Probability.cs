@@ -89,14 +89,14 @@ public static class ProbabilityStateMachine
 								}
 								else
 								{
-									// If the roll is a critical
+									// If the roll is a critical.
 									Response += string.Format(null, CritString, Rolls[i]);
 									JesusCount++;
 								}
 							}
 							else
 							{
-								// If the roll is a failure
+								// If the roll is a failure.
 								Response += string.Format(null, FailString, Rolls[i]);
 								MinCount++;
 							}
@@ -177,7 +177,7 @@ public static class ProbabilityStateMachine
 				w = a; x = b; y = c; z = d;
 				Mod--;
 				Response = $"""
-					{Response[..^2]}` with a total:  of{(FaceCount > 0 ? Rolls.Sum() : -Rolls.Sum())}
+					{Response[..^2]}` with a total of: {(FaceCount > 0 ? Rolls.Sum() : -Rolls.Sum())}
 
 					Roll Data:
 					- Number of Max Value Rolls: {JesusCount}
@@ -203,12 +203,11 @@ public static class ProbabilityStateMachine
 		}
 		catch (Exception ex) when (ex is FormatException or ArgumentOutOfRangeException or OverflowException)
 		{
-			MessageProperties response = new()
+			await Client.Rest.SendMessageAsync(message.ChannelId, new()
 			{
 				MessageReference = new(message.Id),
 				Content = string.Format(null, ErrMessage, message.Content)
-			};
-			await client.Rest.SendMessageAsync(message.ChannelId, response);
+			});
 		}
 	}
 

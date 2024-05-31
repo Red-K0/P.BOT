@@ -20,6 +20,46 @@ internal static class Extensions
 	};
 
 	/// <summary>
+	/// Converts a <see cref="User"/> object to a <see cref="GuildUser"/> compatible object. The values appeneded to the object are always set to their defaults.
+	/// </summary>
+	public static GuildUser ToGuildUser(this User user) => new(new()
+	{
+		Deafened = default,
+		GuildAvatarHash = default,
+		GuildBoostStart = default,
+		GuildFlags = default,
+		HoistedRoleId = default,
+		IsPending = default,
+		JoinedAt = default,
+		Muted = default,
+		Nickname = default,
+		Permissions = default,
+		RoleIds = [],
+		TimeOutUntil = default,
+		User = new()
+		{
+			AccentColor = user.AccentColor,
+			AvatarDecorationHash = user.AvatarDecorationHash,
+			AvatarHash = user.AvatarHash,
+			BannerHash = user.BannerHash,
+			Discriminator = user.Discriminator,
+			Email = user.Email,
+			MfaEnabled = user.MfaEnabled,
+			Flags = user.Flags,
+			GlobalName = user.GlobalName,
+			GuildUser = null,
+			Id = user.Id,
+			IsBot = user.IsBot,
+			IsSystemUser = user.IsSystemUser,
+			Locale = user.Locale,
+			PremiumType = user.PremiumType,
+			PublicFlags = user.PublicFlags,
+			Username = user.Username,
+			Verified = user.Verified,
+		}
+	}, GuildID, Client.Rest);
+
+	/// <summary>
 	/// Converts a set of attachments to an array of the attachments' URLs.
 	/// </summary>
 	public static string?[]? GetImageURLs(this IReadOnlyDictionary<ulong, Attachment> attachments)
@@ -56,12 +96,12 @@ internal static class Extensions
 	/// <summary>
 	/// Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
 	/// </summary>
-	public static string GetAvatar(this User user) => user.HasAvatar ? user.GetAvatarUrl().ToString() : user.DefaultAvatarUrl.ToString();
+	public static string GetAvatar(this User user, ImageFormat? format = null) => user.HasAvatar ? user.GetAvatarUrl(format).ToString() : user.DefaultAvatarUrl.ToString();
 
 	/// <summary>
 	/// Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
 	/// </summary>
-	public static string GetAvatar(this GuildUser user) => user.HasAvatar ? user.GetAvatarUrl().ToString() : user.DefaultAvatarUrl.ToString();
+	public static string GetAvatar(this GuildUser user, ImageFormat? format = null) => user.HasAvatar ? user.GetAvatarUrl(format).ToString() : user.DefaultAvatarUrl.ToString();
 
 	/// <summary>
 	/// Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <c>\u0041' -> 'A'</c>).
@@ -96,8 +136,7 @@ internal static class Extensions
 			}
 		}
 
-		unparsed = new(CharArray);
-		return unparsed.Replace("\0", "");
+		return new string(CharArray).Replace("\0", "");
 	}
 
 	/// <summary>
@@ -111,8 +150,8 @@ internal static class Extensions
 	/// </summary>
 	public static async Task<RestMessage?> GetMessage(this string messageLink)
 	{
-		if (!messageLink.Contains(SERVER_LINK) || messageLink.Length <= (messageLink.IndexOf(SERVER_LINK) + 49)) return null;
-		string CurrentScan = messageLink[(messageLink.IndexOf(SERVER_LINK) + 49)..];
+		if (!messageLink.Contains(GuildURL) || messageLink.Length <= (messageLink.IndexOf(GuildURL) + 49)) return null;
+		string CurrentScan = messageLink[(messageLink.IndexOf(GuildURL) + 49)..];
 
 		if (CurrentScan.Contains(' '))  CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf(' '));
 		if (CurrentScan.Contains('\n')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
@@ -120,7 +159,7 @@ internal static class Extensions
 		if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.LastIndexOf('/')),  out ulong ChannelID)) return null;
 		if (!ulong.TryParse(CurrentScan[(CurrentScan.LastIndexOf('/') + 1)..], out ulong MessageID)) return null;
 
-		return await client.Rest.GetMessageAsync(ChannelID, MessageID);
+		return await Client.Rest.GetMessageAsync(ChannelID, MessageID);
 	}
 
 	/// <summary>

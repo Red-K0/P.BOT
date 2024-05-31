@@ -32,7 +32,7 @@ internal static partial class Embeds
 	/// <param name="refID"> The ID of the user responsible for the embed's creation. </param>
 	/// <returns> <see cref="MessageProperties"/> containing the created embed. </returns>
 	public static MessageProperties Generate(string? description = null, EmbedAuthorProperties? authorObject = null, DateTimeOffset? timestamp = null,
-	EmbedFooterProperties? footerObject = null, int RGB = -1, ulong replyTo = 0, string?[]? imageURLs = null, string? thumbnailURL = null, string? title = null,
+	EmbedFooterProperties? footerObject = null, int? RGB = null, ulong replyTo = 0, string?[]? imageURLs = null, string? thumbnailURL = null, string? title = null,
 	string? titleURL = null, bool ephemral = false, EmbedFieldProperties[]? fieldObjects = null, ulong refID = 0)
 	{
 		MessageProperties msg_prop = new()
@@ -40,7 +40,7 @@ internal static partial class Embeds
 			Embeds = [new EmbedProperties()
 			{
 				Author = authorObject,
-				Color = new((RGB == -1 && refID != 0 && List.TryGetValue(refID, out Member? member)) ? member.PersonalRoleColor : (RGB == -1) ? Environment.TickCount & 0xFFFFFF : RGB),
+				Color = new(RGB ?? ((refID != 0 && List.TryGetValue(refID, out Member? Member)) ? Member?.PersonalRoleColor ?? Environment.TickCount & 0xFFFFFF : Environment.TickCount & 0xFFFFFF)),
 				Description = description,
 				Footer = footerObject,
 				Image = (imageURLs == null) ? null : new(imageURLs[0]),
@@ -81,7 +81,7 @@ internal static partial class Embeds
 	public static MessageProperties Generate(RestMessage targetMessage, string titleURL = "", EmbedFooterProperties? footerObject = null, ulong? replyTo = null,
 	string? title = null, string? thumbnailURL = null)
 	{
-		string?[]? ImageURLs = (targetMessage.Attachments.Count == 0) ? null:  new string[targetMessage.Attachments.Count];
+		string?[]? ImageURLs = (targetMessage.Attachments.Count == 0) ? null : new string[targetMessage.Attachments.Count];
 		Attachment[] Attachments = [.. targetMessage.Attachments.Values];
 
 		for (int i = 0; i < targetMessage.Attachments.Count; i++) ImageURLs![i] = Attachments[i].Url;
@@ -108,7 +108,7 @@ internal static partial class Embeds
 	{
 		Embeds = [new EmbedProperties()
 		{
-			Color = new(authorID == 0 ? Environment.TickCount & 0xFFFFFF : List[authorID].PersonalRoleColor),
+			Color = new(authorID != 0 ? List[authorID].PersonalRoleColor ?? Environment.TickCount & 0xFFFFFF : Environment.TickCount & 0xFFFFFF),
 			Fields = contents,
 			Title = title,
 		}]

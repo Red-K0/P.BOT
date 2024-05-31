@@ -4,6 +4,51 @@
         <name>Bot Client</name>
     </assembly>
     <members>
+        <member name="T:PBot.Bot">
+            <summary>
+            Contains methods for initializing and preparing the bot's client.
+            </summary>
+        </member>
+        <member name="F:PBot.Bot.Secrets">
+            <summary>
+            Allows the fetching of private data from user secrets.
+            </summary>
+        </member>
+        <member name="F:PBot.Bot.GuildID">
+            <summary>
+            The current guild's ID, fetched via <see cref="M:PBot.Bot.GetSecret(System.String)"/>.
+            </summary>
+        </member>
+        <member name="F:PBot.Bot.GuildURL">
+            <summary>
+            The base guild URL.
+            </summary>
+        </member>
+        <member name="M:PBot.Bot.GetSecret(System.String)">
+            <summary>
+            Extracts a value from the project secrets, returning null if the identifier does not exist.
+            </summary>
+        </member>
+        <member name="F:PBot.Bot.Client">
+            <summary>
+            P.BOT's main client.
+            </summary>
+        </member>
+        <member name="F:PBot.Bot.ClientH">
+            <summary>
+            P.BOT's HTTP client, used for external network requests.
+            </summary>
+        </member>
+        <member name="M:PBot.Bot.Start">
+            <summary>
+            Starts the bot's client, initializes event handlers, and prepares caches.
+            </summary>
+        </member>
+        <member name="M:PBot.Bot.Restart">
+            <summary>
+            Stops the client, releases its resources, and restarts the bot client.
+            </summary>
+        </member>
         <member name="T:PBot.Caches.Messages">
             <summary>
             Contains the recent messages cache and its relevant methods.
@@ -46,7 +91,7 @@
         </member>
         <member name="F:PBot.Caches.Members.Roles">
             <summary>
-            The bot's internal role list, generated with <see cref="M:NetCord.Rest.RestClient.GetGuildRolesAsync(System.UInt64,NetCord.Rest.RequestProperties)"/>.
+            The bot's internal role list, generated with <see cref="M:NetCord.Rest.RestClient.GetGuildRolesAsync(System.UInt64,NetCord.Rest.RestRequestProperties)"/>.
             </summary>
         </member>
         <member name="M:PBot.Caches.Members.Load">
@@ -60,41 +105,6 @@
             </summary>
             <param name="ID"> The ID to check. </param>
         </member>
-        <member name="T:PBot.Client">
-            <summary>
-            Contains methods for initializing and preparing the bot's client.
-            </summary>
-        </member>
-        <member name="F:PBot.Client.secrets">
-            <summary>
-            Allows the fetching of private data from user secrets.
-            </summary>
-        </member>
-        <member name="F:PBot.Client.client">
-            <summary>
-            P.BOT's main client.
-            </summary>
-        </member>
-        <member name="F:PBot.Client.client_h">
-            <summary>
-            P.BOT's HTTP client, used for external network requests.
-            </summary>
-        </member>
-        <member name="F:PBot.Client.SERVER_LINK">
-            <summary>
-            The start of the server URL.
-            </summary>
-        </member>
-        <member name="M:PBot.Client.Start">
-            <summary>
-            Starts the bot's client, initializes event handlers, and prepares caches.
-            </summary>
-        </member>
-        <member name="M:PBot.Client.Restart">
-            <summary>
-            Stops the client, releases its resources, and restarts the bot client.
-            </summary>
-        </member>
         <member name="T:PBot.Extensions">
             <summary>
             Convenience class for simple type conversions.
@@ -103,6 +113,11 @@
         <member name="M:PBot.Extensions.ToInteraction(NetCord.Rest.MessageProperties)">
             <summary>
             Converts the value of this instance to its equivalent <see cref="T:NetCord.Rest.InteractionMessageProperties"/> representation.
+            </summary>
+        </member>
+        <member name="M:PBot.Extensions.ToGuildUser(NetCord.User)">
+            <summary>
+            Converts a <see cref="T:NetCord.User"/> object to a <see cref="T:NetCord.GuildUser"/> compatible object. The values appeneded to the object are always set to their defaults.
             </summary>
         </member>
         <member name="M:PBot.Extensions.GetImageURLs(System.Collections.Generic.IReadOnlyDictionary{System.UInt64,NetCord.Attachment})">
@@ -120,12 +135,12 @@
             Caps the embed count of this instance to 10 embeds maximum.
             </summary>
         </member>
-        <member name="M:PBot.Extensions.GetAvatar(NetCord.User)">
+        <member name="M:PBot.Extensions.GetAvatar(NetCord.User,System.Nullable{NetCord.ImageFormat})">
             <summary>
             Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
             </summary>
         </member>
-        <member name="M:PBot.Extensions.GetAvatar(NetCord.GuildUser)">
+        <member name="M:PBot.Extensions.GetAvatar(NetCord.GuildUser,System.Nullable{NetCord.ImageFormat})">
             <summary>
             Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
             </summary>
@@ -393,7 +408,7 @@
             Command task. Checks if P.BOT's system is active.
             </summary>
         </member>
-        <member name="M:PBot.Commands.SlashCommands.GetAvatar(NetCord.User,NetCord.ImageFormat)">
+        <member name="M:PBot.Commands.SlashCommands.GetAvatar(NetCord.User,System.Nullable{NetCord.ImageFormat})">
             <summary>
             Command task. Gets the avatar of the <paramref name="user"/>, in a specific format if specified in <paramref name="format"/>.
             </summary>
@@ -436,11 +451,6 @@
         <member name="T:PBot.Commands.Helpers.Library.Titles">
             <summary>
             A list of possible choices for the <see cref="M:PBot.Commands.SlashCommands.GetTitle(PBot.Commands.Helpers.Library.Titles)"/> command.
-            </summary>
-        </member>
-        <member name="F:PBot.Commands.Helpers.Library.Titles.MeaningOf_PPP">
-            <summary>
-            The meaning of the PPP Abbreviation.
             </summary>
         </member>
         <member name="F:PBot.Commands.Helpers.Library.Titles.WhatIs_ThePPP">
@@ -562,7 +572,7 @@
             <summary> Creates an <see cref="T:NetCord.Rest.EmbedFieldProperties"/> object for use in an <see cref="T:NetCord.Embed"/>. </summary>
             <param name="name"> The <see cref="T:System.String"/> to display at the field title, used for the <see cref="P:NetCord.Rest.EmbedFieldProperties.Name"/> property. </param>
             <param name="value"> The <see cref="T:System.String"/> to display in the field, used for the <see cref="P:NetCord.Rest.EmbedFieldProperties.Value"/> property. </param>
-            <param name="inline"> Whether or not to display the field inline. </param>
+            <param name="noInline"> Whether or not to display the field inline. </param>
         </member>
         <member name="M:PBot.Embeds.GetAssetURL(System.String)">
             <summary>
@@ -580,7 +590,7 @@
             The hex code for standard embed gray.
             </summary>
         </member>
-        <member name="M:PBot.Embeds.Generate(System.String,NetCord.Rest.EmbedAuthorProperties,System.Nullable{System.DateTimeOffset},NetCord.Rest.EmbedFooterProperties,System.Int32,System.UInt64,System.String[],System.String,System.String,System.String,System.Boolean,NetCord.Rest.EmbedFieldProperties[],System.UInt64)">
+        <member name="M:PBot.Embeds.Generate(System.String,NetCord.Rest.EmbedAuthorProperties,System.Nullable{System.DateTimeOffset},NetCord.Rest.EmbedFooterProperties,System.Nullable{System.Int32},System.UInt64,System.String[],System.String,System.String,System.String,System.Boolean,NetCord.Rest.EmbedFieldProperties[],System.UInt64)">
             <summary> Combines the specified parameters to generate an embed. </summary>
             <param name="description"> The section of the embed where the main text is contained, limited to 4096 characters. </param>
             <param name="authorObject"> Contains the <see cref="T:NetCord.Rest.EmbedAuthorProperties"/> to be used in the embed. </param>
@@ -624,7 +634,7 @@
         </member>
         <member name="M:PBot.Messages.Events.MapClientHandlers">
             <summary>
-            Maps the <see cref="F:PBot.Client.client"/>'s events to their appropriate response method.
+            Maps the <see cref="F:PBot.Bot.Client"/>'s events to their appropriate response method.
             </summary>
         </member>
         <member name="M:PBot.Messages.Events.MessageCreated(NetCord.Gateway.Message)">
@@ -637,7 +647,7 @@
             Logs message deletions.
             </summary>
         </member>
-        <member name="M:PBot.Messages.Events.MessageUpdated(NetCord.Gateway.Message)">
+        <member name="M:PBot.Messages.Events.MessageUpdated(NetCord.Gateway.IPartialMessage)">
             <summary>
             Logs message edits and updates.
             </summary>

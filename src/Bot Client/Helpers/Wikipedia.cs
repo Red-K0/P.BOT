@@ -21,7 +21,7 @@ public static partial class Wikipedia
 		string Query = WIKI_API + searchTerm + (longFormat ? "" : "&exintro=1");
 		string FailResponse = $"Wikipedia does not have a definition for '{searchTerm}'.";
 
-		string Response = await client_h.GetStringAsync(Query);
+		string Response = await ClientH.GetStringAsync(Query);
 		Response = Response[(Response.IndexOf(",\"extract\":\"") + 12)..];
 
 		// If there's a response, this won't fail.
@@ -46,7 +46,7 @@ public static partial class Wikipedia
 		for (int i = 0; i < Response.Length; i++) { StringArray[i] = Response[i].ToString(); }
 
 		// Format the text properly.
-		for (int i = 0; i < StringArray.Length - 1; i++)
+		for (int i = 0; i < Response.Length - 1; i++)
 		{
 			// Fix for the '[1]' bug, where a citation replaces a necessary newline.
 			// Avoids scenarios such as the following: "This paragraph ends here.[1]This one starts here."

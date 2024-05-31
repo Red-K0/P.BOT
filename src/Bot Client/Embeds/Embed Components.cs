@@ -25,10 +25,10 @@ internal static partial class Embeds
 	/// <summary> Creates an <see cref="EmbedFieldProperties"/> object for use in an <see cref="Embed"/>. </summary>
 	/// <param name="name"> The <see cref="string"/> to display at the field title, used for the <see cref="EmbedFieldProperties.Name"/> property. </param>
 	/// <param name="value"> The <see cref="string"/> to display in the field, used for the <see cref="EmbedFieldProperties.Value"/> property. </param>
-	/// <param name="inline"> Whether or not to display the field inline. </param>
-	public static EmbedFieldProperties CreateField(string? name = null, string? value = null, bool inline = false) => new()
+	/// <param name="noInline"> Whether or not to display the field inline. </param>
+	public static EmbedFieldProperties CreateField(string? name = null, string? value = null, bool noInline = false) => new()
 	{
-		Inline = inline,
+		Inline = !noInline,
 		Name = name,
 		Value = value
 	};

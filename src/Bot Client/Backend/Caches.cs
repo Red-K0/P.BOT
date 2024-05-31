@@ -69,9 +69,9 @@ internal static partial class Members
 	public static Dictionary<ulong, Member> List = [];
 
 	/// <summary>
-	/// The bot's internal role list, generated with <see cref="RestClient.GetGuildRolesAsync(ulong, RequestProperties?)"/>.
+	/// The bot's internal role list, generated with <see cref="RestClient.GetGuildRolesAsync(ulong, RestRequestProperties?)"/>.
 	/// </summary>
-	public static IReadOnlyDictionary<ulong, Role> Roles = client.Rest.GetGuildRolesAsync(1131100534250680433).Result;
+	public static IReadOnlyDictionary<ulong, Role> Roles = Client.Rest.GetGuildRolesAsync(GuildID).Result;
 
 	/// <summary>
 	/// Initializes the class with data from the <c>members-search</c> endpoint.
@@ -79,7 +79,7 @@ internal static partial class Members
 	public static void Load()
 	{
 		IEnumerable<KeyValuePair<ulong, Member>> TempList = [];
-		foreach (var item in client.Rest.SearchGuildUsersAsync(1131100534250680433).ToBlockingEnumerable()) TempList = TempList.Append(new KeyValuePair<ulong, Member>(item.User.Id, new(item)));
+		foreach (var item in Client.Rest.SearchGuildUsersAsync(GuildID).ToBlockingEnumerable()) TempList = TempList.Append(new KeyValuePair<ulong, Member>(item.User.Id, new(item)));
 		List = TempList.Reverse().ToDictionary();
 	}
 

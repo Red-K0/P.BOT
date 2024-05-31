@@ -15,25 +15,25 @@ internal static class Events
 	public static Message? DeletedSpamMessage;
 
 	/// <summary>
-	/// Maps the <see cref="client"/>'s events to their appropriate response method.
+	/// Maps the <see cref="Client"/>'s events to their appropriate response method.
 	/// </summary>
 	public static async Task MapClientHandlers()
 	{
-		client.Log                += LogNetworkMessage;
-		client.MessageCreate      += MessageCreated;
-		client.MessageDelete      += MessageDeleted;
-		client.MessageUpdate      += MessageUpdated;
-		client.MessageReactionAdd += ReactionAdded;
+		Client.Log                += LogNetworkMessage;
+		Client.MessageCreate      += MessageCreated;
+		Client.MessageDelete      += MessageDeleted;
+		Client.MessageUpdate      += MessageUpdated;
+		Client.MessageReactionAdd += ReactionAdded;
 
 		ApplicationCommandService<SlashCommandContext> cmdSrv = new();
 		cmdSrv.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);
-		await cmdSrv.CreateCommandsAsync(client.Rest, client.Id);
+		await cmdSrv.CreateCommandsAsync(Client.Rest, Client.Id);
 
-		client.InteractionCreate += async interaction =>
+		Client.InteractionCreate += async interaction =>
 		{
 			try
 			{
-				if (interaction is SlashCommandInteraction sCmd && await cmdSrv.ExecuteAsync(new SlashCommandContext(sCmd, client)) is IFailResult fRes)
+				if (interaction is SlashCommandInteraction sCmd && await cmdSrv.ExecuteAsync(new SlashCommandContext(sCmd, Client)) is IFailResult fRes)
 				{
 					WriteAsID(fRes.Message, SpecialId.Network);
 				}
@@ -62,7 +62,7 @@ internal static class Events
 
 		Caches.Messages.Add(message);
 
-		if (message.Content.Contains(SERVER_LINK)) ParseLinks(message);
+		if (message.Content.Contains(GuildURL)) ParseLinks(message);
 
 		LogCreatedMessage(message);
 	}
@@ -90,10 +90,13 @@ internal static class Events
 	/// <summary>
 	/// Logs message edits and updates.
 	/// </summary>
-	public static async ValueTask MessageUpdated(Message message)
+	public static async ValueTask MessageUpdated(IPartialMessage partialMessage)
 	{
+		// Ignore partial messages
+		if (partialMessage is not Message message) return;
+
 		// Don't process bot messages.
-		// Roo expensive computationally, as a lot of bots rely on frequent edits.
+		// Too expensive computationally, as a lot of bots rely on frequent edits.
 		if (message.Author.IsBot) return;
 
 		Message? OriginalMessage = Caches.Messages.Get(message.Id);

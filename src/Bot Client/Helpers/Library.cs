@@ -14,19 +14,14 @@ public static class Library
 	public enum Titles
 	{
 		/// <summary>
-		/// The meaning of the PPP Abbreviation.
-		/// </summary>
-		[SlashCommandChoice(Name = "What does 'PPP' stand for?")] MeaningOf_PPP,
-
-		/// <summary>
 		/// The history of the PPP.
 		/// </summary>
-		[SlashCommandChoice(Name = "What is the PPP?")] WhatIs_ThePPP,
+		[SlashCommandChoice("What is the PPP?")] WhatIs_ThePPP,
 
 		/// <summary>
 		/// Angel's Iceland travel guide.
 		/// </summary>
-		[SlashCommandChoice(Name = "Iceland Travel Guide")] IcelandGuide
+		[SlashCommandChoice("Iceland Travel Guide")] IcelandGuide
 	}
 
 	#region Key-Value pair defintions

@@ -20,13 +20,6 @@ internal static class Logging
 	/// </summary>
 	public static async ValueTask LogNetworkMessage(LogMessage message)
 	{
-		const string EMPTY_TRACE = "\"at System.Linq.Enumerable.ToDictionary[TSource,TKey,TElement](IEnumerable`1 source, Func`2 keySelector, Func`2 elementSelector)\"";
-		const string EMPTY_ERROR = "Value cannot be null.";
-
-		// Prevents partial message exceptions in the log
-		if (message.Exception is { StackTrace: string stackTrace   } &&  (stackTrace.Contains(EMPTY_TRACE) || stackTrace.Contains(EMPTY_ERROR))) return;
-		if (message.Exception is {    Message: string errorMessage } && errorMessage.Contains(EMPTY_ERROR)) return;
-
 		WriteAsID(message.Message, SpecialId.Network);
 		await Task.CompletedTask;
 	}
@@ -61,12 +54,12 @@ internal static class Logging
 
 		MessageProperties msg_prop = Embeds.Generate(
 			message,
-			SERVER_LINK + message.Channel!.Id.ToString(),
+			GuildURL + message.Channel!.Id.ToString(),
 			Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")),
 			title: $"Message Deleted {(message.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
 		);
 
-		await client.Rest.SendMessageAsync(LOG_CHANNEL, msg_prop);
+		await Client.Rest.SendMessageAsync(LOG_CHANNEL, msg_prop);
 
 		WriteAsID(
 		$"The message with ID '{message.Id}' was deleted. It was sent by {message.Author.GetDisplayName()} @ {message.CreatedAt.ToString()[..^7]}" +
@@ -80,11 +73,11 @@ internal static class Logging
 	{
 		MessageProperties emsg_prop = Embeds.Generate(
 			editedMessage,
-			$"{SERVER_LINK}{editedMessage.Channel!.Id}/{editedMessage.Id}",
+			$"{GuildURL}{editedMessage.Channel!.Id}/{editedMessage.Id}",
 			title: $"Message Edited {(editedMessage.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
 		);
 
-		await client.Rest.SendMessageAsync(LOG_CHANNEL, emsg_prop);
+		await Client.Rest.SendMessageAsync(LOG_CHANNEL, emsg_prop);
 
 		int AttachmentCount = originalMessage.Attachments.Count;
 		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
@@ -100,7 +93,7 @@ internal static class Logging
 			refID: originalMessage.Author.Id
 		);
 
-		await client.Rest.SendMessageAsync(LOG_CHANNEL, omsg_prop);
+		await Client.Rest.SendMessageAsync(LOG_CHANNEL, omsg_prop);
 	}
 
 	/// <summary>

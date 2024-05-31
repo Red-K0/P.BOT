@@ -15,40 +15,36 @@ internal static class Functions
 
 		const ulong STARBOARD = 1133836713194696744;
 
-		int StarCount = Convert.ToInt32(Pages.Read(Pages.Files.Counters, 1).Result);
-		RestMessage Message = await client.Rest.GetMessageAsync(message.ChannelId, message.MessageId);
+		string StarCount = await Pages.Read(Pages.Files.Counters, 1);
+		RestMessage Message = await Client.Rest.GetMessageAsync(message.ChannelId, message.MessageId);
 		MessageProperties msg_prop = new();
 
 		if (Message.ReferencedMessage != null)
 		{
-			RestMessage Reply = client.Rest.GetMessageAsync(Message.ReferencedMessage.ChannelId, Message.ReferencedMessage.Id).Result;
-			EmbedAuthorProperties Author = Embeds.CreateAuthor
-			(
-				$"Replying to: {Message.ReferencedMessage.Author.GetDisplayName()}",
-				Message.ReferencedMessage.Author.GetAvatarUrl().ToString()
-			);
-
 			msg_prop.AddEmbeds
 			(
-				Embeds.Generate(Reply,
-				$"{SERVER_LINK}{Message.ReferencedMessage.ChannelId}/{Message.ReferencedMessage.Id}"
-			).Embeds!.First().WithAuthor(Author));
+				Embeds.Generate(Client.Rest.GetMessageAsync(Message.ReferencedMessage.ChannelId, Message.ReferencedMessage.Id).Result,
+				$"{GuildURL}{Message.ReferencedMessage.ChannelId}/{Message.ReferencedMessage.Id}"
+			).Embeds!.First().WithAuthor(Embeds.CreateAuthor
+			(
+				$"Replying to: {Message.ReferencedMessage.Author.GetDisplayName()}",
+				Message.ReferencedMessage.Author.GetAvatar()
+			)));
 		}
 
 		msg_prop.AddEmbeds(Embeds.Generate
 		(
 			Message,
-			$"{SERVER_LINK}{message.ChannelId}/{message.MessageId}",
-			Embeds.CreateFooter($"Message starred by {message.User!.GetDisplayName()}", message.User!.GetAvatarUrl().ToString()),
+			$"{GuildURL}{message.ChannelId}/{message.MessageId}",
+			Embeds.CreateFooter($"Message starred by {message.User!.GetDisplayName()}", message.User!.GetAvatar().ToString()),
 			message.MessageId,
 			$"Starboard Entry #{StarCount}"
 		).Embeds!);
 
-		StarCount++;
-		await client.Rest.SendMessageAsync(STARBOARD, msg_prop.ToChecked().WithContent(new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10)) + "_ _"));
+		await Client.Rest.SendMessageAsync(STARBOARD, msg_prop.ToChecked().WithContent(new string('⭐', Math.Clamp(Message.Attachments.Count, 1, 10)) + "_ _"));
 
 		Pages.Append(Pages.Files.Starboard, message.MessageId.ToString());
-		Pages.Write(Pages.Files.Counters, 1, StarCount.ToString());
+		Pages.Write(Pages.Files.Counters, 1, (Convert.ToInt32(StarCount) + 1).ToString());
 
 #if DEBUG_EVENTS
 		Logging.AsVerbose($"Starboard Processed [{Timer.ElapsedMilliseconds}ms]");
@@ -68,23 +64,22 @@ internal static class Functions
 
 		//HACK: The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
 		string Scan = message.Content.Replace("https://", " https://"); RestMessage? LinkedMessage; int i = 0;
-		int LinkCount = (Scan.Length - Scan.Replace(SERVER_LINK, "").Length) / SERVER_LINK.Length;
+		int LinkCount = (Scan.Length - Scan.Replace(GuildURL, "").Length) / GuildURL.Length;
 		do
 		{
 			i++;
 			if ((LinkedMessage = await Scan.GetMessage()) == null) goto InvalidLink;
 
-			MessageProperties msg_prop = Embeds.Generate
+			await Client.Rest.SendMessageAsync(message.ChannelId, Embeds.Generate
 			(
 				LinkedMessage,
-				$"{SERVER_LINK}{message.ChannelId}/{message.Id}",
-				Embeds.CreateFooter($"Message linked by {message.Author.GetDisplayName()}", message.Author.GetAvatarUrl().ToString()),
+				$"{GuildURL}{message.ChannelId}/{message.Id}",
+				Embeds.CreateFooter($"Message linked by {message.Author.GetDisplayName()}", message.Author.GetAvatar().ToString()),
 				message.Id
-			);
-			await client.Rest.SendMessageAsync(message.ChannelId, msg_prop.ToChecked());
+			).ToChecked());
 
 		InvalidLink:
-			if (i != LinkCount) Scan = Scan[(Scan.IndexOf(SERVER_LINK) + SERVER_LINK.Length)..];
+			if (i != LinkCount) Scan = Scan[(Scan.IndexOf(GuildURL) + GuildURL.Length)..];
 		}
 		while (i < LinkCount);
 
@@ -112,6 +107,10 @@ internal static class Functions
 			{
 				Member.SpamLastMessageHeading = true;
 			}
+		}
+		else
+		{
+			Member.SpamLastMessageHeading = false;
 		}
 
 		if (message.Content == Member.SpamLastMessage)
@@ -148,26 +147,22 @@ internal static class Functions
 			// This passes the message to the deleted message handler directly.
 			// More information on this is in the handler's code.
 			Events.DeletedSpamMessage = message;
-			await client.Rest.DeleteMessageAsync(message.ChannelId, message.Id);
+			await Client.Rest.DeleteMessageAsync(message.ChannelId, message.Id);
 
 			if (Member.SpamSameMessageCount > 5)
 			{
-				await client.Rest.ModifyGuildUserAsync(1131100534250680433, message.Author.Id, u => u.WithTimeOutUntil(new(DateTime.Now.AddMinutes(30))));
+				await Client.Rest.ModifyGuildUserAsync(GuildID, message.Author.Id, u => u.WithTimeOutUntil(new(DateTime.Now.AddMinutes(30))));
 				Member.SpamSameMessageCount = 0;
 				goto UpdateMember;
 			}
 
-			// No reason to have a default case, it's bounded by the surrounding code.
-			#pragma warning disable CS8509
-			string Reply = Member.SpamSameMessageCount switch
+			await Client.Rest.SendMessageAsync(message.ChannelId, Member.SpamSameMessageCount switch
 			{
 				3 => $"<@{message.Author.Id}> please avoid spamming.",
 				4 => $"<@{message.Author.Id}> spamming interrupts others and the flow of chat, please avoid so.",
-				5 => $"<@{message.Author.Id}> avoid spamming, final warning."
-			};
-			#pragma warning restore CS8509
-
-			await client.Rest.SendMessageAsync(message.ChannelId, Reply);
+				5 => $"<@{message.Author.Id}> avoid spamming, final warning.",
+				_ => $"<@{message.Author.Id}> please avoid overuse of # formatting."
+			});
 
 		UpdateMember:
 			Caches.Members.List[message.Author.Id] = Member;

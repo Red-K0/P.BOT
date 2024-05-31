@@ -20,47 +20,41 @@ public sealed partial class SlashCommands
 		User user,
 
 		[SlashCommandParameter(Name = "format", Description = "The format of the image result, the GIF and Lottie formats are currently unsupported.")]
-		ImageFormat format = ImageFormat.Png
+		ImageFormat? format = null
 	);
 	#endregion
 
 	/// <summary>
 	/// Command task. Gets the avatar of the <paramref name="user"/>, in a specific format if specified in <paramref name="format"/>.
 	/// </summary>
-	public async partial Task GetAvatar(User user, ImageFormat format)
+	public async partial Task GetAvatar(User user, ImageFormat? format)
 	{
-		const ulong BOT_ID = 1169031557848252516;
-
 #if DEBUG_COMMAND
 		Stopwatch Timer = Stopwatch.StartNew();
 #endif
 
-		user ??= Context.User;
-		MessageProperties msg_prop = (user.Id == BOT_ID) ?
+		const ulong BOT_ID = 1169031557848252516;
+		string AvatarUrl = user.Id == BOT_ID ? GetAssetURL("Bot Icon.png") : user.GetAvatar(format);
+		await RespondAsync(InteractionCallback.Message(((user.Id == BOT_ID) ?
 		Generate
 		(
-			$"Sure, [here]({GetAssetURL("Bot Icon.png")}) is my avatar, if you require it in a format other than PNG, please contact <@1124777547687788626>.",
-			CreateAuthor($"{user.GetDisplayName()}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
+			$"Sure, [here]({AvatarUrl}) is my avatar, if you require it in a format other than PNG, please contact <@1124777547687788626>.",
+			CreateAuthor("My Current Avatar", AvatarUrl),
 			DateTimeOffset.UtcNow,
-			CreateFooter($"Avatar requested by {Context.User.GetDisplayName()}", Context.User.GetAvatarUrl().ToString()),
+			CreateFooter($"Avatar requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),
 			replyTo: Context.User.Id,
-			imageURLs: [GetAssetURL("Bot Icon.png")],
+			imageURLs: [AvatarUrl],
 			refID: user.Id
 		) :
 		Generate
 		(
-			user.HasAvatar ?
-			$"Sure, [here]({user.GetAvatarUrl(format)}) is <@{user.Id}>'s avatar." :
-			$"Sorry, <@{user.Id}> does not currently have an avatar set, [here]({user.DefaultAvatarUrl}) is the default discord avatar.",
-
-			CreateAuthor($"{user.GetDisplayName()}'s Avatar", user.GetAvatarUrl(ImageFormat.Png).ToString()),
+			$"Sure, [here]({AvatarUrl}) is <@{user.Id}>'s avatar.",
+			CreateAuthor($"{user.GetDisplayName()}'s Avatar", AvatarUrl),
 			DateTimeOffset.UtcNow,
 			replyTo: Context.User.Id,
-			imageURLs: [user.GetAvatarUrl(format).ToString()],
+			imageURLs: [AvatarUrl],
 			refID: user.Id
-		);
-
-		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
+		)).ToInteraction()));
 
 #if DEBUG_COMMAND
 		Messages.Logging.AsVerbose($"GetAvatar Completed [{Timer.ElapsedMilliseconds}ms]");
@@ -99,10 +93,11 @@ public sealed partial class SlashCommands
 	/// </summary>
 	public async partial Task GetUser(User user)
 	{
-		Member Member = List[user.Id];
-		GuildUser User = Member.Data.User;
+		Member? PPP = List.GetValueOrDefault(user.Id);
+		GuildUser User = PPP?.Data.User ?? await Client.Rest.GetGuildUserAsync(GuildID, user.Id);
+		GuildUserInfo Info = PPP?.Data ?? await User.GetInfoAsync();
 
-		string DisplayName = Member.DisplayName;
+		string DisplayName = PPP?.DisplayName ?? user.GetDisplayName();
 
 		string AKAString = "`AKA` "; bool DisplayAKA = false;
 		if (User.GetDisplayName() != DisplayName)
@@ -125,42 +120,40 @@ public sealed partial class SlashCommands
 			DisplayAKA ? AKAString.ToEscapedMarkdown() : "",
 			null,
 			null,
-			CreateFooter($"User requested by {Context.User.GetDisplayName()}", Context.User.GetAvatarUrl().ToString()),
+			CreateFooter($"User requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),
 			-1,
 			Context.User.Id,
 			null,
-			Member.Data.User.GetAvatar(),
+			User.GetAvatar(),
 			DisplayName,
 			null,
 			false,
-			#region Fields
 			[
-			CreateField("User", $"<@{User.Id}>", true),
-			CreateField("Tag", User.Discriminator == 0 ? "None" : $"#{User.Discriminator}", true),
-			CreateField("ID", User.Id.ToString(), true),
-			CreateField("Joined", $"<t:{EpochTime.GetIntDate(User.JoinedAt.DateTime.ToUniversalTime())}>", true),
-			CreateField("Verified", User.Verified.GetValueOrDefault().ToString(), true),
-			CreateField("PPP Founder", Member.IsFounder ? "True" : "False", true),
-			CreateField("Timed Out Until", User.TimeOutUntil == null ? "No Timeout" : $"<t:{EpochTime.GetIntDate(User.TimeOutUntil!.Value.DateTime.ToUniversalTime())}>", true),
-			CreateField("Muted", User.Muted ? "True" : "False", true),
-			CreateField("Deafened", User.Deafened ? "True" : "False", true),
-			CreateField("Invite Code", Member.Data.SourceInviteCode != "false" ? Member.Data.SourceInviteCode : "None", true),
-			CreateField("Invited by", Member.Data.InviterId != null ? $"<@{Member.Data.InviterId}>" : "Unknown", true),
-			CreateField("Personal Role", Member.PersonalRole == 0 ? "None" : $"<@&{Member.PersonalRole}>", true),
-			CreateField("Personal Color", Member.PersonalRoleColor != -1 ? $"#{Member.PersonalRoleColor:X6}" : "None", true),
-			CreateField("Accent Color", User.AccentColor == null ? "None" : $"#{User.AccentColor:X6}", true),
-			CreateField("Boosting Since", User.GuildBoostStart != null ? $"<t:{EpochTime.GetIntDate(User.GuildBoostStart!.Value.DateTime.ToUniversalTime())}>" : "Not Boosting", true),
-			CreateField(inline: false),
-			CreateField("Accolades", GetUserAccolades(Member), false),
+				CreateField(           "User",  User.                                                                                      ToString()   ),
+				CreateField(            "Tag",  User.     Discriminator  ==     0 ?    "None" :   $"#{User.                          Discriminator:D4} "),
+				CreateField(             "ID",  User.                Id           .                                                        ToString()   ),
+				CreateField(         "Joined",  User.    JoinedAt.Ticks  ==     0 ?   "Never" : $"<t:{User.              JoinedAt.ToUnixTimeSeconds()}>"),
+				CreateField(       "Verified", (User.          Verified  ?? false).                                                        ToString()   ),
+				CreateField(        "Founder", (PPP?.         IsFounder  ?? false).                                                        ToString()   ),
+				CreateField("Timed Out Until",  User.      TimeOutUntil  ==  null ?   "Never" : $"<t:{User.    TimeOutUntil.Value.ToUnixTimeSeconds()}>"),
+				CreateField(          "Muted",  User.             Muted           .                                                        ToString()   ),
+				CreateField(       "Deafened",  User.          Deafened           .                                                        ToString()   ),
+				CreateField(    "Invite Code",  Info.  SourceInviteCode  ??            "None"                                                           ),
+				CreateField(     "Invited by",  Info.         InviterId  ==  null ? "Unknown" :  $"<@{Info.                              InviterId   }>"),
+				CreateField(  "Personal Role", (PPP?.      PersonalRole) ==  null ?    "None" : $"<@&{PPP!.                           PersonalRole   }>"),
+				CreateField( "Personal Color", (PPP?. PersonalRoleColor) ==  null ?    "None" :   $"#{PPP!.                      PersonalRoleColor:X6} "),
+				CreateField(   "Accent Color",  User.       AccentColor  ==  null ?    "None" :   $"#{User.                            AccentColor:X6} "),
+				CreateField( "Boosting Since",  User.   GuildBoostStart  ==  null ?   "Never" : $"<t:{User. GuildBoostStart.Value.ToUnixTimeSeconds()}>"),
+				CreateField(  noInline: true),
+				CreateField(      "Accolades",    GetUserAccolades(PPP), true),
 			],
-		#endregion
 			User.Id
 		);
 		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
 	}
 
 	#region Attributes
-	[SlashCommand("wikidefine", "Define a given term via Wikipedia.")]
+	[SlashCommand("define", "Define a given term via Wikipedia.")]
 	public partial Task GetWiki
 	(
 		[SlashCommandParameter(Name = "search_term", Description = "The term to find a page for if possible.")]
@@ -187,7 +180,7 @@ public sealed partial class SlashCommands
 			await Wikipedia.GetPage(searchTerm, longFormat),
 			CreateAuthor("Wikipedia", GetAssetURL("Wikipedia Icon.png")),
 			DateTime.Now,
-			CreateFooter($"Definition requested by {Context.User.GetDisplayName()}", Context.User.GetAvatarUrl().ToString()),
+			CreateFooter($"Definition requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),
 			STD_COLOR
 		);
 

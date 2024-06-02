@@ -367,3 +367,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/src/Bot Client/PPPTypes.cs
+/src/Bot Client/Backend/Member.cs

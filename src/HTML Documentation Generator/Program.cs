@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 // Script Configuration
 const string sourceXmlPath = "Source.xml";
@@ -6,9 +7,9 @@ const string htmlPageTitle = "P.BOT Documenation";
 const string cssString     = "body{background:#191c1e;color:#c2c2c2;font:medium Helvetica;font-size:medium;font-weight:400;}red{color:#e0474b}lime{color:#e4ff10}yellow{color:#ffd702}blue{color:#1a94ff}pink{color:#d86ac2}orange{color:#efa553}paleblue{color:#8c90e5}lightblue{color:#86dbfd}";
 const string baseHTML      = $"<!DOCTYPE html><html><head><title>{htmlPageTitle}</title><style>{cssString}</style></head><body>";
 
-string xmlSource = File.ReadAllText(sourceXmlPath);
+string xmlSource = await File.ReadAllTextAsync(sourceXmlPath);
 
-string xmlContents = "";
+StringBuilder xmlContents = new();
 int memberCount = ((xmlSource.Length - xmlSource.Replace("<member name", null).Length) / "<member name".Length) + 1;
 
 for (int i = 0; i < memberCount; i++)
@@ -19,7 +20,7 @@ for (int i = 0; i < memberCount; i++)
 	if (nameString.Contains("RegularExpressions")) continue;
 
 	string descString = workingString.Replace("\r\n", null);
-	string paramString = "";
+	StringBuilder paramString = new();
 
 	descString = descString[(descString.IndexOf("<summary>") + 9)..].Trim();
 	descString = descString.Remove(descString.IndexOf("</summary>")).Replace("<", "&lt;").Replace(">", "&gt;");
@@ -33,19 +34,19 @@ for (int i = 0; i < memberCount; i++)
 		int paramCount = ((paramWorkingString.Length - paramWorkingString.Replace("</param>", null).Length) / "</param>".Length);
 		for (int j = 0; j < paramCount; j++)
 		{
-			paramString += "<li><orange>";
-			paramString += paramWorkingString.Remove(paramWorkingString.IndexOf('>') - 1)[(paramWorkingString.IndexOf("<param name") + 13)..] + "</orange>:";
-			paramString += paramOriginalString.Remove(paramOriginalString.IndexOf("</param>"))[(paramOriginalString.IndexOf('>') + 1)..].Trim().Replace("<", "&lt;").Replace(">", "&gt;") + "</li>";
+			paramString.Append("<li><orange>");
+			paramString.Append(paramWorkingString.Remove(paramWorkingString.IndexOf('>') - 1)[(paramWorkingString.IndexOf("<param name") + 13)..] + "</orange>:");
+			paramString.Append(paramOriginalString.Remove(paramOriginalString.IndexOf("</param>"))[(paramOriginalString.IndexOf('>') + 1)..].Trim().Replace("<", "&lt;").Replace(">", "&gt;") + "</li>");
 			paramOriginalString = paramOriginalString[(paramOriginalString.IndexOf("</param>") + 8)..];
 			paramWorkingString = paramOriginalString;
 		}
 	}
 
-	xmlContents += $"<br>{(Parse(nameString).Contains('.')?Parse(nameString).Trim() :$"<blue>{Parse(nameString).Trim()}</blue>")}<br>{descString.Trim()}<br>" + (paramString != "" ? $"Parameters:{paramString.Trim()}" : "");
+	xmlContents.Append($"<br>{(Parse(nameString).Contains('.')?Parse(nameString).Trim() :$"<blue>{Parse(nameString).Trim()}</blue>")}<br>{descString.Trim()}<br>" + (paramString.Length != 0 ? $"Parameters:{paramString.ToString().Trim()}" : ""));
 	xmlSource = xmlSource[(xmlSource.IndexOf(nameString) + nameString.Length)..];
 }
 
-File.WriteAllText("F:\\!PBOT\\docs\\index.html", Minify(baseHTML + Highlight(Clean(xmlContents)) + "</body></html>"));
+await File.WriteAllTextAsync("F:\\!PBOT\\docs\\index.html", Minify(baseHTML + Highlight(Clean(xmlContents.ToString())) + "</body></html>"));
 
 static string Parse(string member)
 {
@@ -131,29 +132,23 @@ static string Parse(string member)
 			continue;
 		}
 
-		if (member[i] == 'E')
+		if (member[i] == 'E' && member[i + 1] == 'v' && member.Length > 8 && member.Substring(i, 9) == "EventArgs")
 		{
-			if (member[i + 1] == 'v')
+			for (int ii = i - 1; ii > -1; ii--)
 			{
-				if (member.Substring(i, 9) == "EventArgs")
+				if (member[ii] is ' ' or '(')
 				{
-					for (int ii = i - 1; ii > -1; ii--)
-					{
-						if (member[ii] is ' ' or '(')
-						{
-							member = member.Insert(ii + 1, "<blue>");
-							member = member.Insert(i + 15, "</blue>");
-							break;
-						}
-						if (ii == 0)
-						{
-							member = "<blue>" + member.Insert(i + 9, "</blue>");
-						}
-					}
-					i += 16;
-					continue;
+					member = member.Insert(ii + 1, "<blue>");
+					member = member.Insert(i + 15, "</blue>");
+					break;
+				}
+				if (ii == 0)
+				{
+					member = "<blue>" + member.Insert(i + 9, "</blue>");
 				}
 			}
+			i += 16;
+			continue;
 		}
 	}
 
@@ -218,21 +213,18 @@ static string Highlight(string str)
 	// Syntax highlighting
 	for (int i = 0; i < str.Length; i++)
 	{
-		if (str[i] == '(')
+		if (str[i] == '(' && str[i - 1] != ' ')
 		{
-			if (str[i - 1] != ' ')
+			for (int ii = 2; ii < int.MaxValue; ii++)
 			{
-				for (int ii = 2; ii < int.MaxValue; ii++)
+				if (str[i - ii] == '.')
 				{
-					if (str[i - ii] == '.')
-					{
-						str = str.Insert(i - ii + 12, "<lime>");
-						str = str.Insert(i + 6, "</lime>");
-						break;
-					}
+					str = str.Insert(i - ii + 12, "<lime>");
+					str = str.Insert(i + 6, "</lime>");
+					break;
 				}
-				i = str.IndexOf('(', i);
 			}
+			i = str.IndexOf('(', i);
 		}
 
 		// Brace match highlighing

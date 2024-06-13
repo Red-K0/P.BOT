@@ -1,6 +1,7 @@
 ﻿// The helper class supporting the .r* commands.
 
 using System.Text;
+
 namespace PBot.Commands.Helpers;
 
 /// <summary>
@@ -9,6 +10,7 @@ namespace PBot.Commands.Helpers;
 public static class ProbabilityStateMachine
 {
 	#region Format Strings
+
 	/// <summary>
 	/// The message to format and print if the roll command is invalid.
 	/// </summary>
@@ -39,13 +41,14 @@ public static class ProbabilityStateMachine
 	/// The message to format and append per critical failure.
 	/// </summary>
 	private static readonly CompositeFormat FailString = CompositeFormat.Parse("{0}!, ");
-	#endregion
+
+	#endregion Format Strings
 
 	private static uint w, x, y, z;
 
 	/// <summary> Applies the appropriate logic to use based on the given <paramref name="message"/>. </summary>
 	/// <param name="message"> The message to operate with. </param>
-	public static async void Run(Message message)
+	public static async Task Run(Message message)
 	{
 		try
 		{
@@ -62,144 +65,107 @@ public static class ProbabilityStateMachine
 			}
 			int RollCount = int.Parse(message.Content.Remove(message.Content.IndexOf('d'))[4..]);
 
-			string Response = "Rolled `";
+			StringBuilder Response = new("Rolled `");
+			string FinalResponse = "";
 
 			if (message.Content[2] == 'k')
 			{
 				uint a = w, b = x, c = y, d = z, e;
 				int JesusCount = 0, MinCount = 0, NormalizedFaceCount = Math.Abs(FaceCount - 1);
-				int[] Rolls = new int[RollCount];
+				int[] Rolls = new int[RollCount > 4096 ? 1 : RollCount];
+				long Result = 0;
 
 				Stopwatch Timer = Stopwatch.StartNew();
 
-				// Unrolled dice roller (lol)
-				// This entire for loop is a nightmare of bitwise operations and optimizations.
-				for (int i = 0; i < RollCount;)
+				if (RollCount > 4096)
 				{
-					switch ((RollCount - i) % 4)
+					int CurrentResult;
+
+					// Mersenne Twister
+					for (int i = 0; i < RollCount; i++)
 					{
-						case 0:
-							e = b ^ (b << 11); b = c; c = d; d = a;
-							if ((Rolls[i] = (((int)(a = a ^ (a >> 19) ^ e ^ (e >> 8)) & 0x7FFFFFFF) % (NormalizedFaceCount + 1)) + Mod) != Mod)
+						e = b ^ (b << 11); b = c; c = d; d = a;
+						if ((CurrentResult = (((int)(a = a ^ (a >> 19) ^ e ^ (e >> 8)) & 0x7FFFFFFF) % (NormalizedFaceCount + 1)) + Mod) != Mod)
+						{
+							if (CurrentResult == NormalizedFaceCount + Mod)
 							{
-								if (Rolls[i] != NormalizedFaceCount + Mod)
-								{
-									// If the roll is a normal roll.
-									Response += string.Format(null, StndString, Rolls[i]);
-								}
-								else
-								{
-									// If the roll is a critical.
-									Response += string.Format(null, CritString, Rolls[i]);
-									JesusCount++;
-								}
+								// If the roll is a critical.
+								JesusCount++;
+							}
+						}
+						else
+						{
+							// If the roll is a failure.
+							MinCount++;
+						}
+						Result += CurrentResult;
+					}
+				}
+				else
+				{
+					// Mersenne Twister
+					for (int i = 0; i < RollCount; i++)
+					{
+						e = b ^ (b << 11); b = c; c = d; d = a;
+						if ((Rolls[i] = (((int)(a = a ^ (a >> 19) ^ e ^ (e >> 8)) & 0x7FFFFFFF) % (NormalizedFaceCount + 1)) + Mod) != Mod)
+						{
+							if (Rolls[i] != NormalizedFaceCount + Mod)
+							{
+								// If the roll is a normal roll.
+								Response.AppendFormat(null, StndString, Rolls[i]);
 							}
 							else
 							{
-								// If the roll is a failure.
-								Response += string.Format(null, FailString, Rolls[i]);
-								MinCount++;
+								// If the roll is a critical.
+								Response.AppendFormat(null, CritString, Rolls[i]);
+								JesusCount++;
 							}
-							i++;
-							goto case 3;
-						case 3:
-							e = b ^ (b << 11); b = c; c = d; d = a;
-							if ((Rolls[i] = (((int)(a = a ^ (a >> 19) ^ e ^ (e >> 8)) & 0x7FFFFFFF) % (NormalizedFaceCount + 1)) + Mod) != Mod)
-							{
-								if (Rolls[i] != NormalizedFaceCount + Mod)
-								{
-									Response += string.Format(null, StndString, Rolls[i]);
-								}
-								else
-								{
-									Response += string.Format(null, CritString, Rolls[i]);
-									JesusCount++;
-								}
-							}
-							else
-							{
-								Response += string.Format(null, FailString, Rolls[i]);
-								MinCount++;
-							}
-							i++;
-							goto case 2;
-						case 2:
-							e = b ^ (b << 11); b = c; c = d; d = a;
-							if ((Rolls[i] = (((int)(a = a ^ (a >> 19) ^ e ^ (e >> 8)) & 0x7FFFFFFF) % (NormalizedFaceCount + 1)) + Mod) != Mod)
-							{
-								if (Rolls[i] != NormalizedFaceCount + Mod)
-								{
-									Response += string.Format(null, StndString, Rolls[i]);
-								}
-								else
-								{
-									Response += string.Format(null, CritString, Rolls[i]);
-									JesusCount++;
-								}
-							}
-							else
-							{
-								Response += string.Format(null, FailString, Rolls[i]);
-								MinCount++;
-							}
-							i++;
-							goto case 1;
-						case 1:
-							e = b ^ (b << 11); b = c; c = d; d = a;
-							if ((Rolls[i] = (((int)(a = a ^ (a >> 19) ^ e ^ (e >> 8)) & 0x7FFFFFFF) % (NormalizedFaceCount + 1)) + Mod) != Mod)
-							{
-								if (Rolls[i] != NormalizedFaceCount + Mod)
-								{
-									Response += string.Format(null, StndString, Rolls[i]);
-								}
-								else
-								{
-									Response += string.Format(null, CritString, Rolls[i]);
-									JesusCount++;
-								}
-							}
-							else
-							{
-								Response += string.Format(null, FailString, Rolls[i]);
-								MinCount++;
-							}
-							i++;
-							continue;
+						}
+						else
+						{
+							// If the roll is a failure.
+							Response.AppendFormat(null, FailString, Rolls[i]);
+							MinCount++;
+						}
 					}
 				}
 
 				Timer.Stop();
 
-				#if DEBUG
-				Messages.Logging.WriteAsID($"Probability Processed [{Timer.ElapsedMilliseconds}ms]", Messages.Logging.SpecialId.Verbose);
-				#endif
-
 				w = a; x = b; y = c; z = d;
+				Response.Length -= 2;
 				Mod--;
-				Response = $"""
-					{Response[..^2]}` with a total of: {(FaceCount > 0 ? Rolls.Sum() : -Rolls.Sum())}
+
+				if (Response.Length > 1536)
+				{
+					Response.Length = 1536;
+					Response.Append("...`");
+				}
+				else
+				{
+					Response.Append('`');
+				}
+
+				FinalResponse = $"""
+					{(Response.ToString() == "Rolled ``" ? $"Rolled {RollCount} die" : Response)} with a total of: {(FaceCount > 0 ? '\0' : '-')}{(RollCount > 4096 ? Result : Rolls.Sum())}
 
 					Roll Data:
 					- Number of Max Value Rolls: {JesusCount}
 					- Number of Min Value Rolls: {MinCount}
-					- Average Value of All Rolls: {Rolls.Average()}
+					- Average Value of All Rolls: {(RollCount > 4096 ? Rolls.Average() : Rolls.Sum() / RollCount)}
 					- Calculated in {Timer.Elapsed.TotalMilliseconds}ms
 					""";
 			}
-			else
-			{
-				Response = "";
-			}
 
-			Response += $"""
+			FinalResponse += $"""
 
 			Roll Analysis:
-			- Maximum Possible Roll: {(FaceCount + Mod) * RollCount}
+			- Maximum Possible Roll: {(long)(FaceCount + Mod) * RollCount}
 			- Minimum Possible Roll: {(1 + Mod) * (FaceCount > 0 ? RollCount : -RollCount)}
 			- Chance of Perfect Roll: {(1 / Math.Pow(FaceCount, RollCount) * 100).ToString("0." + new string('#', 24))}%
 			""";
 
-			await message.ReplyAsync(Response);
+			await message.ReplyAsync(FinalResponse);
 		}
 		catch (Exception ex) when (ex is FormatException or ArgumentOutOfRangeException or OverflowException)
 		{

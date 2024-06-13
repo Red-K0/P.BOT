@@ -9,11 +9,13 @@
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>x64</PlatformTarget>
+    <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Trimming>full</Trimming>
-    <PublishAot>False</PublishAot>
+    <PublishAot>True</PublishAot>
     <UserSecretsId>00fd273c-e691-4c01-8d8e-f6afd8339d21</UserSecretsId>
-    <ApplicationIcon>~Data\Bot Icon.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\Bot Icon.ico</ApplicationIcon>
     <PackageIcon>Bot Icon.png</PackageIcon>
     <DocumentationFile>F:\!PBOT\src\HTML Documentation Generator\Source.xml</DocumentationFile>
   </PropertyGroup>
@@ -46,21 +48,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0-preview.3.24172.9" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0-preview.3.24172.9" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.5.2" />
-    <PackageReference Include="NetCord" Version="1.0.0-alpha.295" />
-    <PackageReference Include="NetCord.Hosting" Version="1.0.0-alpha.65" />
-    <PackageReference Include="NetCord.Hosting.Services" Version="1.0.0-alpha.74" />
-    <PackageReference Include="NetCord.Services" Version="1.0.0-alpha.196" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.12.3">
+    <Content Include="Assets\Bot Icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BitFaster.Caching" Version="2.5.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0-preview.5.24306.7" />
+    <PackageReference Include="NetCord" Version="1.0.0-alpha.298" />
+    <PackageReference Include="NetCord.Services" Version="1.0.0-alpha.199" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.12.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Roslynator.CodeFixes" Version="4.12.3">
+    <PackageReference Include="Roslynator.CodeFixes" Version="4.12.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -73,10 +77,7 @@
       <Static>True</Static>
     </Using>
     <Using Include="System.Diagnostics" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Assets\" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,8 @@
 ﻿// The helper class supporting the /define command.
 
+using System.Collections.ObjectModel;
 using NetCord.Services.ApplicationCommands;
+
 namespace PBot.Commands.Helpers;
 
 /// <summary>
@@ -24,8 +26,7 @@ public static class Library
 		[SlashCommandChoice("Iceland Travel Guide")] IcelandGuide
 	}
 
-	#region Key-Value pair defintions
-	private static readonly KeyValuePair<Titles, MessageProperties> Codex_PPP = new(Titles.WhatIs_ThePPP, Embeds.Generate
+	private static readonly KeyValuePair<Titles, InteractionMessageProperties> Codex_PPP = new(Titles.WhatIs_ThePPP, Embeds.Title
 	(
 		"PPP Codex",
 		[
@@ -48,9 +49,9 @@ public static class Library
 				> - Constantly remind @Kira☆Kira how amazing they are
 				> - No server takeover plotting
 				> - Whatever @Kira☆Kira demands
-				
+
 				After many declarations of war (including a [war tune](https://youtu.be/S-UmqvA7uR8)), Kira☆Kira declared that the members of the PPP "live their lives, eat their fill, and enjoy everything the world has to offer.", and the PPP ended its warmongering era (to much disappointment), and the PPP entered its phase of semi-worship.
-				
+
 				Upon entering this era, the 9th member, jdphenix, joined the ~~cult~~ polygon, and the 10th member, fifer, also joined shortly after. Upon reaching 10 members, the thread has started to become somewhat crowded, and a decision was reached to finally move the PPP into a server of its own.
 				"""),
 
@@ -65,7 +66,7 @@ public static class Library
 		1124777547687788626
 	));
 
-	private static readonly KeyValuePair<Titles, MessageProperties> Guide_Iceland = new(Titles.IcelandGuide, Embeds.Generate
+	private static readonly KeyValuePair<Titles, InteractionMessageProperties> Guide_Iceland = new(Titles.IcelandGuide, Embeds.Title
 	(
 		"🏔 Angel's Iceland Travel Guide 🏔",
 		[
@@ -86,12 +87,12 @@ public static class Library
 
 		Embeds.CreateField("Shopping", """
 			- Iceland has a *ton* of souvenir shops and specialties, so check out everything you can
-			- The most common specialties are silver jewllery, which you'll want to pick up with why you're there
+			- The most common specialties are silver jewellery, which you'll want to pick up with why you're there
 			- Lava stones and fish leather are *everywhere*, make sure to check for the high quality stuff
 			- Check out all the different shops you can, everywhere has something different
 			- Most shops are open from 9am - 6pm from Monday to Friday, and from 10am to 4pm on Saturday
 			- Almost everywhere is closed on Sunday, but shopping malls in the capital are always open
-			VAT Refund System 
+			VAT Refund System
 			- Your purchases were over 4000 ISK \ $29 (including VAT) total per store in the same 24 hours
 			- If the refund is over 5000 ISK \ $36, you're going to have to show what you're refunding at customs
 			- Everything under 5000 ISK can be refunded directly at the departure halls of most airports, but 'Keflavík International Airport' is the best one
@@ -124,10 +125,9 @@ public static class Library
 		],
 		1141261327973761076
 	));
-	#endregion
 
 	/// <summary>
 	/// Contains definitions used for the <see cref="SlashCommands.GetTitle(Titles)"/> command.
 	/// </summary>
-	public static readonly Dictionary<Titles, MessageProperties> Entries = new([Codex_PPP, Guide_Iceland]);
+	public static readonly ReadOnlyDictionary<Titles, InteractionMessageProperties> Entries = new Dictionary<Titles, InteractionMessageProperties>([Codex_PPP, Guide_Iceland]).AsReadOnly();
 }

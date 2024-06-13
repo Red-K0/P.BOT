@@ -4,7 +4,7 @@
 // Commands in this file should be minimal and concise, as well as being able to run entirely locally.
 
 using NetCord.Services.ApplicationCommands;
-using static PBot.Commands.TextCommands;
+
 namespace PBot.Commands;
 
 /// <summary>
@@ -13,9 +13,11 @@ namespace PBot.Commands;
 public sealed partial class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 {
 	#region Attributes
+
 	[SlashCommand("syscheck", "Check if the system's online.")]
 	public partial Task SystemsCheck();
-	#endregion
+
+	#endregion Attributes
 
 	/// <summary>
 	/// Command task. Checks if P.BOT's system is active.
@@ -23,13 +25,11 @@ public sealed partial class SlashCommands : ApplicationCommandModule<SlashComman
 	public async partial Task SystemsCheck()
 	{
 		Process currentProcess = Process.GetCurrentProcess();
-		string timeSinceStart = (DateTime.Now - currentProcess.StartTime).ToString();
-
 		currentProcess.Refresh();
 
 		await RespondAsync(InteractionCallback.Message($"""
-			Time since client start: `{timeSinceStart.Remove(timeSinceStart.IndexOf('.'))}`
-			RAM in use: `{currentProcess.WorkingSet64 / 1024 / 1024}MB`
-			"""));
+		Time since client start: `{(DateTime.UtcNow - currentProcess.StartTime.ToUniversalTime()).TotalSeconds}`
+		RAM in use: `{currentProcess.WorkingSet64 / 1024 / 1024}MB`
+		"""));
 	}
 }

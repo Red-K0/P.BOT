@@ -1,68 +1,64 @@
-#pragma region Boilerplate
-
 #include "pch.h"
 #include "framework.h"
-#include "library.h"
+#include "Library.h"
+#include <print>
 #include <sstream>
 #include <Windows.h>
 
 ///<summary> The escape sequence used for virtual terminal sequences. </summary>
-#define ESC "\x1b"
-
-#pragma endregion
+constexpr char ESC = '\x1b';
 
 /// <summary> Modifies the console output mode to handle virtual sequences. Necessary to utilize any virtual sequences. </summary>
 /// <returns> True if successful, otherwise returns false. </returns> 
 bool EnableVirtualAndHideCursor()
+{
+	// Set output mode to handle virtual terminal sequences
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hOut == INVALID_HANDLE_VALUE)
 	{
-		// Set output mode to handle virtual terminal sequences
-		HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-		if (hOut == INVALID_HANDLE_VALUE)
-		{
-			return false;
-		}
+		return false;
+	}
 
-		HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
-		if (hIn == INVALID_HANDLE_VALUE)
-		{
-			return false;
-		}
+	HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
+	if (hIn == INVALID_HANDLE_VALUE)
+	{
+		return false;
+	}
 
-		DWORD dwOriginalOutMode = 0;
-		DWORD dwOriginalInMode = 0;
-		if (!GetConsoleMode(hOut, &dwOriginalOutMode))
-		{
-			return false;
-		}
-		if (!GetConsoleMode(hIn, &dwOriginalInMode))
-		{
-			return false;
-		}
+	DWORD dwOriginalOutMode = 0;
+	DWORD dwOriginalInMode = 0;
+	if (!GetConsoleMode(hOut, &dwOriginalOutMode))
+	{
+		return false;
+	}
+	if (!GetConsoleMode(hIn, &dwOriginalInMode))
+	{
+		return false;
+	}
 
-		DWORD dwOutMode = dwOriginalOutMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		
+	if (DWORD dwOutMode = dwOriginalOutMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING; !SetConsoleMode(hOut, dwOutMode))
+	{
+		// we failed to set both modes, try to step down mode gracefully.
+		dwOutMode = dwOriginalOutMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 		if (!SetConsoleMode(hOut, dwOutMode))
 		{
-			// we failed to set both modes, try to step down mode gracefully.
-			dwOutMode = dwOriginalOutMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-			if (!SetConsoleMode(hOut, dwOutMode))
-			{
-				// Failed to set any VT mode, can't do anything here.
-				return false;
-			}
-		}
-
-		const DWORD dwInMode = dwOriginalInMode | ENABLE_VIRTUAL_TERMINAL_INPUT;
-		if (!SetConsoleMode(hIn, dwInMode))
-		{
-			// Failed to set VT input mode, can't do anything here.
+			// Failed to set any VT mode, can't do anything here.
 			return false;
 		}
-
-		// Hide the cursor, because there's no reason to do this in C#.
-		printf(ESC "[?25l");
-
-		return true;
 	}
+
+	if (const DWORD dwInMode = dwOriginalInMode | ENABLE_VIRTUAL_TERMINAL_INPUT; !SetConsoleMode(hIn, dwInMode))
+	{
+		// Failed to set VT input mode, can't do anything here.
+		return false;
+	}
+
+	// Hide the cursor, because there's no reason to do this in C#.
+	std::print("{:c}[?25l", ESC);
+
+	return true;
+}
 
 #if false
 

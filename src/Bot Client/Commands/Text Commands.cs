@@ -13,11 +13,11 @@ public static class TextCommands
 	/// <summary>
 	/// Parses a given message, running the associated text command if a valid prefix is found.
 	/// </summary>
-	public static void Parse(Message message)
+	public static async Task Parse(Message message)
 	{
 		switch (message.Content[1])
 		{
-			case 'r': Helpers.ProbabilityStateMachine.Run(message); return;
+			case 'r': await Helpers.ProbabilityStateMachine.Run(message); return;
 		}
 	}
 }

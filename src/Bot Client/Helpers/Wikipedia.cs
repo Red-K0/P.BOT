@@ -1,6 +1,7 @@
 ﻿// The helper class supporting the /wikidefine command.
 
 using System.Text.RegularExpressions;
+
 namespace PBot.Commands.Helpers;
 
 /// <summary>
@@ -50,7 +51,7 @@ public static partial class Wikipedia
 		{
 			// Fix for the '[1]' bug, where a citation replaces a necessary newline.
 			// Avoids scenarios such as the following: "This paragraph ends here.[1]This one starts here."
-			if (!(StringArray[i] != "." || StringArray[i + 1] is " " or " " or "." or ":" or "\\" || !Alphanumeric().IsMatch(StringArray[i + 1]) || StringArray[i + 2] == "."))
+			if (!(StringArray[i] != "." || StringArray[i + 1] is " " or "\u2009" or "." or ":" or "\\" || !Alphanumeric().IsMatch(StringArray[i + 1]) || StringArray[i + 2] == "."))
 			{
 				StringArray[i] = ".\n\n";
 			}
@@ -70,8 +71,8 @@ public static partial class Wikipedia
 		Response = string.Concat(StringArray);
 
 		// If the long format was not requested, cuts off the text at the first (proper) newline, otherwise attempts to clean up excess newlines.
-		if (!longFormat && Response.Contains('\n')) try { Response = Response.Remove(Response.IndexOf('\n')); } catch { }
-		else try { while (Response.Contains("\n\n\n")) Response = Response.Replace("\n\n\n", "\n\n"); } catch { }
+		if (!longFormat && Response.Contains('\n')) Response = Response.Remove(Response.IndexOf('\n'));
+		else while (Response.Contains("\n\n\n")) Response = Response.Replace("\n\n\n", "\n\n");
 
 		return Response;
 	}

@@ -8,7 +8,7 @@ internal static class Extensions
 	/// <summary>
 	/// Converts the value of this instance to its equivalent <see cref="InteractionMessageProperties"/> representation.
 	/// </summary>
-	public static InteractionMessageProperties ToInteraction(this MessageProperties obj) => new()
+	public static MessageProperties ToMessage(this InteractionMessageProperties obj) => new()
 	{
 		AllowedMentions = obj.AllowedMentions,
 		Attachments = obj.Attachments,
@@ -20,7 +20,7 @@ internal static class Extensions
 	};
 
 	/// <summary>
-	/// Converts a <see cref="User"/> object to a <see cref="GuildUser"/> compatible object. The values appeneded to the object are always set to their defaults.
+	/// Converts a <see cref="User"/> object to a <see cref="GuildUser"/> compatible object. The values appended to the object are always set to their defaults.
 	/// </summary>
 	public static GuildUser ToGuildUser(this User user) => new(new()
 	{
@@ -66,7 +66,7 @@ internal static class Extensions
 	{
 		IEnumerable<string?> ImageURLs = [];
 		foreach (KeyValuePair<ulong, Attachment> attachment in attachments) ImageURLs = ImageURLs.Append(attachment.Value.Url);
-		return ImageURLs != null ? ImageURLs.Any() ? ImageURLs.ToArray() : null : null;
+		return ImageURLs.Any() ? ImageURLs.ToArray() : null;
 	}
 
 	/// <summary>
@@ -86,7 +86,7 @@ internal static class Extensions
 	/// <summary>
 	/// Caps the embed count of this instance to 10 embeds maximum.
 	/// </summary>
-	public static MessageProperties ToChecked(this MessageProperties obj)
+	public static InteractionMessageProperties ToChecked(this InteractionMessageProperties obj)
 	{
 		if (obj.Embeds!.Count() > 10) obj.Embeds = obj.Embeds!.Take(10);
 		obj.Embeds = obj.Embeds!.Where(i => i != null);
@@ -96,12 +96,40 @@ internal static class Extensions
 	/// <summary>
 	/// Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
 	/// </summary>
-	public static string GetAvatar(this User user, ImageFormat? format = null) => user.HasAvatar ? user.GetAvatarUrl(format).ToString() : user.DefaultAvatarUrl.ToString();
+	public static string GetAvatar(this User user, ImageFormat? format = null)
+	{
+		if (Caches.Members.List.TryGetValue(user.Id, out Caches.Members.Member? member) && member.Info.User.HasGuildAvatar)
+		{
+			return member.Info.User.GetGuildAvatarUrl(format).ToString();
+		}
+		else if (user.HasAvatar)
+		{
+			return user.GetAvatarUrl(format).ToString();
+		}
+		else
+		{
+			return user.DefaultAvatarUrl.ToString();
+		}
+	}
 
 	/// <summary>
 	/// Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
 	/// </summary>
-	public static string GetAvatar(this GuildUser user, ImageFormat? format = null) => user.HasAvatar ? user.GetAvatarUrl(format).ToString() : user.DefaultAvatarUrl.ToString();
+	public static string GetAvatar(this GuildUser user, ImageFormat? format = null)
+	{
+		if (user.HasGuildAvatar)
+		{
+			return user.GetGuildAvatarUrl(format).ToString();
+		}
+		else if (user.HasAvatar)
+		{
+			return user.GetAvatarUrl(format).ToString();
+		}
+		else
+		{
+			return user.DefaultAvatarUrl.ToString();
+		}
+	}
 
 	/// <summary>
 	/// Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <c>\u0041' -> 'A'</c>).
@@ -119,9 +147,9 @@ internal static class Extensions
 			{
 				// Get the chars present after "\u", and merge them into one identifier.
 				string Identifier = CharArray[i + 2].ToString()
-				                  + CharArray[i + 3].ToString()
-				                  + CharArray[i + 4].ToString()
-				                  + CharArray[i + 5].ToString();
+								  + CharArray[i + 3].ToString()
+								  + CharArray[i + 4].ToString()
+								  + CharArray[i + 5].ToString();
 
 				// Convert the Identifier into a char value, and replace the '\' w
 				// ith it.
@@ -153,10 +181,10 @@ internal static class Extensions
 		if (!messageLink.Contains(GuildURL) || messageLink.Length <= (messageLink.IndexOf(GuildURL) + 49)) return null;
 		string CurrentScan = messageLink[(messageLink.IndexOf(GuildURL) + 49)..];
 
-		if (CurrentScan.Contains(' '))  CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf(' '));
+		if (CurrentScan.Contains(' ')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf(' '));
 		if (CurrentScan.Contains('\n')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
 
-		if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.LastIndexOf('/')),  out ulong ChannelID)) return null;
+		if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.LastIndexOf('/')), out ulong ChannelID)) return null;
 		if (!ulong.TryParse(CurrentScan[(CurrentScan.LastIndexOf('/') + 1)..], out ulong MessageID)) return null;
 
 		return await Client.Rest.GetMessageAsync(ChannelID, MessageID);

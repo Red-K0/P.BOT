@@ -1,4 +1,8 @@
-﻿namespace PBot.Caches;
+﻿using BitFaster.Caching.Lru;
+using System.Collections.Frozen;
+using System.Text;
+
+namespace PBot.Caches;
 
 /// <summary>
 /// Contains the recent messages cache and its relevant methods.
@@ -6,72 +10,89 @@
 internal static class Messages
 {
 	/// <summary>
-	/// The maximum number of entries in the <see cref="Recent"/> list.
+	/// Contains all messages in the bot's cache.
 	/// </summary>
-	const int RECENT_CACHE_SIZE_MAX = 100;
-
-	/// <summary>
-	/// Contains the most recent messages in the bot's cache.
-	/// </summary>
-	public static LinkedList<KeyValuePair<ulong, Message>> Recent = [];
-
-	/// <summary>
-	/// Iterates through the <see cref="Recent"/> list in reverse order, returning the <see cref="Message"/> corresponding to the given <paramref name="ID"/> if it's found, returning <see langword="null"/> otherwise.
-	/// </summary>
-	public static Message? Get(ulong ID)
-	{
-		KeyValuePair<ulong, Message> item;
-		for (int i = Recent.Count - 1; i > -1; i--)
-		{
-			item = Recent.ElementAt(i);
-			if (item.Key == ID) return item.Value;
-		}
-		return null;
-	}
-
-	/// <summary>
-	/// Adds the given <see cref="Message"/> to the <see cref="Recent"/> list, removing the oldest message if the list size is at <see cref="RECENT_CACHE_SIZE_MAX"/>.
-	/// </summary>
-	public static void Add(Message message)
-	{
-		if (Recent.Count > RECENT_CACHE_SIZE_MAX) Recent.RemoveFirst();
-		Recent.AddLast(value: new(message.Id, message));
-	}
-
-	/// <summary>
-	/// Updates a message in the cache if it's found, otherwise creating it as a new entry.
-	/// </summary>
-	public static void Edit(Message message)
-	{
-		KeyValuePair<ulong, Message> item;
-		for (int i = Recent.Count - 1; i > 0; i--)
-		{
-			item = Recent.ElementAt(i);
-			if (item.Key == message.Id)
-			{
-				Recent.Remove(item);
-				Recent.AddLast(value: new(message.Id, message));
-				return;
-			}
-		}
-		Add(message);
-	}
+	public static ConcurrentLru<ulong, Message> Recent { get; } = new(capacity: 10000);
 }
 
 /// <summary>
-/// Contains the cached members list, role list, and their relevant methods.
+/// Contains the cached members list, role list, and their relevant methods. This class possesses a static constructor not shipped in the GitHub repo for privacy reasons.
 /// </summary>
 internal static partial class Members
 {
 	/// <summary>
+	/// Represents a <see cref="GuildUserInfo"/> object with additional bot-related fields.
+	/// </summary>
+	/// <param name="info">The <see cref="GuildUserInfo"/> to base the object on.</param>
+	public sealed class Member(GuildUserInfo info)
+	{
+		public GuildUserInfo Info = info;
+
+		public bool IsFounder = FounderRoles.ContainsKey(info.User.Id);
+
+		public string DisplayName => (Info.User.Nickname ?? Info.User.GlobalName ?? Info.User.Username).ToParsedUnicode().ToEscapedMarkdown();
+		public Role? PersonalRole => FounderRoles.TryGetValue(Info.User.Id, out Role? role) ? role : null;
+
+		// Spam Filter
+		public bool SpamLastMessageHeading { get; set; }
+
+		public int SpamSameMessageCount { get; set; }
+		public int SpamLastAttachmentSize { get; set; }
+		public string SpamLastMessage { get; set; } = "";
+	}
+
+	/// <summary>
 	/// The bot's internal member list, generated from the <c>members-search</c> endpoint.
 	/// </summary>
-	public static Dictionary<ulong, Member> List = [];
+	public static Dictionary<ulong, Member> List { get; private set; } = [];
+
+	/// <summary>
+	/// The bot's internal list of event roles, and their appropriate descriptions.
+	/// </summary>
+	public static readonly FrozenDictionary<ulong, string> Accolades;
+
+	/// <summary>
+	/// The bot's internal list of founder roles, alongside their owners' user IDs.
+	/// </summary>
+	public static readonly FrozenDictionary<ulong, Role> FounderRoles;
 
 	/// <summary>
 	/// The bot's internal role list, generated with <see cref="RestClient.GetGuildRolesAsync(ulong, RestRequestProperties?)"/>.
 	/// </summary>
-	public static IReadOnlyDictionary<ulong, Role> Roles = Client.Rest.GetGuildRolesAsync(GuildID).Result;
+	public static readonly Dictionary<ulong, Role> Roles;
+
+	/// <summary>
+	/// Checks if the role referenced by the ID is an event role.
+	/// </summary>
+	/// <param name="id"> The ID to check. </param>
+	public static bool IsAccolade(ulong id) => Accolades.ContainsKey(id);
+
+	/// <summary>
+	/// Returns a string summarizing a user's accolades and other important roles.
+	/// </summary>
+	public static string GetUserAccolades(Member member)
+	{
+		string index = (Array.IndexOf([.. List.Keys], member.Info.User.Id) + 1).ToString();
+
+		if (index.Length == 2 && index[^2] == '1')
+		{
+			index += "th";
+		}
+		else
+		{
+			index += index[^1] switch
+			{
+				'1' => "st",
+				'2' => "nd",
+				'3' => "rd",
+				_ => "th"
+			};
+		}
+
+		StringBuilder AccoladeString = new($">>> <@&{(member.IsFounder ? FounderRoleId : CultistRoleId)}>\n- The {index} member.");
+		foreach (ulong role in member.Info.User.RoleIds.Where(IsAccolade)) AccoladeString.Append($"\n<@&{role}>\n- {Accolades[role]}");
+		return AccoladeString.ToString();
+	}
 
 	/// <summary>
 	/// Initializes the class with data from the <c>members-search</c> endpoint.
@@ -82,10 +103,4 @@ internal static partial class Members
 		foreach (var item in Client.Rest.SearchGuildUsersAsync(GuildID).ToBlockingEnumerable()) TempList = TempList.Append(new KeyValuePair<ulong, Member>(item.User.Id, new(item)));
 		List = TempList.Reverse().ToDictionary();
 	}
-
-	/// <summary>
-	/// Checks if the role referenced by the ID is an event role.
-	/// </summary>
-	/// <param name="ID"> The ID to check. </param>
-	public static bool IsAccolade(ulong ID) => Accolades.Contains(ID);
 }

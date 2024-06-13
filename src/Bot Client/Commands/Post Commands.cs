@@ -4,14 +4,15 @@
 // Commands in this file heavily rely on content found in the PostDB folder.
 
 using NetCord.Services.ApplicationCommands;
-using static PBot.Commands.Helpers.Posts;
 using static PBot.Embeds;
+using static PBot.Files;
 namespace PBot.Commands;
 
 public sealed partial class SlashCommands
 {
 	#region Attributes
-	[SlashCommand("post", "Create a post (WIP).")]
+	[SuppressMessage("Major Code Smell", "S3358:Ternary operators should not be nested")]
+	[SlashCommand("post", "WIP")]
 	public partial Task CreatePost
 	(
 		[SlashCommandParameter(Name = "content", Description = "The text-based content of the post.")]
@@ -23,62 +24,32 @@ public sealed partial class SlashCommands
 		[SlashCommandParameter(Name = "anonymous", Description = "Should the post be made anonymously?")]
 		bool anonymous = false,
 
+		[SlashCommandParameter(Name = "channel", Description = "The channel to create the post in, defaults to the current channel.")]
+		Channel? channel = null,
+
 		[SlashCommandParameter(Name = "draft", Description = "Should a private preview of the post be created instead?")]
 		bool draft = false
 	);
-	#endregion
+	#endregion Attributes
 
-	/// <summary>
-	/// Creates a post, experimental.
-	/// </summary>
-	public async partial Task CreatePost(string content, Attachment? image, bool anonymous, bool draft)
+	/// <summary>Creates an embed with the specified <paramref name="content"/> and <paramref name="image"/>.</summary>
+	/// <param name="content">The text-based content of the post.</param>
+	/// <param name="image">The image to attach to the post.</param>
+	/// <param name="anonymous">Should the post be made anonymously?</param>
+	/// <param name="channel">The channel to create the post in, defaults to the current channel.</param>
+	/// <param name="draft">Should a private preview of the post be created instead?</param>
+	public async partial Task CreatePost(string content, Attachment? image, bool anonymous, Channel? channel, bool draft)
 	{
-#if DEBUG_COMMAND
-		Stopwatch Timer = Stopwatch.StartNew();
-#endif
+		await RespondAsync(InteractionCallback.Message(new() { Content = $"{(draft ? "Draft" : "Post")} Created Successfully", Flags = MessageFlags.Ephemeral }));
 
-		// Make sure the interaction doesn't time out
-		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage(MessageFlags.Ephemeral));
-
-		// Get an ID for the post.
-		ulong InternalPostID = Convert.ToUInt64(await Pages.Read(Pages.Files.Counters, 3)) + 1;
-
-		MessageProperties msg_prop = Generate
-		(
-			content,
-			anonymous ?
-			CreateAuthor("Posted by an Anonymous User", GetAssetURL("Anonymous Profile Icon.png")) : // < Note the colon
-			CreateAuthor($"Posted by {Context.User.GetDisplayName()}", Context.User.GetAvatarUrl().ToString()),
-			DateTime.Now,
-			CreateFooter($"Post ID: {InternalPostID}"),
-			imageURLs: [image?.Url],
-			refID: Context.User.Id
-		);
-
-		if (draft)
-		{
-			await Context.Interaction.SendFollowupMessageAsync(msg_prop.ToInteraction());
-		}
-		else
-		{
-			_ = client.Rest.SendMessageAsync(CHANNEL, msg_prop.WithContent($"Post #{InternalPostID}")).Result;
-
-			ulong ExternalPostID = StoreID(InternalPostID);
-
-			// Creates the corresponding thread for the post, and then resets the content to empty.
-			await client.Rest.CreateGuildThreadAsync(CHANNEL, ExternalPostID, new($"Post #{InternalPostID}"));
-			await client.Rest.ModifyMessageAsync(CHANNEL, ExternalPostID, new(s => s.WithContent("_ _")));
-
-			await Context.Interaction.SendFollowupMessageAsync(new()
-			{
-				Content = $"Post created successfully, view it [here.]({SERVER_LINK}{CHANNEL}/{ExternalPostID})",
-				Flags = MessageFlags.Ephemeral
-			});
-		}
-
-#if DEBUG_COMMAND
-		Messages.Messages.Logging.AsVerbose($"CreatePost Completed [{Timer.ElapsedMilliseconds}ms]");
-		Timer.Reset();
-#endif
+		await Client.Rest.SendMessageAsync(channel?.Id ?? Context.Channel.Id, Generate(CreateProperties(
+		content,
+		anonymous ? CreateAuthor($"{(draft ? "Draft" : "Post")} Created Anonymously", GetAssetURL("Anonymous Profile Picture.png"))
+				  : CreateAuthor(Context.User.GetDisplayName(), Context.User.GetAvatar()),
+		DateTime.Now,
+		CreateFooter($"{(draft ? "Draft" : "Post")} ID: {await ReadCounter(CounterLines.Posts, draft ? 0 : 1)}"),
+		image?.ProxyUrl,
+		refId: Context.User.Id
+		)).ToMessage());
 	}
 }

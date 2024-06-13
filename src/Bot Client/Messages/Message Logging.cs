@@ -52,14 +52,11 @@ internal static class Logging
 		int AttachmentCount = message.Attachments.Count;
 		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
 
-		MessageProperties msg_prop = Embeds.Generate(
-			message,
+		await Client.Rest.SendMessageAsync(LOG_CHANNEL, message.ToEmbed(
 			GuildURL + message.Channel!.Id.ToString(),
 			Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")),
 			title: $"Message Deleted {(message.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
-		);
-
-		await Client.Rest.SendMessageAsync(LOG_CHANNEL, msg_prop);
+		).ToMessage());
 
 		WriteAsID(
 		$"The message with ID '{message.Id}' was deleted. It was sent by {message.Author.GetDisplayName()} @ {message.CreatedAt.ToString()[..^7]}" +
@@ -69,31 +66,25 @@ internal static class Logging
 	/// <summary>
 	/// Logs edited discord messages.
 	/// </summary>
-	public static async ValueTask LogUpdatedMessage(Message originalMessage,Message editedMessage)
+	public static async ValueTask LogUpdatedMessage(Message originalMessage, Message editedMessage)
 	{
-		MessageProperties emsg_prop = Embeds.Generate(
-			editedMessage,
+		await Client.Rest.SendMessageAsync(LOG_CHANNEL, editedMessage.ToEmbed(
 			$"{GuildURL}{editedMessage.Channel!.Id}/{editedMessage.Id}",
-			title: $"Message Edited {(editedMessage.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
-		);
-
-		await Client.Rest.SendMessageAsync(LOG_CHANNEL, emsg_prop);
+			title: $"Message Edited {((editedMessage.Channel?.TryGetName(out string? Name) ?? false) ? $"in {Name}" : null)}"
+		).ToMessage());
 
 		int AttachmentCount = originalMessage.Attachments.Count;
-		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
 
-		MessageProperties omsg_prop = Embeds.Generate(
+		await Client.Rest.SendMessageAsync(LOG_CHANNEL, Embeds.Generate(
+			Embeds.CreateProperties(
 			originalMessage.Content,
 			Embeds.CreateAuthor("Original Message:"),
 			originalMessage.CreatedAt,
-			Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")),
-			-1,
-			0,
-			originalMessage.Attachments.GetImageURLs(),
-			refID: originalMessage.Author.Id
-		);
-
-		await Client.Rest.SendMessageAsync(LOG_CHANNEL, omsg_prop);
+			Embeds.CreateFooter($"{AttachmentCount} Attachment(s)" + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : null)),
+			refId: originalMessage.Author.Id
+			),
+			originalMessage.Attachments.GetImageURLs()
+		).ToMessage());
 	}
 
 	/// <summary>
@@ -113,6 +104,9 @@ internal static class Logging
 		LastAuthor = (ulong)id;
 	}
 
+	/// <summary>
+	/// An enum of IDs used by the bot during logging.
+	/// </summary>
 	public enum SpecialId : ulong
 	{
 		Network = 0,

@@ -1,4 +1,5 @@
 ﻿using static PBot.Caches.Members;
+
 namespace PBot;
 
 /// <summary>
@@ -16,101 +17,76 @@ internal static partial class Embeds
 	/// </summary>
 	public const int STD_COLOR = 0x72767D;
 
+	/// <summary>
+	/// Generates a random 24-bit integer from the current time in ticks.
+	/// </summary>
+	public static Color RandomColor { get => new(Environment.TickCount & 0xFFFFFF); }
+
 	/// <summary> Combines the specified parameters to generate an embed. </summary>
-	/// <param name="description"> The section of the embed where the main text is contained, limited to 4096 characters. </param>
-	/// <param name="authorObject"> Contains the <see cref="EmbedAuthorProperties"/> to be used in the embed. </param>
-	/// <param name="timestamp"> Displays time in a format similar to a message timestamp. Located next to the <paramref name="footerObject"/>. </param>
-	/// <param name="footerObject"> Contains the <see cref="EmbedFooterProperties"/> to be used in the embed. </param>
-	/// <param name="RGB"> The hex code indicating an embed's accent color. Defaults to a random value when not set or -1. </param>
-	/// <param name="replyTo"> The ID of the message being replied to with the embed. </param>
-	/// <param name="imageURLs"> An array of URIs for the attachments included in the embed, displayed below the <paramref name="description"/> element. </param>
-	/// <param name="thumbnailURL"> The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed. </param>
-	/// <param name="title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="titleURL"/>, has a 256 character limit. </param>
-	/// <param name="titleURL"> A link to an address of a webpage. When set, the <paramref name="title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
-	/// <param name="ephemral"> Creates an ephemeral message when set to true.</param>
-	/// <param name="fieldObjects"> Contains an array of <see cref="EmbedField"/>s to include in the embed </param>
-	/// <param name="refID"> The ID of the user responsible for the embed's creation. </param>
 	/// <returns> <see cref="MessageProperties"/> containing the created embed. </returns>
-	public static MessageProperties Generate(string? description = null, EmbedAuthorProperties? authorObject = null, DateTimeOffset? timestamp = null,
-	EmbedFooterProperties? footerObject = null, int? RGB = null, ulong replyTo = 0, string?[]? imageURLs = null, string? thumbnailURL = null, string? title = null,
-	string? titleURL = null, bool ephemral = false, EmbedFieldProperties[]? fieldObjects = null, ulong refID = 0)
+	public static InteractionMessageProperties Generate(EmbedProperties embed, string?[]? imageURLs = null, string? titleURL = null, bool ephemeral = false)
 	{
-		MessageProperties msg_prop = new()
+		InteractionMessageProperties Properties = new()
 		{
-			Embeds = [new EmbedProperties()
-			{
-				Author = authorObject,
-				Color = new(RGB ?? ((refID != 0 && List.TryGetValue(refID, out Member? Member)) ? Member?.PersonalRoleColor ?? Environment.TickCount & 0xFFFFFF : Environment.TickCount & 0xFFFFFF)),
-				Description = description,
-				Footer = footerObject,
-				Image = (imageURLs == null) ? null : new(imageURLs[0]),
-				Timestamp = timestamp,
-				Title = title,
-				Thumbnail = new(thumbnailURL),
-				Url = titleURL,
-				Fields = fieldObjects
-			}],
-			MessageReference = (replyTo != 0) ? new(replyTo) : null,
-			Flags = ephemral ? MessageFlags.Ephemeral : null
+			Embeds = [embed],
+			Flags = ephemeral ? MessageFlags.Ephemeral : null
 		};
 
-		if (imageURLs == null || imageURLs.Length == 1) return msg_prop;
-
-		EmbedProperties[] ExtraAttachments = new EmbedProperties[imageURLs.Length];
-
-		for (int i = 1; i < Math.Clamp(imageURLs.Length, 1, 9); i++)
+		if (imageURLs?.Length > 1)
 		{
-			ExtraAttachments[i] = new EmbedProperties()
-			{
-				Image = imageURLs[i],
-				Url = titleURL
-			};
+			Properties.AddEmbeds(imageURLs.Skip(1).Take(8).Select(url => new EmbedProperties() { Image = url, Url = titleURL, Color = embed.Color }));
 		}
 
-		return msg_prop.AddEmbeds(ExtraAttachments);
+		return Properties;
 	}
 
 	/// <summary> Combines the specified parameters with parameters extracted from a given <see cref="RestMessage"/> to generate an embed. </summary>
-	/// <param name="targetMessage"> The <see cref="RestMessage"/> object to extract parameters from. </param>
-	/// <param name="titleURL"> A link to an address of a webpage. When set, the <paramref name="title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
-	/// <param name="footerObject"> Contains the <see cref="EmbedFooterProperties"/> to be used in the embed. </param>
-	/// <param name="replyTo"> The ID of the message being replied to with the embed. </param>
-	/// <param name="title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="titleURL"/>, has a 256 character limit. </param>
-	/// <param name="thumbnailURL"> The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed. </param>
+	/// <param name="message"> The <see cref="RestMessage"/> object to extract parameters from. </param>
+	/// <param name="url"> A link to an address of a webpage. When set, the <paramref name="title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
+	/// <param name="footer"> Contains the <see cref="EmbedFooterProperties"/> to be used in the embed. </param>
+	/// <param name="title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="url"/>, has a 256 character limit. </param>
+	/// <param name="thumbnail"> The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed. </param>
 	/// <returns> <see cref="MessageProperties"/> containing the created embed. </returns>
-	public static MessageProperties Generate(RestMessage targetMessage, string titleURL = "", EmbedFooterProperties? footerObject = null, ulong? replyTo = null,
-	string? title = null, string? thumbnailURL = null)
+	public static InteractionMessageProperties ToEmbed(this RestMessage message, string? url = null, EmbedFooterProperties? footer = null,
+	string? title = null, string? thumbnail = null)
 	{
-		string?[]? ImageURLs = (targetMessage.Attachments.Count == 0) ? null : new string[targetMessage.Attachments.Count];
-		Attachment[] Attachments = [.. targetMessage.Attachments.Values];
-
-		for (int i = 0; i < targetMessage.Attachments.Count; i++) ImageURLs![i] = Attachments[i].Url;
-
-		return Generate(
-			targetMessage.Content,
-			CreateAuthor(targetMessage.Author.GetDisplayName(), targetMessage.Author.GetAvatar()),
-			targetMessage.CreatedAt,
-			footerObject,
-			-1,
-			replyTo ?? 0,
-			ImageURLs,
-			thumbnailURL,
+		string?[]? attachmentUrls = new string[message.Attachments.Count];
+		foreach (var (attachment, i) in message.Attachments.Values.Select((v, i) => (v, i))) attachmentUrls[i] = attachment.Url;
+		return Generate(CreateProperties(
+			message.Content,
+			CreateAuthor(message.Author.GetDisplayName(), message.Author.GetAvatar()),
+			message.CreatedAt,
+			footer,
+			attachmentUrls[0],
+			thumbnail,
 			title,
-			titleURL,
-			refID: targetMessage.Author.Id
-		);
+			url,
+			null,
+			message.Author.Id
+		), attachmentUrls);
 	}
 
 	/// <summary>
 	/// Creates a <see cref="MessageProperties"/> object suitable for <see cref="Commands.SlashCommands.GetTitle(Commands.Helpers.Library.Titles)"/>.
 	/// </summary>
-	public static MessageProperties Generate(string title, EmbedFieldProperties[] contents, ulong authorID = 0) => new()
+	public static InteractionMessageProperties Title(string title, EmbedFieldProperties[] contents, ulong authorId = 0) => new()
 	{
-		Embeds = [new EmbedProperties()
-		{
-			Color = new(authorID != 0 ? List[authorID].PersonalRoleColor ?? Environment.TickCount & 0xFFFFFF : Environment.TickCount & 0xFFFFFF),
-			Fields = contents,
-			Title = title,
-		}]
+		Embeds = [CreateProperties(title: title, fields: contents, refId: authorId)],
+	};
+
+	public static EmbedProperties CreateProperties(string? description = null, EmbedAuthorProperties? author = null, DateTimeOffset? timestamp = null,
+	EmbedFooterProperties? footer = null, string? image = null, string? thumbnail = null, string? title = null,
+	string? url = null, EmbedFieldProperties[]? fields = null, ulong refId = 0, int? color = null) => new()
+	{
+		Author = author,
+		Color = color != null ? new(color.Value) : List.GetValueOrDefault(refId)?.PersonalRole?.Color ?? RandomColor,
+		Description = description,
+		Footer = footer,
+		Image = image,
+		Timestamp = timestamp,
+		Title = title,
+		Thumbnail = new(thumbnail),
+		Url = url,
+		Fields = fields
 	};
 }

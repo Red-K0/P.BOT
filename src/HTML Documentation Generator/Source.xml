@@ -14,6 +14,16 @@
             Allows the fetching of private data from user secrets.
             </summary>
         </member>
+        <member name="F:PBot.Bot.Client">
+            <summary>
+            P.BOT's main client.
+            </summary>
+        </member>
+        <member name="F:PBot.Bot.ClientH">
+            <summary>
+            P.BOT's HTTP client, used for external network requests.
+            </summary>
+        </member>
         <member name="F:PBot.Bot.GuildID">
             <summary>
             The current guild's ID, fetched via <see cref="M:PBot.Bot.GetSecret(System.String)"/>.
@@ -29,14 +39,9 @@
             Extracts a value from the project secrets, returning null if the identifier does not exist.
             </summary>
         </member>
-        <member name="F:PBot.Bot.Client">
+        <member name="M:PBot.Bot.Restart">
             <summary>
-            P.BOT's main client.
-            </summary>
-        </member>
-        <member name="F:PBot.Bot.ClientH">
-            <summary>
-            P.BOT's HTTP client, used for external network requests.
+            Stops the client, releases its resources, and restarts the bot client.
             </summary>
         </member>
         <member name="M:PBot.Bot.Start">
@@ -44,49 +49,46 @@
             Starts the bot's client, initializes event handlers, and prepares caches.
             </summary>
         </member>
-        <member name="M:PBot.Bot.Restart">
-            <summary>
-            Stops the client, releases its resources, and restarts the bot client.
-            </summary>
-        </member>
         <member name="T:PBot.Caches.Messages">
             <summary>
             Contains the recent messages cache and its relevant methods.
             </summary>
         </member>
-        <member name="F:PBot.Caches.Messages.RECENT_CACHE_SIZE_MAX">
+        <member name="P:PBot.Caches.Messages.Recent">
             <summary>
-            The maximum number of entries in the <see cref="F:PBot.Caches.Messages.Recent"/> list.
-            </summary>
-        </member>
-        <member name="F:PBot.Caches.Messages.Recent">
-            <summary>
-            Contains the most recent messages in the bot's cache.
-            </summary>
-        </member>
-        <member name="M:PBot.Caches.Messages.Get(System.UInt64)">
-            <summary>
-            Iterates through the <see cref="F:PBot.Caches.Messages.Recent"/> list in reverse order, returning the <see cref="T:NetCord.Gateway.Message"/> corresponding to the given <paramref name="ID"/> if it's found, returning <see langword="null"/> otherwise.
-            </summary>
-        </member>
-        <member name="M:PBot.Caches.Messages.Add(NetCord.Gateway.Message)">
-            <summary>
-            Adds the given <see cref="T:NetCord.Gateway.Message"/> to the <see cref="F:PBot.Caches.Messages.Recent"/> list, removing the oldest message if the list size is at <see cref="F:PBot.Caches.Messages.RECENT_CACHE_SIZE_MAX"/>.
-            </summary>
-        </member>
-        <member name="M:PBot.Caches.Messages.Edit(NetCord.Gateway.Message)">
-            <summary>
-            Updates a message in the cache if it's found, otherwise creating it as a new entry.
+            Contains all messages in the bot's cache.
             </summary>
         </member>
         <member name="T:PBot.Caches.Members">
             <summary>
-            Contains the cached members list, role list, and their relevant methods.
+            Contains the cached members list, role list, and their relevant methods. This class possesses a static constructor not shipped in the GitHub repo for privacy reasons.
             </summary>
         </member>
-        <member name="F:PBot.Caches.Members.List">
+        <member name="T:PBot.Caches.Members.Member">
+            <summary>
+            Represents a <see cref="T:NetCord.Rest.GuildUserInfo"/> object with additional bot-related fields.
+            </summary>
+            <param name="info">The <see cref="T:NetCord.Rest.GuildUserInfo"/> to base the object on.</param>
+        </member>
+        <member name="M:PBot.Caches.Members.Member.#ctor(NetCord.Rest.GuildUserInfo)">
+            <summary>
+            Represents a <see cref="T:NetCord.Rest.GuildUserInfo"/> object with additional bot-related fields.
+            </summary>
+            <param name="info">The <see cref="T:NetCord.Rest.GuildUserInfo"/> to base the object on.</param>
+        </member>
+        <member name="P:PBot.Caches.Members.List">
             <summary>
             The bot's internal member list, generated from the <c>members-search</c> endpoint.
+            </summary>
+        </member>
+        <member name="F:PBot.Caches.Members.Accolades">
+            <summary>
+            The bot's internal list of event roles, and their appropriate descriptions.
+            </summary>
+        </member>
+        <member name="F:PBot.Caches.Members.FounderRoles">
+            <summary>
+            The bot's internal list of founder roles, alongside their owners' user IDs.
             </summary>
         </member>
         <member name="F:PBot.Caches.Members.Roles">
@@ -94,30 +96,35 @@
             The bot's internal role list, generated with <see cref="M:NetCord.Rest.RestClient.GetGuildRolesAsync(System.UInt64,NetCord.Rest.RestRequestProperties)"/>.
             </summary>
         </member>
-        <member name="M:PBot.Caches.Members.Load">
-            <summary>
-            Initializes the class with data from the <c>members-search</c> endpoint.
-            </summary>
-        </member>
         <member name="M:PBot.Caches.Members.IsAccolade(System.UInt64)">
             <summary>
             Checks if the role referenced by the ID is an event role.
             </summary>
-            <param name="ID"> The ID to check. </param>
+            <param name="id"> The ID to check. </param>
+        </member>
+        <member name="M:PBot.Caches.Members.GetUserAccolades(PBot.Caches.Members.Member)">
+            <summary>
+            Returns a string summarizing a user's accolades and other important roles.
+            </summary>
+        </member>
+        <member name="M:PBot.Caches.Members.Load">
+            <summary>
+            Initializes the class with data from the <c>members-search</c> endpoint.
+            </summary>
         </member>
         <member name="T:PBot.Extensions">
             <summary>
             Convenience class for simple type conversions.
             </summary>
         </member>
-        <member name="M:PBot.Extensions.ToInteraction(NetCord.Rest.MessageProperties)">
+        <member name="M:PBot.Extensions.ToMessage(NetCord.Rest.InteractionMessageProperties)">
             <summary>
             Converts the value of this instance to its equivalent <see cref="T:NetCord.Rest.InteractionMessageProperties"/> representation.
             </summary>
         </member>
         <member name="M:PBot.Extensions.ToGuildUser(NetCord.User)">
             <summary>
-            Converts a <see cref="T:NetCord.User"/> object to a <see cref="T:NetCord.GuildUser"/> compatible object. The values appeneded to the object are always set to their defaults.
+            Converts a <see cref="T:NetCord.User"/> object to a <see cref="T:NetCord.GuildUser"/> compatible object. The values appended to the object are always set to their defaults.
             </summary>
         </member>
         <member name="M:PBot.Extensions.GetImageURLs(System.Collections.Generic.IReadOnlyDictionary{System.UInt64,NetCord.Attachment})">
@@ -130,7 +137,7 @@
             Attempts to get the channel's name, returning null if it doesn't have one.
             </summary>
         </member>
-        <member name="M:PBot.Extensions.ToChecked(NetCord.Rest.MessageProperties)">
+        <member name="M:PBot.Extensions.ToChecked(NetCord.Rest.InteractionMessageProperties)">
             <summary>
             Caps the embed count of this instance to 10 embeds maximum.
             </summary>
@@ -165,64 +172,51 @@
             Gets a <see cref="T:NetCord.User"/>'s displayed discord name using the cached member list.
             </summary>
         </member>
-        <member name="T:PBot.Pages">
+        <member name="T:PBot.Files">
             <summary>
             Contains methods and constants used for persistent data storage.
             </summary>
         </member>
-        <member name="F:PBot.Pages.MAIN">
+        <member name="M:PBot.Files.FileContains(PBot.Files.Names,System.String,System.Boolean)">
+            <summary>
+            Whether the specified file contains the given data.
+            </summary>
+            <param name="file">The file to search for a match in.</param>
+            <param name="data">The data to search for.</param>
+            <param name="append">Whether to append the data if it isn't found.</param>
+        </member>
+        <member name="M:PBot.Files.ReadCounter(PBot.Files.CounterLines,System.Int32)">
+            <summary>
+            Reads the value of a counter.
+            </summary>
+            <param name="line">The counter to read the value of.</param>
+            <param name="mod">The value to modify the counter by after reading.</param>
+        </member>
+        <member name="F:PBot.Files.MAIN">
             <summary>
             The main path containing all the memory files used by P.BOT.
             </summary>
         </member>
-        <member name="F:PBot.Pages.COUNTERS">
+        <member name="T:PBot.Files.Names">
             <summary>
-            Contains data related to basic operation, such as incremental counters.
+            A list of files used by P.BOT for storage.
             </summary>
         </member>
-        <member name="F:PBot.Pages.STARBOARD">
-            <summary>
-            Contains a list of starred messages.
-            </summary>
-        </member>
-        <member name="F:PBot.Pages.PDB_ID">
-            <summary>
-            Contains a list of info related to post IDs.
-            </summary>
-        </member>
-        <member name="M:PBot.Pages.Read(PBot.Pages.Files,System.Int32)">
-            <summary> Reads the content at a specific <paramref name="line"/>, from the specified <paramref name="page"/>. </summary>
-            <param name="page"> The memory page to read the <paramref name="line"/> from. </param>
-            <param name="line"> The number of the line to read the contents of. </param>
-        </member>
-        <member name="M:PBot.Pages.Append(PBot.Pages.Files,System.String)">
-            <summary> Appends the given <paramref name="newLine"/> to the end of the <paramref name="page"/> specified. </summary>
-            <param name="page"> The memory page to append the <paramref name="newLine"/> to. </param>
-            <param name="newLine"> The <see cref="T:System.String"/> to append to the <paramref name="page"/>. </param>
-        </member>
-        <member name="M:PBot.Pages.Write(PBot.Pages.Files,System.Int32,System.String)">
-            <summary> Overwrites the data at <paramref name="line"/> with the given <paramref name="newValue"/>, at the specified <paramref name="page"/>. </summary>
-            <param name="page"> The memory page to modify. </param>
-            <param name="line"> The number of the line to overwrite with the given <paramref name="newValue"/>. </param>
-            <param name="newValue"> The <see cref="T:System.String"/> to overwrite the given <paramref name="line"/> with. </param>
-        </member>
-        <member name="M:PBot.Pages.Switch(PBot.Pages.Files)">
-            <summary> Gets the path of a given <paramref name="page"/>. </summary>
-            <param name="page"> The page to fetch the path to. </param>
-        </member>
-        <member name="T:PBot.Pages.Files">
-            <summary>
-            A list of memory pages used by P.BOT.
-            </summary>
-        </member>
-        <member name="F:PBot.Pages.Files.Counters">
+        <member name="F:PBot.Files.Names.Counters">
             <summary> Contains data related to basic operations, such as incremental counters. </summary>
         </member>
-        <member name="F:PBot.Pages.Files.Starboard">
+        <member name="F:PBot.Files.Names.Starboard">
             <summary> Contains a list of starred messages. </summary>
         </member>
-        <member name="F:PBot.Pages.Files.PDB_ID">
-            <summary> Contains a list of info related to post IDs. </summary>
+        <member name="T:PBot.Files.CounterLines">
+            <summary>
+            A list of names for lines in the <see cref="F:PBot.Files.Names.Counters"/> file.
+            </summary>
+        </member>
+        <member name="F:PBot.Files.Paths">
+            <summary>
+            The bot's internal list of file paths, indexed by their names.
+            </summary>
         </member>
         <member name="T:PBot.PHelper">
             <summary>
@@ -409,29 +403,31 @@
             </summary>
         </member>
         <member name="M:PBot.Commands.SlashCommands.GetAvatar(NetCord.User,System.Nullable{NetCord.ImageFormat})">
-            <summary>
-            Command task. Gets the avatar of the <paramref name="user"/>, in a specific format if specified in <paramref name="format"/>.
-            </summary>
+            <summary>Command task. Gets the avatar of the <paramref name="user"/>, in a specific format if specified in <paramref name="format"/>.</summary>
+            <param name="user">The user to pull an avatar from. Works for non-server members as well.</param>
+            <param name="format">The format of the image result, the GIF and Lottie formats are only supported for animated avatars.</param>
         </member>
         <member name="M:PBot.Commands.SlashCommands.GetTitle(PBot.Commands.Helpers.Library.Titles)">
-            <summary>
-            Command task. Gets the library entry of the title specified in the <paramref name="title"/> parameter.
-            </summary>
+            <summary>Command task. Gets the library entry of the title specified in the <paramref name="title"/> parameter.</summary>
+            <param name="title">The title to display.</param>
         </member>
-        <member name="M:PBot.Commands.SlashCommands.GetUser(NetCord.User)">
-            <summary>
-            Dumps user info.
-            </summary>
+        <member name="M:PBot.Commands.SlashCommands.GetUser(NetCord.User,System.Boolean)">
+            <summary>Displays data relevant to a specified <paramref name="user"/>.</summary>
+            <param name="user">The user to display data for.</param>
+            <param name="raw">Whether the command should dump all user data as plaintext.</param>
         </member>
         <member name="M:PBot.Commands.SlashCommands.GetWiki(System.String,System.Boolean)">
-            <summary>
-            Searches for a Wikipedia page similar to the given <paramref name="searchTerm"/>, and gets its content if a page is found.
-            </summary>
+            <summary>Searches for a Wikipedia page similar to the given <paramref name="searchTerm"/>, and gets its content if a page is found.</summary>
+            <param name="searchTerm">The term to find a page for if possible.</param>
+            <param name="longFormat">Should the full page's contents be fetched?</param>
         </member>
-        <member name="M:PBot.Commands.SlashCommands.CreatePost(System.String,NetCord.Attachment,System.Boolean,System.Boolean)">
-            <summary>
-            Creates a post, experimental.
-            </summary>
+        <member name="M:PBot.Commands.SlashCommands.CreatePost(System.String,NetCord.Attachment,System.Boolean,NetCord.Channel,System.Boolean)">
+            <summary>Creates an embed with the specified <paramref name="content"/> and <paramref name="image"/>.</summary>
+            <param name="content">The text-based content of the post.</param>
+            <param name="image">The image to attach to the post.</param>
+            <param name="anonymous">Should the post be made anonymously?</param>
+            <param name="channel">The channel to create the post in, defaults to the current channel.</param>
+            <param name="draft">Should a private preview of the post be created instead?</param>
         </member>
         <member name="T:PBot.Commands.TextCommands">
             <summary>
@@ -472,26 +468,6 @@
             <summary>
             Contains methods and variables related to the post system.
             </summary>
-        </member>
-        <member name="F:PBot.Commands.Helpers.Posts.CHANNEL">
-            <summary>
-            The channel to send posts and other data to.
-            </summary>
-        </member>
-        <member name="M:PBot.Commands.Helpers.Posts.ToExternal(System.UInt64)">
-            <summary>
-            Gets the ExternalID tied to the given <paramref name="ID"/>.
-            </summary>
-        </member>
-        <member name="M:PBot.Commands.Helpers.Posts.ToInternal(System.UInt64)">
-            <summary>
-            Gets the InternalID tied to the given <paramref name="ID"/>.
-            </summary>
-        </member>
-        <member name="M:PBot.Commands.Helpers.Posts.StoreID(System.UInt64)">
-            <summary> Stores both the internal and external PostIDs side-by-side in the <see cref="F:PBot.Pages.Files.PDB_ID"/> page. </summary>
-            <param name="internalPostID"> The internal ID of the post. </param>
-            <returns> The external ID of the post (Discord Message ID). </returns>
         </member>
         <member name="T:PBot.Commands.Helpers.ProbabilityStateMachine">
             <summary>
@@ -590,69 +566,90 @@
             The hex code for standard embed gray.
             </summary>
         </member>
-        <member name="M:PBot.Embeds.Generate(System.String,NetCord.Rest.EmbedAuthorProperties,System.Nullable{System.DateTimeOffset},NetCord.Rest.EmbedFooterProperties,System.Nullable{System.Int32},System.UInt64,System.String[],System.String,System.String,System.String,System.Boolean,NetCord.Rest.EmbedFieldProperties[],System.UInt64)">
+        <member name="P:PBot.Embeds.RandomColor">
+            <summary>
+            Generates a random 24-bit integer from the current time in ticks.
+            </summary>
+        </member>
+        <member name="M:PBot.Embeds.Generate(NetCord.Rest.EmbedProperties,System.String[],System.String,System.Boolean)">
             <summary> Combines the specified parameters to generate an embed. </summary>
-            <param name="description"> The section of the embed where the main text is contained, limited to 4096 characters. </param>
-            <param name="authorObject"> Contains the <see cref="T:NetCord.Rest.EmbedAuthorProperties"/> to be used in the embed. </param>
-            <param name="timestamp"> Displays time in a format similar to a message timestamp. Located next to the <paramref name="footerObject"/>. </param>
-            <param name="footerObject"> Contains the <see cref="T:NetCord.Rest.EmbedFooterProperties"/> to be used in the embed. </param>
-            <param name="RGB"> The hex code indicating an embed's accent color. Defaults to a random value when not set or -1. </param>
-            <param name="replyTo"> The ID of the message being replied to with the embed. </param>
-            <param name="imageURLs"> An array of URIs for the attachments included in the embed, displayed below the <paramref name="description"/> element. </param>
-            <param name="thumbnailURL"> The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed. </param>
-            <param name="title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="titleURL"/>, has a 256 character limit. </param>
-            <param name="titleURL"> A link to an address of a webpage. When set, the <paramref name="title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
-            <param name="ephemral"> Creates an ephemeral message when set to true.</param>
-            <param name="fieldObjects"> Contains an array of <see cref="T:NetCord.EmbedField"/>s to include in the embed </param>
-            <param name="refID"> The ID of the user responsible for the embed's creation. </param>
             <returns> <see cref="T:NetCord.Rest.MessageProperties"/> containing the created embed. </returns>
         </member>
-        <member name="M:PBot.Embeds.Generate(NetCord.Rest.RestMessage,System.String,NetCord.Rest.EmbedFooterProperties,System.Nullable{System.UInt64},System.String,System.String)">
+        <member name="M:PBot.Embeds.ToEmbed(NetCord.Rest.RestMessage,System.String,NetCord.Rest.EmbedFooterProperties,System.String,System.String)">
             <summary> Combines the specified parameters with parameters extracted from a given <see cref="T:NetCord.Rest.RestMessage"/> to generate an embed. </summary>
-            <param name="targetMessage"> The <see cref="T:NetCord.Rest.RestMessage"/> object to extract parameters from. </param>
-            <param name="titleURL"> A link to an address of a webpage. When set, the <paramref name="title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
-            <param name="footerObject"> Contains the <see cref="T:NetCord.Rest.EmbedFooterProperties"/> to be used in the embed. </param>
-            <param name="replyTo"> The ID of the message being replied to with the embed. </param>
-            <param name="title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="titleURL"/>, has a 256 character limit. </param>
-            <param name="thumbnailURL"> The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed. </param>
+            <param name="message"> The <see cref="T:NetCord.Rest.RestMessage"/> object to extract parameters from. </param>
+            <param name="url"> A link to an address of a webpage. When set, the <paramref name="title"/> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped. </param>
+            <param name="footer"> Contains the <see cref="T:NetCord.Rest.EmbedFooterProperties"/> to be used in the embed. </param>
+            <param name="title"> The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <paramref name="url"/>, has a 256 character limit. </param>
+            <param name="thumbnail"> The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed. </param>
             <returns> <see cref="T:NetCord.Rest.MessageProperties"/> containing the created embed. </returns>
         </member>
-        <member name="M:PBot.Embeds.Generate(System.String,NetCord.Rest.EmbedFieldProperties[],System.UInt64)">
+        <member name="M:PBot.Embeds.Title(System.String,NetCord.Rest.EmbedFieldProperties[],System.UInt64)">
             <summary>
             Creates a <see cref="T:NetCord.Rest.MessageProperties"/> object suitable for <see cref="M:PBot.Commands.SlashCommands.GetTitle(PBot.Commands.Helpers.Library.Titles)"/>.
             </summary>
         </member>
-        <member name="T:PBot.Messages.Events">
+        <member name="T:PBot.Events">
             <summary>
             Contains methods responsible for handling message events.
             </summary>
         </member>
-        <member name="F:PBot.Messages.Events.DeletedSpamMessage">
+        <member name="M:PBot.Events.GuildUserUpdate(NetCord.GuildUser)">
             <summary>
-            Used by <see cref="M:PBot.Messages.Functions.Filter(NetCord.Gateway.Message)"/> to pass a message to <see cref="M:PBot.Messages.Events.MessageDeleted(NetCord.Gateway.MessageDeleteEventArgs)"/>, bypassing the cache.
+            Updates the <see cref="P:PBot.Caches.Members.List"/> dictionary when a user is added or modified.
             </summary>
         </member>
-        <member name="M:PBot.Messages.Events.MapClientHandlers">
+        <member name="M:PBot.Events.GuildUserRemove(NetCord.Gateway.GuildUserRemoveEventArgs)">
+            <summary>
+            Removes users from the Caches.Members.List dictionaryy when a member is modified.
+            </summary>
+        </member>
+        <member name="M:PBot.Events.RoleUpdate(NetCord.Role)">
+            <summary>
+            Updates the <see cref="F:PBot.Caches.Members.Roles"/> dictionary when roles are created or updated.
+            </summary>
+        </member>
+        <member name="M:PBot.Events.RoleDelete(NetCord.Gateway.RoleDeleteEventArgs)">
+            <summary>
+            Updates the <see cref="F:PBot.Caches.Members.Roles"/> dictionary when roles are deleted.
+            </summary>
+        </member>
+        <member name="M:PBot.Events.MapClientHandlers">
             <summary>
             Maps the <see cref="F:PBot.Bot.Client"/>'s events to their appropriate response method.
             </summary>
         </member>
-        <member name="M:PBot.Messages.Events.MessageCreated(NetCord.Gateway.Message)">
+        <member name="M:PBot.Events.InteractionCreate(NetCord.Interaction)">
+            <summary>
+            Processes recieved interactions.
+            </summary>
+        </member>
+        <member name="F:PBot.Events.DeletedSpamMessage">
+            <summary>
+            Used by <see cref="M:PBot.Messages.Functions.Filter(NetCord.Gateway.Message)"/> to pass a message to <see cref="M:PBot.Events.MessageDelete(NetCord.Gateway.MessageDeleteEventArgs)"/>, bypassing the cache.
+            </summary>
+        </member>
+        <member name="M:PBot.Events.MessageCreate(NetCord.Gateway.Message)">
             <summary>
             Processes new messages.
             </summary>
         </member>
-        <member name="M:PBot.Messages.Events.MessageDeleted(NetCord.Gateway.MessageDeleteEventArgs)">
+        <member name="M:PBot.Events.MessageDelete(NetCord.Gateway.MessageDeleteEventArgs)">
             <summary>
             Logs message deletions.
             </summary>
         </member>
-        <member name="M:PBot.Messages.Events.MessageUpdated(NetCord.Gateway.IPartialMessage)">
+        <member name="M:PBot.Events.MessageUpdate(NetCord.Gateway.IPartialMessage)">
             <summary>
             Logs message edits and updates.
             </summary>
         </member>
-        <member name="M:PBot.Messages.Events.ReactionAdded(NetCord.Gateway.MessageReactionAddEventArgs)">
+        <member name="M:PBot.Events.PipeToDeleteHandler(NetCord.Gateway.Message)">
+            <summary>
+            Sets <see cref="F:PBot.Events.DeletedSpamMessage"/> for faster access from the spam filter.
+            </summary>
+        </member>
+        <member name="M:PBot.Events.ReactionAdded(NetCord.Gateway.MessageReactionAddEventArgs)">
             <summary>
             Logs reactions to messages.
             </summary>
@@ -716,6 +713,11 @@
         <member name="M:PBot.Messages.Logging.WriteAsID(System.String,PBot.Messages.Logging.SpecialId)">
             <summary>
             Writes a message to the console using a specified <see cref="T:PBot.Messages.Logging.SpecialId"/>.
+            </summary>
+        </member>
+        <member name="T:PBot.Messages.Logging.SpecialId">
+            <summary>
+            An enum of IDs used by the bot during logging.
             </summary>
         </member>
         <member name="T:System.Text.RegularExpressions.Generated.Alphanumeric_0">

@@ -2,7 +2,6 @@
 
 using Microsoft.Extensions.Configuration;
 using PBot.Commands.Helpers;
-using PBot.Messages;
 using static GatewayIntents;
 
 /// <summary>
@@ -14,6 +13,17 @@ public static class Bot
 	/// Allows the fetching of private data from user secrets.
 	/// </summary>
 	private static readonly IConfigurationSection Secrets = new ConfigurationBuilder().AddUserSecrets<Program>().Build().GetSection("Secrets");
+
+	/// <summary>
+	/// P.BOT's main client.
+	/// </summary>
+	public static readonly GatewayClient Client = new(new BotToken(GetSecret("Token")!), new GatewayClientConfiguration()
+	{ Intents = MessageContent | Guilds | GuildUsers | GuildMessages | GuildMessageReactions | GuildModeration });
+
+	/// <summary>
+	/// P.BOT's HTTP client, used for external network requests.
+	/// </summary>
+	public static readonly HttpClient ClientH = new();
 
 	/// <summary>
 	/// The current guild's ID, fetched via <see cref="GetSecret(string)"/>.
@@ -31,30 +41,6 @@ public static class Bot
 	public static string? GetSecret(string id) => Secrets[id];
 
 	/// <summary>
-	/// P.BOT's main client.
-	/// </summary>
-	public static readonly GatewayClient Client = new(new BotToken(GetSecret("Token")!), new GatewayClientConfiguration()
-	{ Intents = MessageContent | Guilds | GuildUsers | GuildMessages | GuildMessageReactions | GuildModeration });
-
-	/// <summary>
-	/// P.BOT's HTTP client, used for external network requests.
-	/// </summary>
-	public static readonly HttpClient ClientH = new();
-
-	/// <summary>
-	/// Starts the bot's client, initializes event handlers, and prepares caches.
-	/// </summary>
-	public static async void Start()
-	{
-		await Events.MapClientHandlers();
-		await Client.StartAsync();
-		await Client.ReadyAsync;
-		Caches.Members.Load();
-
-		ProbabilityStateMachine.InitXShift128();
-	}
-
-	/// <summary>
 	/// Stops the client, releases its resources, and restarts the bot client.
 	/// </summary>
 	public static async Task Restart()
@@ -64,5 +50,18 @@ public static class Bot
 
 		Process.Start(Environment.ProcessPath!, Environment.GetCommandLineArgs());
 		Process.GetCurrentProcess().Kill();
+	}
+
+	/// <summary>
+	/// Starts the bot's client, initializes event handlers, and prepares caches.
+	/// </summary>
+	public static async Task Start()
+	{
+		await Events.MapClientHandlers();
+		await Client.StartAsync();
+		await Client.ReadyAsync;
+		Caches.Members.Load();
+
+		ProbabilityStateMachine.InitXShift128();
 	}
 }

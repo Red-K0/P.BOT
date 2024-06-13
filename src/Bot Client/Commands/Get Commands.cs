@@ -3,7 +3,7 @@
 // An example of these commands is the GetAvatar() command, which gets a user's avatar.
 // Commands in this file rely frequently on web requests, and the related mess there.
 
-using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using NetCord.Services.ApplicationCommands;
 using PBot.Commands.Helpers;
 using static PBot.Caches.Members;
@@ -16,50 +16,28 @@ public sealed partial class SlashCommands
 	[SlashCommand("getavatar", "Get a user's avatar.")]
 	public partial Task GetAvatar
 	(
-		[SlashCommandParameter(Name = "user", Description = "The ID of the account to pull an avatar from. Works for non-server members as well.")]
+		[SlashCommandParameter(Name = "user", Description = "The account to pull an avatar from. Works for non-server members as well.")]
 		User user,
 
-		[SlashCommandParameter(Name = "format", Description = "The format of the image result, the GIF and Lottie formats are currently unsupported.")]
+		[SlashCommandParameter(Name = "format", Description = "The format of the image result, the GIF and Lottie formats are only supported for animated avatars.")]
 		ImageFormat? format = null
 	);
 	#endregion
 
-	/// <summary>
-	/// Command task. Gets the avatar of the <paramref name="user"/>, in a specific format if specified in <paramref name="format"/>.
-	/// </summary>
+	/// <summary>Command task. Gets the avatar of the <paramref name="user"/>, in a specific format if specified in <paramref name="format"/>.</summary>
+	/// <param name="user">The user to pull an avatar from. Works for non-server members as well.</param>
+	/// <param name="format">The format of the image result, the GIF and Lottie formats are only supported for animated avatars.</param>
 	public async partial Task GetAvatar(User user, ImageFormat? format)
 	{
-#if DEBUG_COMMAND
-		Stopwatch Timer = Stopwatch.StartNew();
-#endif
+		string AvatarUrl = (user.Id == Client.Id) ? GetAssetURL("Bot Icon.png") : user.GetAvatar(format);
 
-		const ulong BOT_ID = 1169031557848252516;
-		string AvatarUrl = user.Id == BOT_ID ? GetAssetURL("Bot Icon.png") : user.GetAvatar(format);
-		await RespondAsync(InteractionCallback.Message(((user.Id == BOT_ID) ?
-		Generate
-		(
-			$"Sure, [here]({AvatarUrl}) is my avatar, if you require it in a format other than PNG, please contact <@1124777547687788626>.",
-			CreateAuthor("My Current Avatar", AvatarUrl),
-			DateTimeOffset.UtcNow,
-			CreateFooter($"Avatar requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),
-			replyTo: Context.User.Id,
-			imageURLs: [AvatarUrl],
-			refID: user.Id
-		) :
-		Generate
-		(
+		await RespondAsync(InteractionCallback.Message(Generate(CreateProperties(
 			$"Sure, [here]({AvatarUrl}) is <@{user.Id}>'s avatar.",
 			CreateAuthor($"{user.GetDisplayName()}'s Avatar", AvatarUrl),
 			DateTimeOffset.UtcNow,
-			replyTo: Context.User.Id,
-			imageURLs: [AvatarUrl],
-			refID: user.Id
-		)).ToInteraction()));
-
-#if DEBUG_COMMAND
-		Messages.Logging.AsVerbose($"GetAvatar Completed [{Timer.ElapsedMilliseconds}ms]");
-		Timer.Reset();
-#endif
+			CreateFooter($"Avatar requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),
+			refId: user.Id
+		))));
 	}
 
 	#region Attributes
@@ -71,85 +49,199 @@ public sealed partial class SlashCommands
 	);
 	#endregion
 
-	/// <summary>
-	/// Command task. Gets the library entry of the title specified in the <paramref name="title"/> parameter.
-	/// </summary>
+	/// <summary>Command task. Gets the library entry of the title specified in the <paramref name="title"/> parameter.</summary>
+	/// <param name="title">The title to display.</param>
 	public async partial Task GetTitle(Library.Titles title)
 	{
-		await RespondAsync(InteractionCallback.Message(Library.Entries.GetValueOrDefault(title)!.ToInteraction()));
+		await RespondAsync(InteractionCallback.Message(Library.Entries.GetValueOrDefault(title)!));
 	}
 
 	#region Attributes
+	private static readonly CompositeFormat RawServerMember = CompositeFormat.Parse("""
+	```
+	-- User Fields --
+	Accent Color: {0}
+	Avatar Decoration Hash: {1}
+	Avatar Hash: {2}
+	Banner Hash: {3}
+	Created At: {4}
+	Default Avatar URL: {5}
+	Discriminator: {6}
+	Email: {7}
+	Flags: {8}
+	Global Name: {9}
+	Has Avatar: {10}
+	Has Avatar Decoration: {11}
+	Has Banner: {12}
+	ID: {13}
+	Is Bot: {14}
+	Is System User: {15}
+	Locale: {16}
+	MFA Enabled: {17}
+	Premium Type: {18}
+	Public Flags: {19}
+	Username: {20}
+	Verified: {21}
+	
+	-- Guild User Fields --
+	Deafened: {22}
+	Guild Avatar Hash: {23}
+	Guild Boost Start: {24}
+	Guild Flags: {25}
+	Guild ID: {26}
+	Has Guild Avatar: {27}
+	Hoisted Role ID: {28}
+	Is Pending: {29}
+	Joined At: {30}
+	Muted: {31}
+	Nickname: {32}
+	Role IDs: {33}
+	Time Out Until: {34}
+
+	-- Guild Info Fields --
+	Inviter ID: {35}
+	Join Source: {36}
+	Invite Code: {37}
+
+	-- Server Data --
+	Display Name: {38}
+	Is Founder: {39}
+	Personal Role ID: {40}
+	Last Sent Attachment Size: {41}
+	Last Sent Message Content: {42}
+	Is Last Sent Message Heading: {43}
+	Spam Filter Trigger Count: {44}
+	```
+	""");
+	private static readonly CompositeFormat RawStandardUser = CompositeFormat.Parse("""
+	```
+	-- User Fields --
+	Accent Color: {0}
+	Avatar Decoration Hash: {1}
+	Avatar Hash: {2}
+	Banner Hash: {3}
+	Created At: {4}
+	Default Avatar URL: {5}
+	Discriminator: {6}
+	Email: {7}
+	Flags: {8}
+	Global Name: {9}
+	Has Avatar: {10}
+	Has Avatar Decoration: {11}
+	Has Banner: {12}
+	ID: {13}
+	Is Bot: {14}
+	Is System User: {15}
+	Locale: {16}
+	MFA Enabled: {17}
+	Premium Type: {18}
+	Public Flags: {19}
+	Username: {20}
+	Verified: {21}
+	```
+	""");
+
 	[SlashCommand("user", "Displays data relevant to a specified user.")]
 	public partial Task GetUser
 	(
 		[SlashCommandParameter(Name = "user", Description = "The user to display data for.")]
-		User user
+		User user,
+
+		[SlashCommandParameter(Name = "raw_dump", Description = "Whether the command should dump all user data as plaintext.")]
+		bool raw = false
 	);
 	#endregion
 
-	/// <summary>
-	/// Dumps user info.
-	/// </summary>
-	public async partial Task GetUser(User user)
+	/// <summary>Displays data relevant to a specified <paramref name="user"/>.</summary>
+	/// <param name="user">The user to display data for.</param>
+	/// <param name="raw">Whether the command should dump all user data as plaintext.</param>
+	public async partial Task GetUser(User user, bool raw)
 	{
-		Member? PPP = List.GetValueOrDefault(user.Id);
-		GuildUser User = PPP?.Data.User ?? await Client.Rest.GetGuildUserAsync(GuildID, user.Id);
-		GuildUserInfo Info = PPP?.Data ?? await User.GetInfoAsync();
-
-		string DisplayName = PPP?.DisplayName ?? user.GetDisplayName();
-
-		string AKAString = "`AKA` "; bool DisplayAKA = false;
-		if (User.GetDisplayName() != DisplayName)
+		if (raw)
 		{
-			AKAString += $"{User.GetDisplayName()}, ";
-			DisplayAKA = true;
-		}
-		if (User.GlobalName != DisplayName && !string.IsNullOrWhiteSpace(User.GlobalName))
-		{
-			AKAString += User.GlobalName;
-			DisplayAKA = true;
-		}
-		else
-		{
-			AKAString = AKAString[..^2];
+			await RespondAsync(InteractionCallback.Message(List.TryGetValue(user.Id, out Member? Raw)
+			? string.Format(null, RawServerMember,
+			user.AccentColor?.RawValue, user.AvatarDecorationHash, user.AvatarHash, user.BannerHash,  user.CreatedAt,
+			user.DefaultAvatarUrl,      user.Discriminator,        user.Email,      user.Flags,       user.GlobalName,
+			user.HasAvatar,             user.HasAvatarDecoration,  user.HasBanner,  user.Id,          user.IsBot,
+			user.IsSystemUser,          user.Locale,               user.MfaEnabled, user.PremiumType, user.PublicFlags,
+			user.Username,              user.Verified,
+
+			// Guild User Fields
+			Raw.Info.User.Deafened,      Raw.Info.User.GuildAvatarHash, Raw.Info.User.GuildBoostStart,
+			Raw.Info.User.GuildFlags,    Raw.Info.User.GuildId,         Raw.Info.User.HasGuildAvatar,
+			Raw.Info.User.HoistedRoleId, Raw.Info.User.IsPending,       Raw.Info.User.JoinedAt,
+			Raw.Info.User.Muted,         Raw.Info.User.Nickname,        string.Join(" | ", Raw.Info.User.RoleIds), Raw.Info.User.TimeOutUntil,
+
+			// Guild Info Fields
+			Raw.Info.InviterId, Raw.Info.JoinSourceType, Raw.Info.SourceInviteCode,
+
+			// Server Data
+			Raw.DisplayName,            Raw.IsFounder,       Raw.PersonalRole?.Id,
+			Raw.SpamLastAttachmentSize, Raw.SpamLastMessage, Raw.SpamLastMessageHeading, Raw.SpamSameMessageCount
+			)
+
+			: string.Format(null, RawStandardUser,
+			user.AccentColor?.RawValue, user.AvatarDecorationHash, user.AvatarHash, user.BannerHash,  user.CreatedAt,
+			user.DefaultAvatarUrl,      user.Discriminator,        user.Email,      user.Flags,       user.GlobalName,
+			user.HasAvatar,             user.HasAvatarDecoration,  user.HasBanner,  user.Id,          user.IsBot,
+			user.IsSystemUser,          user.Locale,               user.MfaEnabled, user.PremiumType, user.PublicFlags,
+			user.Username,              user.Verified
+			)));
+			return;
 		}
 
-		MessageProperties msg_prop = Generate
-		(
-			DisplayAKA ? AKAString.ToEscapedMarkdown() : "",
+		string DisplayName = user.GetDisplayName();
+		string[] Field = ["Never", "False", "False", "Never", "False", "False", "None", "Unknown", "None", "None", "None", "Never", "> None"];
+
+		if (List.TryGetValue(user.Id, out Member? Member))
+		{
+			                                              Field[00] = $"<t:{Member.Info.User.JoinedAt.ToUnixTimeSeconds()}>";
+			if (Member.Info.User.Verified        != null) Field[01] = Member.Info.User.Verified.ToString()!;
+			                                              Field[02] = Member.IsFounder.ToString();
+			if (Member.Info.User.TimeOutUntil    != null) Field[03] = $"<t:{Member.Info.User.TimeOutUntil.Value.ToUnixTimeSeconds()}>";
+			                                              Field[04] = Member.Info.User.Muted.ToString();
+			                                              Field[05] = Member.Info.User.Deafened.ToString();
+			if (Member.Info.SourceInviteCode     != null) Field[06] = Member.Info.SourceInviteCode;
+			if (Member.Info.InviterId            != null) Field[07] = $"<@{Member.Info.InviterId}>";
+			if (Member.PersonalRole              != null)
+			{
+				                                          Field[08] = $"<@&{Member.PersonalRole.Id}>";
+				                                          Field[09] = $"#{Member.PersonalRole.Color.RawValue:X6}";
+			}
+			if (Member.Info.User.AccentColor     != null) Field[10] = $"#{Member.Info.User.AccentColor:X6}";
+			if (Member.Info.User.GuildBoostStart != null) Field[11] = $"<t:{Member.Info.User.GuildBoostStart.Value.ToUnixTimeSeconds()}>";
+			                                              Field[12] = GetUserAccolades(Member);
+
+			DisplayName = Member.Info.User.Nickname ?? DisplayName;
+		}
+
+		bool DisplayAka = false; string AkaString = "`AKA` ";
+		if (user.Username   != DisplayName) { DisplayAka = true; AkaString += $"{user.Username}, "; }
+		if (user.GlobalName != DisplayName) { DisplayAka = true; AkaString += $"{user.GlobalName}"; } else { AkaString = AkaString[..^2]; }
+
+		await RespondAsync(InteractionCallback.Message(Generate(CreateProperties(
+			DisplayAka ? AkaString.ToEscapedMarkdown() : "",
 			null,
-			null,
+			DateTime.Now,
 			CreateFooter($"User requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),
-			-1,
-			Context.User.Id,
 			null,
-			User.GetAvatar(),
+			user.GetAvatar(),
 			DisplayName,
 			null,
-			false,
 			[
-				CreateField(           "User",  User.                                                                                      ToString()   ),
-				CreateField(            "Tag",  User.     Discriminator  ==     0 ?    "None" :   $"#{User.                          Discriminator:D4} "),
-				CreateField(             "ID",  User.                Id           .                                                        ToString()   ),
-				CreateField(         "Joined",  User.    JoinedAt.Ticks  ==     0 ?   "Never" : $"<t:{User.              JoinedAt.ToUnixTimeSeconds()}>"),
-				CreateField(       "Verified", (User.          Verified  ?? false).                                                        ToString()   ),
-				CreateField(        "Founder", (PPP?.         IsFounder  ?? false).                                                        ToString()   ),
-				CreateField("Timed Out Until",  User.      TimeOutUntil  ==  null ?   "Never" : $"<t:{User.    TimeOutUntil.Value.ToUnixTimeSeconds()}>"),
-				CreateField(          "Muted",  User.             Muted           .                                                        ToString()   ),
-				CreateField(       "Deafened",  User.          Deafened           .                                                        ToString()   ),
-				CreateField(    "Invite Code",  Info.  SourceInviteCode  ??            "None"                                                           ),
-				CreateField(     "Invited by",  Info.         InviterId  ==  null ? "Unknown" :  $"<@{Info.                              InviterId   }>"),
-				CreateField(  "Personal Role", (PPP?.      PersonalRole) ==  null ?    "None" : $"<@&{PPP!.                           PersonalRole   }>"),
-				CreateField( "Personal Color", (PPP?. PersonalRoleColor) ==  null ?    "None" :   $"#{PPP!.                      PersonalRoleColor:X6} "),
-				CreateField(   "Accent Color",  User.       AccentColor  ==  null ?    "None" :   $"#{User.                            AccentColor:X6} "),
-				CreateField( "Boosting Since",  User.   GuildBoostStart  ==  null ?   "Never" : $"<t:{User. GuildBoostStart.Value.ToUnixTimeSeconds()}>"),
+				CreateField(           "User",                       user.ToString()),
+				CreateField(            "Tag",     user.Discriminator.ToString("X4")),
+				CreateField(             "ID",                    user.Id.ToString()),
+				CreateField(         "Joined", Field[00]), CreateField(    "Verified", Field[01]), CreateField(       "Founder", Field[02]),
+				CreateField("Timed Out Until", Field[03]), CreateField(       "Muted", Field[04]), CreateField(      "Deafened", Field[05]),
+				CreateField(    "Invite Code", Field[06]), CreateField(  "Invited By", Field[07]), CreateField( "Personal Role", Field[08]),
+				CreateField( "Personal Color", Field[09]), CreateField("Accent Color", Field[10]), CreateField("Boosting Since", Field[11]),
 				CreateField(  noInline: true),
-				CreateField(      "Accolades",    GetUserAccolades(PPP), true),
+				CreateField(      "Accolades", Field[12]),
 			],
-			User.Id
-		);
-		await RespondAsync(InteractionCallback.Message(msg_prop.ToInteraction()));
+			user.Id
+		))));
 	}
 
 	#region Attributes
@@ -164,31 +256,19 @@ public sealed partial class SlashCommands
 	);
 	#endregion
 
-	/// <summary>
-	/// Searches for a Wikipedia page similar to the given <paramref name="searchTerm"/>, and gets its content if a page is found.
-	/// </summary>
+	/// <summary>Searches for a Wikipedia page similar to the given <paramref name="searchTerm"/>, and gets its content if a page is found.</summary>
+	/// <param name="searchTerm">The term to find a page for if possible.</param>
+	/// <param name="longFormat">Should the full page's contents be fetched?</param>
 	public async partial Task GetWiki(string searchTerm, bool longFormat)
 	{
-#if DEBUG_COMMAND
-		Stopwatch Timer = Stopwatch.StartNew();
-#endif
-
 		// Make sure the interaction doesn't time out
 		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
-		MessageProperties msg_prop = Generate
-		(
+		await Context.Interaction.SendFollowupMessageAsync(Generate(CreateProperties(
 			await Wikipedia.GetPage(searchTerm, longFormat),
 			CreateAuthor("Wikipedia", GetAssetURL("Wikipedia Icon.png")),
 			DateTime.Now,
 			CreateFooter($"Definition requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),
-			STD_COLOR
-		);
-
-		await Context.Interaction.SendFollowupMessageAsync(msg_prop.ToInteraction());
-
-#if DEBUG_COMMAND
-		Messages.Logging.AsVerbose($"GetWikiResult Completed [{Timer.ElapsedMilliseconds}ms]");
-		Timer.Reset();
-#endif
+			color: STD_COLOR
+		)));
 	}
 }

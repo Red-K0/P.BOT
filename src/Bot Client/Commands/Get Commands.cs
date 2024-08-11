@@ -152,7 +152,7 @@ public sealed partial class SlashCommands
 	);
 	#endregion
 
-	/// <summary>Displays data relevant to a specified <paramref name="user"/>.</summary>
+	/// <summary>Command task. Displays data relevant to a specified <paramref name="user"/>.</summary>
 	/// <param name="user">The user to display data for.</param>
 	/// <param name="raw">Whether the command should dump all user data as plaintext.</param>
 	public async partial Task GetUser(User user, bool raw)
@@ -249,22 +249,23 @@ public sealed partial class SlashCommands
 	public partial Task GetWiki
 	(
 		[SlashCommandParameter(Name = "search_term", Description = "The term to find a page for if possible.")]
-		string searchTerm,
+		string term,
 
 		[SlashCommandParameter(Name = "full_page", Description = "Should the full page's contents be fetched?")]
-		bool longFormat = false
+		bool fullPage = false
 	);
 	#endregion
 
-	/// <summary>Searches for a Wikipedia page similar to the given <paramref name="searchTerm"/>, and gets its content if a page is found.</summary>
-	/// <param name="searchTerm">The term to find a page for if possible.</param>
-	/// <param name="longFormat">Should the full page's contents be fetched?</param>
-	public async partial Task GetWiki(string searchTerm, bool longFormat)
+	/// <summary>Command task. Searches for a Wikipedia page similar to the given <paramref name="term"/>, and gets its content if a page is found.</summary>
+	/// <param name="term">The term to find a page for if possible.</param>
+	/// <param name="fullPage">Should the full page's contents be fetched?</param>
+	public async partial Task GetWiki(string term, bool fullPage)
 	{
 		// Make sure the interaction doesn't time out
-		await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
-		await Context.Interaction.SendFollowupMessageAsync(Generate(CreateProperties(
-			await Wikipedia.GetPage(searchTerm, longFormat),
+		await RespondAsync(InteractionCallback.DeferredMessage());
+
+		await FollowupAsync(Generate(CreateProperties(
+			await Wikipedia.GetPage(term, fullPage),
 			CreateAuthor("Wikipedia", GetAssetURL("Wikipedia Icon.png")),
 			DateTime.Now,
 			CreateFooter($"Definition requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),

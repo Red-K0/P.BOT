@@ -1,29 +1,42 @@
 ﻿namespace PBot;
 
 using Microsoft.Extensions.Configuration;
+using NetCord.Gateway.Voice;
 using PBot.Commands.Helpers;
 using static GatewayIntents;
 
 /// <summary>
 /// Contains methods for initializing and preparing the bot's client.
 /// </summary>
-public static class Bot
+internal static class Bot
 {
 	/// <summary>
 	/// Allows the fetching of private data from user secrets.
 	/// </summary>
-	private static readonly IConfigurationSection Secrets = new ConfigurationBuilder().AddUserSecrets<Program>().Build().GetSection("Secrets");
+	private static readonly IConfigurationRoot Secrets = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
 
 	/// <summary>
-	/// P.BOT's main client.
+	/// Extracts a value from the project secrets, returning null if the identifier does not exist.
+	/// </summary>
+	public static string? GetSecret(string id) => Secrets[id];
+
+
+	/// <summary>
+	/// Main client, used for communicating with Discord.
 	/// </summary>
 	public static readonly GatewayClient Client = new(new BotToken(GetSecret("Token")!), new GatewayClientConfiguration()
-	{ Intents = MessageContent | Guilds | GuildUsers | GuildMessages | GuildMessageReactions | GuildModeration });
+	{ Intents = MessageContent | Guilds | GuildUsers | GuildMessages | GuildMessageReactions | GuildVoiceStates });
 
 	/// <summary>
-	/// P.BOT's HTTP client, used for external network requests.
+	/// HTTP client, used for external network requests.
 	/// </summary>
-	public static readonly HttpClient ClientH = new();
+	public static readonly HttpClient NetClient = new();
+
+
+	/// <summary>
+	/// Gets a guild from the <see cref="Client"/>'s cache from using its ID.
+	/// </summary>
+	public static Guild GetGuild(ulong id) => Client.Cache.Guilds[id];
 
 	/// <summary>
 	/// The current guild's ID, fetched via <see cref="GetSecret(string)"/>.
@@ -35,10 +48,6 @@ public static class Bot
 	/// </summary>
 	public static readonly string GuildURL = $"https://discord.com/channels/{GuildID}/";
 
-	/// <summary>
-	/// Extracts a value from the project secrets, returning null if the identifier does not exist.
-	/// </summary>
-	public static string? GetSecret(string id) => Secrets[id];
 
 	/// <summary>
 	/// Stops the client, releases its resources, and restarts the bot client.
@@ -48,8 +57,8 @@ public static class Bot
 		await Client.CloseAsync();
 		Client.Dispose();
 
-		Process.Start(Environment.ProcessPath!, Environment.GetCommandLineArgs());
-		Process.GetCurrentProcess().Kill();
+		Process.Start(Process.GetCurrentProcess().StartInfo);
+		Environment.Exit(-1);
 	}
 
 	/// <summary>

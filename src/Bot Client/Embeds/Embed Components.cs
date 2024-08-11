@@ -5,7 +5,7 @@ internal static partial class Embeds
 	/// <summary> Creates an <see cref="EmbedAuthorProperties"/> object for use in an <see cref="Embed"/>. </summary>
 	/// <param name="authorText"> The <see cref="string"/> to display, used for the <see cref="EmbedAuthorProperties.Name"/> property. </param>
 	/// <param name="iconURL"> The <see cref="string"/> containing the URL of the image to display to the left of the text, used for the <see cref="EmbedAuthorProperties.IconUrl"/> property. </param>
-	/// <param name="textURL"> The <see cref="string"/> containing the URL to set <paramref name="authorText"/> as a hyperlink towards, used for the <see cref="EmbedAuthorProperties.Url"/> property.</param>
+	/// <param name="textURL"> The <see cref="string"/> containing the URL to set <paramref name="authorText"/> as a hyperlink towards, used for the <see cref="EmbedAuthorProperties.Url"/> property. </param>
 	public static EmbedAuthorProperties CreateAuthor(string? authorText = null, string? iconURL = null, string? textURL = null) => new()
 	{
 		Name = authorText,

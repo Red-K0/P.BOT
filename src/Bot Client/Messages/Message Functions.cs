@@ -36,18 +36,35 @@ internal static class Functions
 	/// <param name="message"> The <see cref="Message"/> object to check for and parse links in. </param>
 	public static async Task ParseLinks(Message message)
 	{
-		//HACK: The '49's below could pose a compatibility issue in the future. If this breaks for no reason later, you know why.
 		string Scan = message.Content.Replace("https://", " https://"); RestMessage? LinkedMessage; int i = 0;
-		int LinkCount = (Scan.Length - Scan.Replace(GuildURL, "").Length) / GuildURL.Length;
+		ulong LastAuthorID = 0; int LinkCount = (Scan.Length - Scan.Replace(GuildURL, "").Length) / GuildURL.Length;
+		ulong[] ParsedLinks = new ulong[LinkCount];
 		do
 		{
 			i++;
-			if ((LinkedMessage = await Scan.GetMessage()) != null)
+			if ((LinkedMessage = await Scan.GetMessage()) != null && !ParsedLinks.Contains(LinkedMessage.Id))
 			{
-				await Client.Rest.SendMessageAsync(message.ChannelId, LinkedMessage.ToEmbed(
-					$"{GuildURL}{message.ChannelId}/{message.Id}",
-					Embeds.CreateFooter($"Message linked by {message.Author.GetDisplayName()}", message.Author.GetAvatar())
-				).ToChecked().ToMessage());
+				EmbedProperties embed = LinkedMessage.ToEmbed().Embeds!.First().WithUrl($"{GuildURL}{message.ChannelId}/{message.Id}");
+
+				if (i == LinkCount)
+				{
+					embed = embed.WithFooter(Embeds.CreateFooter($"Message linked by {message.Author.GetDisplayName()}", message.Author.GetAvatar()));
+				}
+				else
+				{
+					embed = embed.WithTimestamp(null);
+				}
+
+				await Client.Rest.SendMessageAsync(
+					message.ChannelId,
+					Embeds.Generate(
+						LastAuthorID == LinkedMessage.Author.Id ? embed.WithAuthor(null) : embed,
+						LinkedMessage.Attachments.GetImageURLs(),
+						embed.Url).ToChecked().ToMessage()
+				);
+
+				ParsedLinks[i] = LinkedMessage.Id;
+				LastAuthorID = LinkedMessage.Author.Id;
 			}
 
 			if (i != LinkCount) Scan = Scan[(Scan.IndexOf(GuildURL) + GuildURL.Length)..];
@@ -112,7 +129,7 @@ internal static class Functions
 		{
 			// This passes the message to the deleted message handler directly.
 			// More information on this is in the handler's code.
-			Events.PipeToDeleteHandler(message);
+			Events.DeletedSpamMessage = message;
 			await Client.Rest.DeleteMessageAsync(message.ChannelId, message.Id);
 
 			if (Member.SpamSameMessageCount > 5)
@@ -125,7 +142,7 @@ internal static class Functions
 				await Client.Rest.SendMessageAsync(message.ChannelId, Member.SpamSameMessageCount switch
 				{
 					3 => $"<@{message.Author.Id}> please avoid spamming.",
-					4 => $"<@{message.Author.Id}> spamming interrupts others and the flow of chat, please avoid so.",
+					4 => $"<@{message.Author.Id}> spamming interrupts others and the flow of chat, please avoid doing so.",
 					5 => $"<@{message.Author.Id}> avoid spamming, final warning.",
 					_ => $"<@{message.Author.Id}> please avoid overuse of # formatting."
 				});

@@ -32,7 +32,7 @@ public sealed partial class SlashCommands
 	);
 	#endregion Attributes
 
-	/// <summary>Creates an embed with the specified <paramref name="content"/> and <paramref name="image"/>.</summary>
+	/// <summary>Command task. Creates an embed with the specified <paramref name="content"/> and <paramref name="image"/>.</summary>
 	/// <param name="content">The text-based content of the post.</param>
 	/// <param name="image">The image to attach to the post.</param>
 	/// <param name="anonymous">Should the post be made anonymously?</param>

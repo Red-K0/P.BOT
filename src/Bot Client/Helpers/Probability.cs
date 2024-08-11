@@ -7,7 +7,7 @@ namespace PBot.Commands.Helpers;
 /// <summary>
 /// Contains constants, variables and the function responsible for probability calculations and roll results.
 /// </summary>
-public static class ProbabilityStateMachine
+internal static class ProbabilityStateMachine
 {
 	#region Format Strings
 
@@ -79,6 +79,8 @@ public static class ProbabilityStateMachine
 
 				if (RollCount > 4096)
 				{
+					Response.Length--;
+
 					int CurrentResult;
 
 					// Mersenne Twister

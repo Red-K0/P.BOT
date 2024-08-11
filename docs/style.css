@@ -1,0 +1,40 @@
+@font-face {
+	font-family: "SFMono-Regular";
+	src: url(SFMono-Regular.otf);
+}
+
+body {
+	background: #2a2a2a;
+	color: #e6e6e6;
+	font: medium Helvetica;
+	font-size: medium;
+	font-weight: 400;
+}
+
+code {
+	font-family: SFMono-Regular;
+	font-size: medium;
+}
+
+summary {
+	margin-bottom: 0.5em;
+}
+
+details {
+	padding: 0.5em 0.5em 0;
+	margin-bottom: 0.5em;
+}
+
+details[open] {
+	padding: 0.5em;
+}
+
+/* Color Tags */
+
+blue {
+	color:#569cd6;
+}
+
+cyan {
+	color:#01cfff;
+}

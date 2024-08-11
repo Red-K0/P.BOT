@@ -1,1 +1,1001 @@
-<!DOCTYPE html><html><head><title>P.BOT Documenation</title><style>body{background:#191c1e;color:#c2c2c2;font:medium Helvetica;font-size:medium;font-weight:400;}r{color:#e0474b}l{color:#e4ff10}y{color:#ffd702}x{color:#1a94ff}k{color:#d86ac2}o{color:#efa553}f{color:#8c90e5}m{color:#86dbfd}</style></head><body><x>Bot</x><br>Contains methods for initializing and preparing the bot's client.<br><br>Bot<f>.</f><m>Secrets</m><br>Allows the fetching of private data from user secrets.<br><br>Bot<f>.</f><m>Client</m><br>P.BOT's main client.<br><br>Bot<f>.</f><m>ClientH</m><br>P.BOT's HTTP client, used for external network requests.<br><br>Bot<f>.</f><m>GuildID</m><br>The current guild's ID, fetched via <o></o>Bot<f>.</f><l>GetSecret</l><y>(</y><r>string</r><y>)</y><o></o>.<br><br>Bot<f>.</f><m>GuildURL</m><br>The base guild URL.<br><br>Bot<f>.</f><l>GetSecret</l><y>(</y><r>string</r><y>)</y><br>Extracts a value from the project secrets, returning null if the identifier does not exist.<br><br>Bot<f>.</f><m>Restart</m><br>Stops the client, releases its resources, and restarts the bot client.<br><br>Bot<f>.</f><l>Start</l><y>(</y><y>)</y><br>Starts the bot's client, initializes event handlers, and prepares caches.<br><br>Caches<f>.</f><m><x>Messages</x></m><br>Contains the recent messages cache and its relevant methods.<br><br>Caches<f>.</f><x>Messages</x><f>.</f><m>Recent</m><br>Contains all messages in the bot's cache.<br><br>Caches<f>.</f><m><x>Members</x></m><br>Contains the cached members list, role list, and their relevant methods. This class possesses a static constructor not shipped in the GitHub repo for privacy reasons.<br><br>Caches<f>.</f><x>Members</x><f>.</f><m>Member</m><br>Represents a <o></o>GuildUserInfo<o></o> object with additional bot-related fields.<br>Parameters:<li><o>info</o>:The <o></o>GuildUserInfo<o></o> to base the object on.</li><br>Caches<f>.</f><x>Members</x><f>.</f>Member<f>.</f><l>#ctor</l><y>(</y>GuildUserInfo<y>)</y><br>Represents a <o></o>GuildUserInfo<o></o> object with additional bot-related fields.<br>Parameters:<li><o>info</o>:The <o></o>GuildUserInfo<o></o> to base the object on.</li><br>Caches<f>.</f><x>Members</x><f>.</f><m>List</m><br>The bot's internal member list, generated from the members-search endpoint.<br><br>Caches<f>.</f><x>Members</x><f>.</f><m>Accolades</m><br>The bot's internal list of event roles, and their appropriate descriptions.<br><br>Caches<f>.</f><x>Members</x><f>.</f><m>FounderRoles</m><br>The bot's internal list of founder roles, alongside their owners' user IDs.<br><br>Caches<f>.</f><x>Members</x><f>.</f><m>Roles</m><br>The bot's internal role list, generated with <o></o><x>RestClient</x><f>.</f><l>GetGuildRolesAsync</l><y>(</y><r>ulong</r>, RestRequestProperties<y>)</y><o></o>.<br><br>Caches<f>.</f><x>Members</x><f>.</f><l>IsAccolade</l><y>(</y><r>ulong</r><y>)</y><br>Checks if the role referenced by the ID is an event role.<br>Parameters:<li><o>id</o>:The ID to check.</li><br>Caches<f>.</f><x>Members</x><f>.</f><l>GetUserAccolades</l><y>(</y>Caches<f>.</f><x>Members</x><f>.</f><m>Member<y>)</y></m><br>Returns a string summarizing a user's accolades and other important roles.<br><br>Caches<f>.</f><x>Members</x><f>.</f><l>Load</l><y>(</y><y>)</y><br>Initializes the class with data from the members-search endpoint.<br><br><x>Extensions</x><br>Convenience class for simple type conversions.<br><br><x>Extensions</x><f>.</f><l>ToMessage</l><y>(</y><x>Interaction<x><x>Message</x>Properties</x></x><y>)</y><br>Converts the value of this instance to its equivalent <o></o><x>Interaction<x><x>Message</x>Properties</x></x><o></o> representation.<br><br><x>Extensions</x><f>.</f><l>ToGuildUser</l><y>(</y>User<y>)</y><br>Converts a <o></o>User<o></o> object to a <o></o>GuildUser<o></o> compatible object. The values appended to the object are always set to their defaults.<br><br><x>Extensions</x><f>.</f><l>GetImageURLs</l><y>(</y>Collections<f>.</f>Generic<f>.</f><m>IReadOnlyDictionary<x>{</x><r>ulong</r>, Attachment<x>}</x><y>)</y></m><br>Converts a set of attachments to an array of the attachments' URLs.<br><br><x>Extensions</x><f>.</f><l>TryGetName</l><y>(</y>TextChannel, <r>out</r> <r>string</r><y>)</y><br>Attempts to get the channel's name, returning null if it doesn't have one.<br><br><x>Extensions</x><f>.</f><l>ToChecked</l><y>(</y><x>Interaction<x><x>Message</x>Properties</x></x><y>)</y><br>Caps the embed count of this instance to 10 embeds maximum.<br><br><x>Extensions</x><f>.</f><l>GetAvatar</l><y>(</y>User, <x>Nullable</x><x>{</x>ImageFormat<x>}</x><y>)</y><br>Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.<br><br><x>Extensions</x><f>.</f><l>GetAvatar</l><y>(</y>GuildUser, <x>Nullable</x><x>{</x>ImageFormat<x>}</x><y>)</y><br>Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.<br><br><x>Extensions</x><f>.</f><l>ToParsedUnicode</l><y>(</y><r>string</r><y>)</y><br>Replaces any unparsed unicode identifiers with their appropriate symbols <y>(</y>i.e. \u0041' -&gt; 'A'<y>)</y>.<br><br><x>Extensions</x><f>.</f><l>ToEscapedMarkdown</l><y>(</y><r>string</r><y>)</y><br>Converts the contents of this string into an escaped version, avoiding markdown formatting issues.<br><br><x>Extensions</x><f>.</f><l>GetMessage</l><y>(</y><r>string</r><y>)</y><br>Gets the relevant <o></o><x>Message</x><o></o> object from a Discord message URL.<br><br><x>Extensions</x><f>.</f><l>GetDisplayName</l><y>(</y>User<y>)</y><br>Gets a <o></o>User<o></o>'s displayed discord name using the cached member list.<br><br><x>Files</x><br>Contains methods and constants used for persistent data storage.<br><br>Files<f>.</f><l>FileContains</l><y>(</y>Files<f>.</f><m>Names, <r>string</r>, <r>bool</r><y>)</y></m><br>Whether the specified file contains the given data.<br>Parameters:<li><o>file</o>:The file to search for a match in.</li><li><o>data</o>:The data to search for.</li><li><o>append</o>:Whether to append the data if it isn't found.</li><br>Files<f>.</f><l>ReadCounter</l><y>(</y>Files<f>.</f><m>CounterLines, <r>int</r><y>)</y></m><br>Reads the value of a counter.<br>Parameters:<li><o>line</o>:The counter to read the value of.</li><li><o>mod</o>:The value to modify the counter by after reading.</li><br>Files<f>.</f><m>MAIN</m><br>The main path containing all the memory files used by P.BOT.<br><br>Files<f>.</f><m>Names</m><br>A list of files used by P.BOT for storage.<br><br>Files<f>.</f>Names<f>.</f><m>Counters</m><br>Contains data related to basic operations, such as incremental counters.<br><br>Files<f>.</f>Names<f>.</f><m>Starboard</m><br>Contains a list of starred messages.<br><br>Files<f>.</f><m>CounterLines</m><br>A list of names for lines in the <o></o>Files<f>.</f>Names<f>.</f><m>Counters</m><o></o> file.<br><br>Files<f>.</f><m>Paths</m><br>The bot's internal list of file paths, indexed by their names.<br><br><x>PHelper</x><br>Contains constants and method calls related to unmanaged code in 'phlpr.dll'.<br><br><x>PHelper</x><f>.</f><m>CSI</m><br>Indicates the start of a virtual terminal sequence.<br><br><x>PHelper</x><f>.</f><m>BrightBlack</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>Black</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>BrightRed</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>Red</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>BrightGreen</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>Green</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>BrightYellow</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>Yellow</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>BrightBlue</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>Blue</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>BrightMagenta</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>Magenta</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>BrightCyan</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>Cyan</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>None</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>White</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bBrightBlack</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bBlack</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bBrightRed</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bRed</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bBrightGreen</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bGreen</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bBrightYellow</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bYellow</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bBrightBlue</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bBlue</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bBrightMagenta</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bMagenta</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bBrightCyan</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bCyan</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bBrightWhite</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><m>bWhite</m><br>Sets the console color.<br><br><x>PHelper</x><f>.</f><l>EnableVirtualAndHideCursor</l><y>(</y><y>)</y><br>Unmanaged method imported via 'phlpr.dll', enables the use of virtual terminal sequences globally, and hides the cursor.<br><br>Commands<f>.</f><m><x>SlashCommands</x></m><br>Contains the slash commands used by P.BOT and their associated tasks.<br><br>Commands<f>.</f><x>SlashCommands</x><f>.</f><l>SystemsCheck</l><y>(</y><y>)</y><br>Command task. Checks if P.BOT's system is active.<br><br>Commands<f>.</f><x>SlashCommands</x><f>.</f><l>GetAvatar</l><y>(</y>User, <x>Nullable</x><x>{</x>ImageFormat<x>}</x><y>)</y><br>Command task. Gets the avatar of the <o></o><o>user</o><o></o>, in a specific format if specified in <o></o><o>format</o><o></o>.<br>Parameters:<li><o>user</o>:The user to pull an avatar from. Works for non-server members as well.</li><li><o>format</o>:The format of the image result, the GIF and Lottie formats are only supported for animated avatars.</li><br>Commands<f>.</f><x>SlashCommands</x><f>.</f><l>GetTitle</l><y>(</y>Commands<f>.</f>Helpers<f>.</f>Library<f>.</f><m>Titles<y>)</y></m><br>Command task. Gets the library entry of the title specified in the <o></o><o>title</o><o></o> parameter.<br>Parameters:<li><o>title</o>:The title to display.</li><br>Commands<f>.</f><x>SlashCommands</x><f>.</f><l>GetUser</l><y>(</y>User, <r>bool</r><y>)</y><br>Displays data relevant to a specified <o></o><o>user</o><o></o>.<br>Parameters:<li><o>user</o>:The user to display data for.</li><li><o>raw</o>:Whether the command should dump all user data as plaintext.</li><br>Commands<f>.</f><x>SlashCommands</x><f>.</f><l>GetWiki</l><y>(</y><r>string</r>, <r>bool</r><y>)</y><br>Searches for a Wikipedia page similar to the given <o></o><o>searchTerm</o><o></o>, and gets its content if a page is found.<br>Parameters:<li><o>searchTerm</o>:The term to find a page for if possible.</li><li><o>longFormat</o>:Should the full page's contents be fetched?</li><br>Commands<f>.</f><x>SlashCommands</x><f>.</f><l>CreatePost</l><y>(</y><r>string</r>, Attachment, <r>bool</r>, Channel, <r>bool</r><y>)</y><br>Creates an embed with the specified <o></o><o>content</o><o></o> and <o></o><o>image</o><o></o>.<br>Parameters:<li><o>content</o>:The text-based content of the post.</li><li><o>image</o>:The image to attach to the post.</li><li><o>anonymous</o>:Should the post be made anonymously?</li><li><o>channel</o>:The channel to create the post in, defaults to the current channel.</li><li><o>draft</o>:Should a private preview of the post be created instead?</li><br>Commands<f>.</f><m><x>TextCommands</x></m><br>Contains the text commands used by P.BOT and their associated tasks.<br><br>Commands<f>.</f><x>TextCommands</x><f>.</f><l>Parse</l><y>(</y><x>Message</x><y>)</y><br>Parses a given message, running the associated text command if a valid prefix is found.<br><br>Commands<f>.</f>Helpers<f>.</f><m>Library</m><br>Contains data involving dictionaries and the <o></o>Commands<f>.</f><x>SlashCommands</x><f>.</f><l>GetTitle</l><y>(</y>Commands<f>.</f>Helpers<f>.</f>Library<f>.</f><m>Titles<y>)</y></m><o></o> command.<br><br>Commands<f>.</f>Helpers<f>.</f>Library<f>.</f><m>Titles</m><br>A list of possible choices for the <o></o>Commands<f>.</f><x>SlashCommands</x><f>.</f><l>GetTitle</l><y>(</y>Commands<f>.</f>Helpers<f>.</f>Library<f>.</f><m>Titles<y>)</y></m><o></o> command.<br><br>Commands<f>.</f>Helpers<f>.</f>Library<f>.</f>Titles<f>.</f><m>WhatIs_ThePPP</m><br>The history of the PPP.<br><br>Commands<f>.</f>Helpers<f>.</f>Library<f>.</f>Titles<f>.</f><m>IcelandGuide</m><br>Angel's Iceland travel guide.<br><br>Commands<f>.</f>Helpers<f>.</f>Library<f>.</f><m>Entries</m><br>Contains definitions used for the <o></o>Commands<f>.</f><x>SlashCommands</x><f>.</f><l>GetTitle</l><y>(</y>Commands<f>.</f>Helpers<f>.</f>Library<f>.</f><m>Titles<y>)</y></m><o></o> command.<br><br>Commands<f>.</f>Helpers<f>.</f><m><x>Posts</x></m><br>Contains methods and variables related to the post system.<br><br>Commands<f>.</f>Helpers<f>.</f><m><x>ProbabilityStateMachine</x></m><br>Contains constants, variables and the function responsible for probability calculations and roll results.<br><br>Commands<f>.</f>Helpers<f>.</f><x>ProbabilityStateMachine</x><f>.</f><m>ErrMessage</m><br>The message to format and print if the roll command is invalid.<br><br>Commands<f>.</f>Helpers<f>.</f><x>ProbabilityStateMachine</x><f>.</f><m>StndString</m><br>The message to format and append per standard roll result.<br><br>Commands<f>.</f>Helpers<f>.</f><x>ProbabilityStateMachine</x><f>.</f><m>CritString</m><br>The message to format and append per critical success.<br><br>Commands<f>.</f>Helpers<f>.</f><x>ProbabilityStateMachine</x><f>.</f><m>FailString</m><br>The message to format and append per critical failure.<br><br>Commands<f>.</f>Helpers<f>.</f><x>ProbabilityStateMachine</x><f>.</f><l>Run</l><y>(</y><x>Message</x><y>)</y><br>Applies the appropriate logic to use based on the given <o></o><o>message</o><o></o>.<br>Parameters:<li><o>message</o>:The message to operate with.</li><br>Commands<f>.</f>Helpers<f>.</f><x>ProbabilityStateMachine</x><f>.</f><l>InitXShift128</l><y>(</y><y>)</y><br>Initializes the xShift128 algorithm based off the current time in ticks.<br><br>Commands<f>.</f>Helpers<f>.</f><m><x>Wikipedia</x></m><br>Contains the Wikipedia API constant, as well as the method responsible for page retrieval.<br><br>Commands<f>.</f>Helpers<f>.</f><x>Wikipedia</x><f>.</f><m>WIKI_API</m><br>The URL and preset parameters for the Wikipedia content API.<br><br>Commands<f>.</f>Helpers<f>.</f><x>Wikipedia</x><f>.</f><l>GetPage</l><y>(</y><r>string</r>, <r>bool</r><y>)</y><br>Sends the request responsible for retrieving the page, and formats it properly.<br><br>Commands<f>.</f>Helpers<f>.</f><x>Wikipedia</x><f>.</f><l>Alphanumeric</l><y>(</y><y>)</y><br>Contains functions for the creation of embeds and their components.<br><br><x>Embeds</x><br>Contains functions for the creation of embeds and their components.<br><br><x>Embeds</x><f>.</f><l>CreateAuthor</l><y>(</y><r>string</r>, <r>string</r>, <r>string</r><y>)</y><br>Creates an <o></o><x><x>EmbedAuthorProperties</x></x><o></o> object for use in an <o></o>Embed<o></o>.<br>Parameters:<li><o>authorText</o>:The <o></o><r>string</r><o></o> to display, used for the <o></o><x>EmbedAuthorProperties</x><f>.</f><m>Name</m><o></o> property.</li><li><o>iconURL</o>:The <o></o><r>string</r><o></o> containing the URL of the image to display to the left of the text, used for the <o></o><x>EmbedAuthorProperties</x><f>.</f><m>IconUrl</m><o></o> property.</li><li><o>textURL</o>:The <o></o><r>string</r><o></o> containing the URL to set <o></o><o>authorText</o><o></o> as a hyperlink towards, used for the <o></o><x>EmbedAuthorProperties</x><f>.</f><m>Url</m><o></o> property.</li><br><x>Embeds</x><f>.</f><l>CreateFooter</l><y>(</y><r>string</r>, <r>string</r><y>)</y><br>Creates an <o></o><x><x>EmbedAuthorProperties</x></x><o></o> object for use in an <o></o>Embed<o></o>.<br>Parameters:<li><o>footerText</o>:The <o></o><r>string</r><o></o> to display, used for the <o></o><x>EmbedFooterProperties</x><f>.</f><m>Text</m><o></o> property.</li><li><o>iconURL</o>:The <o></o><r>string</r><o></o> containing the URL of the image to display to the left of the text, used for the <o></o><x>EmbedFooterProperties</x><f>.</f><m>IconUrl</m><o></o> property.</li><br><x>Embeds</x><f>.</f><l>CreateField</l><y>(</y><r>string</r>, <r>string</r>, <r>bool</r><y>)</y><br>Creates an <o></o><x><x>EmbedFieldProperties</x></x><o></o> object for use in an <o></o>Embed<o></o>.<br>Parameters:<li><o>name</o>:The <o></o><r>string</r><o></o> to display at the field title, used for the <o></o><x>EmbedFieldProperties</x><f>.</f><m>Name</m><o></o> property.</li><li><o>value</o>:The <o></o><r>string</r><o></o> to display in the field, used for the <o></o><x>EmbedFieldProperties</x><f>.</f><m>Value</m><o></o> property.</li><li><o>noInline</o>:Whether or not to display the field inline.</li><br><x>Embeds</x><f>.</f><l>GetAssetURL</l><y>(</y><r>string</r><y>)</y><br>Gets the GitHub hosted URL of the given asset.<br>Parameters:<li><o>fileName</o>:The name of the hosted file.</li><br><x>Embeds</x><f>.</f><m>ASSETS</m><br>The URL to the GitHub Assets folder.<br><br><x>Embeds</x><f>.</f><m>STD_COLOR</m><br>The hex code for standard embed gray.<br><br><x>Embeds</x><f>.</f><m>RandomColor</m><br>Generates a random 24-bit integer from the current time in ticks.<br><br><x>Embeds</x><f>.</f><l>Generate</l><y>(</y>EmbedProperties, <r>string</r><x>[</x><x>]</x>, <r>string</r>, <r>bool</r><y>)</y><br>Combines the specified parameters to generate an embed.<br><br><x>Embeds</x><f>.</f><l>ToEmbed</l><y>(</y><x>Rest<x>Message</x></x>, <r>string</r>, <x><x>EmbedFooterProperties</x></x>, <r>string</r>, <r>string</r><y>)</y><br>Combines the specified parameters with parameters extracted from a given <o></o><x>Rest<x>Message</x></x><o></o> to generate an embed.<br>Parameters:<li><o>message</o>:The <o></o><x>Rest<x>Message</x></x><o></o> object to extract parameters from.</li><li><o>url</o>:A link to an address of a webpage. When set, the <o></o><o>title</o><o></o> becomes a clickable link, directing to the URL. Additionally, embeds of the same URL are grouped.</li><li><o>footer</o>:Contains the <o></o><x><x>EmbedFooterProperties</x></x><o></o> to be used in the embed.</li><li><o>title</o>:The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <o></o><o>url</o><o></o>, has a 256 character limit.</li><li><o>thumbnail</o>:The URL of thumbnail of the embed, displayed as a medium-sized image in the top right corner of the embed.</li><br><x>Embeds</x><f>.</f><l>Title</l><y>(</y><r>string</r>, <x><x>EmbedFieldProperties</x></x><x>[</x><x>]</x>, <r>ulong</r><y>)</y><br>Creates a <o></o><x><x>Message</x>Properties</x><o></o> object suitable for <o></o>Commands<f>.</f><x>SlashCommands</x><f>.</f><l>GetTitle</l><y>(</y>Commands<f>.</f>Helpers<f>.</f>Library<f>.</f><m>Titles<y>)</y></m><o></o>.<br><br><x>Events</x><br>Contains methods responsible for handling message events.<br><br>Events<f>.</f><l>GuildUserUpdate</l><y>(</y>GuildUser<y>)</y><br>Updates the <o></o>Caches<f>.</f><x>Members</x><f>.</f><m>List</m><o></o> dictionary when a user is added or modified.<br><br>Events<f>.</f><l>GuildUserRemove</l><y>(</y><x>GuildUserRemoveEventArgs</x><y>)</y><br>Removes users from the Caches.Members.List dictionaryy when a member is modified.<br><br>Events<f>.</f><l>RoleUpdate</l><y>(</y>Role<y>)</y><br>Updates the <o></o>Caches<f>.</f><x>Members</x><f>.</f><m>Roles</m><o></o> dictionary when roles are created or updated.<br><br>Events<f>.</f><l>RoleDelete</l><y>(</y><x>RoleDeleteEventArgs</x><y>)</y><br>Updates the <o></o>Caches<f>.</f><x>Members</x><f>.</f><m>Roles</m><o></o> dictionary when roles are deleted.<br><br>Events<f>.</f><l>MapClientHandlers</l><y>(</y><y>)</y><br>Maps the <o></o>Bot<f>.</f><m>Client</m><o></o>'s events to their appropriate response method.<br><br>Events<f>.</f><l>InteractionCreate</l><y>(</y>Interaction<y>)</y><br>Processes recieved interactions.<br><br>Events<f>.</f><m>DeletedSpamMessage</m><br>Used by <o></o>Messages<f>.</f><x>Functions</x><f>.</f><l>Filter</l><y>(</y><x>Message</x><y>)</y><o></o> to pass a message to <o></o>Events<f>.</f><l>MessageDelete</l><y>(</y><x><x>Message</x>DeleteEventArgs</x><y>)</y><o></o>, bypassing the cache.<br><br>Events<f>.</f><l>MessageCreate</l><y>(</y><x>Message</x><y>)</y><br>Processes new messages.<br><br>Events<f>.</f><l>MessageDelete</l><y>(</y><x><x>Message</x>DeleteEventArgs</x><y>)</y><br>Logs message deletions.<br><br>Events<f>.</f><l>MessageUpdate</l><y>(</y>IPartial<x>Message</x><y>)</y><br>Logs message edits and updates.<br><br>Events<f>.</f><l>PipeToDeleteHandler</l><y>(</y><x>Message</x><y>)</y><br>Sets <o></o>Events<f>.</f><m>DeletedSpamMessage</m><o></o> for faster access from the spam filter.<br><br>Events<f>.</f><l>ReactionAdded</l><y>(</y><x><x>Message</x>ReactionAddEventArgs</x><y>)</y><br>Logs reactions to messages.<br><br>Messages<f>.</f><m><x>Functions</x></m><br>Contains methods and variables used for basic message functionality and parsing.<br><br>Messages<f>.</f><x>Functions</x><f>.</f><l>AddToStarBoard</l><y>(</y><x><x>Message</x>ReactionAddEventArgs</x><y>)</y><br>Parses the contents of a given <o></o><x><x>Message</x>ReactionAddEventArgs</x><o></o> and adds the result to the starboard.<br>Parameters:<li><o>message</o>:The <o></o><x><x>Message</x>ReactionAddEventArgs</x><o></o> containing the message to add to the starboard.</li><br>Messages<f>.</f><x>Functions</x><f>.</f><l>ParseLinks</l><y>(</y><x>Message</x><y>)</y><br>Parses a given <o></o><o>message</o><o></o> to check for message links, and displays their content if possible.<br>Parameters:<li><o>message</o>:The <o></o><x>Message</x><o></o> object to check for and parse links in.</li><br>Messages<f>.</f><x>Functions</x><f>.</f><l>Filter</l><y>(</y><x>Message</x><y>)</y><br>Compares a given message's attributes to other messages by the same user, and deletes it if the filter's criteria are met.<br>Parameters:<li><o>message</o>:The <o></o><x>Message</x><o></o> object to perform comparison on.</li><br>Messages<f>.</f><m><x>Logging</x></m><br>Contains methods responsible for logging messages to the console.<br><br>Messages<f>.</f><x>Logging</x><f>.</f><m>LastAuthor</m><br>The ID of the latest logged user.<br><br>Messages<f>.</f><x>Logging</x><f>.</f><m>LOG_CHANNEL</m><br>The ID of the channel to send logs to.<br><br>Messages<f>.</f><x>Logging</x><f>.</f><l>LogNetworkMessage</l><y>(</y><x>Log<x>Message</x></x><y>)</y><br>Logs messages from the system.<br><br>Messages<f>.</f><x>Logging</x><f>.</f><l>LogCreatedMessage</l><y>(</y><x>Message</x><y>)</y><br>Logs new discord messages.<br><br>Messages<f>.</f><x>Logging</x><f>.</f><l>LogDeletedMessage</l><y>(</y><x>Message</x><y>)</y><br>Logs deleted discord messages.<br><br>Messages<f>.</f><x>Logging</x><f>.</f><l>LogUpdatedMessage</l><y>(</y><x>Message</x>, <x>Message</x><y>)</y><br>Logs edited discord messages.<br><br>Messages<f>.</f><x>Logging</x><f>.</f><l>WriteAsID</l><y>(</y><r>string</r>, Messages<f>.</f><x>Logging</x><f>.</f><m>SpecialId<y>)</y></m><br>Writes a message to the console using a specified <o></o>Messages<f>.</f><x>Logging</x><f>.</f><m>SpecialId</m><o></o>.<br><br>Messages<f>.</f><x>Logging</x><f>.</f><m>SpecialId</m><br>An enum of IDs used by the bot during logging.<br><br>Messages<f>.</f><x>Logging</x><f>.</f><m>SpecialId</m><br>An enum of IDs used by the bot during logging.<br></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Client Documentation</title>
+	<meta name="viewport" content="width=device-width">
+	<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body><br>
+		<details>
+			<summary>
+				<code><cyan>Bot</cyan></code>
+			</summary>
+			Contains methods for initializing and preparing the bot's client.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.<cyan>Secrets</cyan></code>
+			</summary>
+			Allows the fetching of private data from user secrets.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.<cyan>GetSecret</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Extracts a value from the project secrets, returning null if the identifier does not exist.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.<cyan>Client</cyan></code>
+			</summary>
+			Main client, used for communicating with Discord.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.<cyan>NetClient</cyan></code>
+			</summary>
+			HTTP client, used for external network requests.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.<cyan>GetGuild</cyan>(<blue>ulong</blue>)</code>
+			</summary>
+			Gets a guild from the <code>Bot.<cyan>Client</cyan></code>'s cache from using it's ID.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.<cyan>GuildID</cyan></code>
+			</summary>
+			The current guild's ID, fetched via <code>Bot.<cyan>GetSecret</cyan>(<blue>string</blue>)</code>.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.<cyan>GuildURL</cyan></code>
+			</summary>
+			The base guild URL.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.<cyan>Restart</cyan>()</code>
+			</summary>
+			Stops the client, releases its resources, and restarts the bot client.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.<cyan>Start</cyan>()</code>
+			</summary>
+			Starts the bot's client, initializes event handlers, and prepares caches.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.<cyan>Messages</cyan></code>
+			</summary>
+			Contains the recent messages cache and its relevant methods.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Messages.<cyan>Recent</cyan></code>
+			</summary>
+			Contains all messages in the bot's cache.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Messages.<cyan>IgnoreCounter</cyan></code>
+			</summary>
+			The index of the last assigned <code>Caches.Messages.<cyan>IgnoreCache</cyan></code> slot.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Messages.<cyan>IgnoreCache</cyan></code>
+			</summary>
+			A short array of messages to be ignored by <code>Events.<cyan>MessageDelete</cyan>(Gateway.MessageDeleteEventArgs)</code> to prevent clutter.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Messages.<cyan>IgnoreID</cyan>(<blue>ulong</blue>)</code>
+			</summary>
+			Adds a message ID to the <code>Caches.Messages.<cyan>IgnoreCache</cyan></code>.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.<cyan>Members</cyan></code>
+			</summary>
+			Contains the cached members list, role list, and their relevant methods. This class possesses a static constructor not shipped in the GitHub repo for privacy reasons.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Members.<cyan>Member</cyan></code>
+			</summary>
+			Represents a <code>Rest.<cyan>GuildUserInfo</cyan></code> object with additional bot-related fields.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Members.<cyan>Member</cyan>(Rest.GuildUserInfo)</code>
+			</summary>
+			Represents a <code>Rest.<cyan>GuildUserInfo</cyan></code> object with additional bot-related fields.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Members.<cyan>List</cyan></code>
+			</summary>
+			The bot's internal member list, generated from the <code>members-search</code> endpoint.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Members.<cyan>Accolades</cyan></code>
+			</summary>
+			The bot's internal list of event roles, and their appropriate descriptions.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Members.<cyan>FounderRoles</cyan></code>
+			</summary>
+			The bot's internal list of founder roles, alongside their owners' user IDs.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Members.<cyan>Roles</cyan></code>
+			</summary>
+			The bot's internal role list, generated with <code>Rest.RestClient.<cyan>GetGuildRolesAsync</cyan>(<blue>ulong</blue>, Rest.RestRequestProperties)</code>.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Members.<cyan>IsAccolade</cyan>(<blue>ulong</blue>)</code>
+			</summary>
+			Checks if the role referenced by the ID is an event role.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Members.<cyan>GetUserAccolades</cyan>(Caches.Members.Member)</code>
+			</summary>
+			Returns a string summarizing a user's accolades and other important roles.
+		</details>
+		<details>
+			<summary>
+				<code>Caches.Members.<cyan>Load</cyan>()</code>
+			</summary>
+			Initializes the class with data from the <code>members-search</code> endpoint.
+		</details>
+		<details>
+			<summary>
+				<code><cyan>Extensions</cyan></code>
+			</summary>
+			Convenience class for simple type conversions.
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>ToMessage</cyan>(Rest.InteractionMessageProperties)</code>
+			</summary>
+			Converts the value of this instance to its equivalent <code>Rest.<cyan>InteractionMessageProperties</cyan></code> representation.
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>GetImageURLs</cyan>(ReadOnlyDictionary&lt;<blue>ulong</blue>, Attachment&gt;)</code>
+			</summary>
+			Converts a set of attachments to an array of the attachments' URLs.
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>TryGetName</cyan>(TextChannel, out <blue>string</blue>)</code>
+			</summary>
+			Attempts to get the channel's name, returning null if it doesn't have one.
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>ToChecked</cyan>(Rest.InteractionMessageProperties)</code>
+			</summary>
+			Caps the embed count of this instance to 10 embeds maximum.
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>GetAvatar</cyan>(User, ImageFormat?)</code>
+			</summary>
+			Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>GetAvatar</cyan>(GuildUser, ImageFormat?)</code>
+			</summary>
+			Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>ToParsedUnicode</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <code>\u0041' -> 'A'</code>).
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>ToEscapedMarkdown</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Converts the contents of this string into an escaped version, avoiding markdown formatting issues.
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>GetMessage</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Gets the relevant <code>Gateway.<cyan>Message</cyan></code> object from a Discord message URL.
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>GetDisplayName</cyan>(User)</code>
+			</summary>
+			Gets a <code><cyan>User</cyan></code>'s displayed discord name using the cached member list.
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>UnicodeHexRegex</cyan>()</code>
+			</summary>
+			Pattern:<br/><code>\\\\u([0-9A-Fa-f]{4})</code><br/>Explanation:<br/><code>○ Match the string "\\u".<br/>○ 1st capture group.<br/>○ Match a character in the set [0-9A-Fa-f] exactly 4 times.<br/></code>
+		</details>
+		<details>
+			<summary>
+				<code>Extensions.<cyan>EscapeCharRegex</cyan>()</code>
+			</summary>
+			Pattern:<br/><code>\\\\(b|f|n|r|t|"|\\\\)</code><br/>Explanation:<br/><code>○ Match '\\'.<br/>○ 1st capture group.<br/>○ Match a character in the set ["\\bfnrt].<br/></code>
+		</details>
+		<details>
+			<summary>
+				<code><cyan>Files</cyan></code>
+			</summary>
+			Contains methods and constants used for persistent data storage.
+		</details>
+		<details>
+			<summary>
+				<code>Files.<cyan>FileContains</cyan>(Files.Names, <blue>string</blue>, <blue>bool</blue>)</code>
+			</summary>
+			Whether the specified file contains the given data.
+		</details>
+		<details>
+			<summary>
+				<code>Files.<cyan>ReadCounter</cyan>(Files.CounterLines, <blue>int</blue>)</code>
+			</summary>
+			Reads the value of a counter.
+		</details>
+		<details>
+			<summary>
+				<code>Files.<cyan>MAIN</cyan></code>
+			</summary>
+			The main path containing all the memory files used by P.BOT.
+		</details>
+		<details>
+			<summary>
+				<code>Files.<cyan>Names</cyan></code>
+			</summary>
+			A list of files used by P.BOT for storage.
+		</details>
+		<details>
+			<summary>
+				<code>Files.Names.<cyan>Counters</cyan></code>
+			</summary>
+			 Contains data related to basic operations, such as incremental counters. 
+		</details>
+		<details>
+			<summary>
+				<code>Files.Names.<cyan>Starboard</cyan></code>
+			</summary>
+			 Contains a list of starred messages. 
+		</details>
+		<details>
+			<summary>
+				<code>Files.<cyan>CounterLines</cyan></code>
+			</summary>
+			A list of names for lines in the <code>Files.Names.<cyan>Counters</cyan></code> file.
+		</details>
+		<details>
+			<summary>
+				<code>Files.<cyan>Paths</cyan></code>
+			</summary>
+			The bot's internal list of file paths, indexed by their names.
+		</details>
+		<details>
+			<summary>
+				<code><cyan>VirtualTerminalSequences</cyan></code>
+			</summary>
+			Contains constants and method calls related to unmanaged code.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkGray</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>Black</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>Red</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkRed</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>Green</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkGreen</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>Yellow</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkYellow</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>Blue</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkBlue</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>Magenta</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkMagenta</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>Cyan</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkCyan</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>White</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>Gray</cyan></code>
+			</summary>
+			Sets the console foreground color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkGrayB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>BlackB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>RedB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkRedB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>GreenB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkGreenB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>YellowB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkYellowB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>BlueB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkBlueB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>MagentaB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkMagentaB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>CyanB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>DarkCyanB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>WhiteB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>VirtualTerminalSequences.<cyan>GrayB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.<cyan>SlashCommands</cyan></code>
+			</summary>
+			Contains the slash commands used by P.BOT and their associated tasks.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.SlashCommands.<cyan>SystemsCheck</cyan>()</code>
+			</summary>
+			Command task. Checks if P.BOT's system is active.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.SlashCommands.<cyan>MoveVoiceUsers</cyan>(VoiceGuildChannel, VoiceGuildChannel, Role)</code>
+			</summary>
+			Command task. Moves a group of users from one voice channel to another.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.SlashCommands.<cyan>GetAvatar</cyan>(User, ImageFormat?)</code>
+			</summary>
+			Command task. Gets the avatar of the user, in a specific format if specified in format.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.SlashCommands.<cyan>GetTitle</cyan>(Commands.Helpers.Library.Titles)</code>
+			</summary>
+			Command task. Gets the library entry of the title specified in the title parameter.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.SlashCommands.<cyan>GetUser</cyan>(User, <blue>bool</blue>)</code>
+			</summary>
+			Command task. Displays data relevant to a specified user.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.SlashCommands.<cyan>GetWiki</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
+			</summary>
+			Command task. Searches for a Wikipedia page similar to the given term, and gets its content if a page is found.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.SlashCommands.<cyan>CreatePost</cyan>(<blue>string</blue>, Attachment, <blue>bool</blue>, Channel, <blue>bool</blue>)</code>
+			</summary>
+			Command task. Creates an embed with the specified content and image.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.<cyan>TextCommands</cyan></code>
+			</summary>
+			Contains the text commands used by P.BOT and their associated tasks.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.TextCommands.<cyan>Parse</cyan>(Gateway.Message)</code>
+			</summary>
+			Parses a given message, running the associated text command if a valid prefix is found.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.<cyan>Library</cyan></code>
+			</summary>
+			Contains data involving dictionaries and the <code>Commands.SlashCommands.<cyan>GetTitle</cyan>(Commands.Helpers.Library.Titles)</code> command.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.Library.<cyan>Titles</cyan></code>
+			</summary>
+			A list of possible choices for the <code>Commands.SlashCommands.<cyan>GetTitle</cyan>(Commands.Helpers.Library.Titles)</code> command.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.Library.Titles.<cyan>WhatIs_ThePPP</cyan></code>
+			</summary>
+			The history of the PPP.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.Library.Titles.<cyan>IcelandGuide</cyan></code>
+			</summary>
+			Angel's Iceland travel guide.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.Library.<cyan>Entries</cyan></code>
+			</summary>
+			Contains definitions used for the <code>Commands.SlashCommands.<cyan>GetTitle</cyan>(Commands.Helpers.Library.Titles)</code> command.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.<cyan>ProbabilityStateMachine</cyan></code>
+			</summary>
+			Contains constants, variables and the function responsible for probability calculations and roll results.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>ErrMessage</cyan></code>
+			</summary>
+			The message to format and print if the roll command is invalid.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>StndString</cyan></code>
+			</summary>
+			The message to format and append per standard roll result.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>CritString</cyan></code>
+			</summary>
+			The message to format and append per critical success.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>FailString</cyan></code>
+			</summary>
+			The message to format and append per critical failure.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>Run</cyan>(Gateway.Message)</code>
+			</summary>
+			 Applies the appropriate logic to use based on the given message. 
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>InitXShift128</cyan>()</code>
+			</summary>
+			Initializes the xShift128 algorithm based off the current time in ticks.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.<cyan>Wikipedia</cyan></code>
+			</summary>
+			Contains the Wikipedia API constant, as well as the method responsible for page retrieval.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.Wikipedia.<cyan>WIKI_API</cyan></code>
+			</summary>
+			The URL and preset parameters for the Wikipedia content API.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.Wikipedia.<cyan>GetPage</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
+			</summary>
+			Sends the request responsible for retrieving the page, and formats it properly.
+		</details>
+		<details>
+			<summary>
+				<code>Commands.Helpers.Wikipedia.<cyan>CitationRegex</cyan>()</code>
+			</summary>
+			Pattern:<br/><code>:\\d\\.\\d|\\[\\d+\\]</code><br/>Explanation:<br/><code>○ Match with 2 alternative expressions, atomically.<br/>○ Match a sequence of expressions.<br/>○ Match ':'.<br/>○ Match a Unicode digit.<br/>○ Match '.'.<br/>○ Match a Unicode digit.<br/>○ Match a sequence of expressions.<br/>○ Match '['.<br/>○ Match a Unicode digit atomically at least once.<br/>○ Match ']'.<br/></code>
+		</details>
+		<details>
+			<summary>
+				<code><cyan>Documentation</cyan></code>
+			</summary>
+			Contains classes and methods for accessing and serializing XML documentation.
+		</details>
+		<details>
+			<summary>
+				<code>Documentation.<cyan>SystemTypeRegex</cyan>()</code>
+			</summary>
+			Pattern:<br/><code>System\\.(Boolean|Byte|SByte|Char|Decimal|Double|Single|Int32|UInt32|IntPtr|UIntPtr|Int64|UInt64|Int16|UInt16|Object|String)</code><br/>Explanation:<br/><code>○ Match the string "System.".<br/>○ 1st capture group.<br/>○ Match with 7 alternative expressions, atomically.<br/>○ Match a sequence of expressions.<br/>○ Match 'B'.<br/>○ Match with 2 alternative expressions, atomically.<br/>○ Match the string "oolean".<br/>○ Match the string "yte".<br/>○ Match a sequence of expressions.<br/>○ Match 'S'.<br/>○ Match with 3 alternative expressions, atomically.<br/>○ Match the string "Byte".<br/>○ Match the string "ingle".<br/>○ Match the string "tring".<br/>○ Match the string "Char".<br/>○ Match a sequence of expressions.<br/>○ Match 'D'.<br/>○ Match with 2 alternative expressions, atomically.<br/>○ Match the string "ecimal".<br/>○ Match the string "ouble".<br/>○ Match a sequence of expressions.<br/>○ Match the string "Int".<br/>○ Match with 4 alternative expressions, atomically.<br/>○ Match the string "32".<br/>○ Match the string "Ptr".<br/>○ Match the string "64".<br/>○ Match the string "16".<br/>○ Match a sequence of expressions.<br/>○ Match the string "UInt".<br/>○ Match with 4 alternative expressions, atomically.<br/>○ Match the string "32".<br/>○ Match the string "Ptr".<br/>○ Match the string "64".<br/>○ Match the string "16".<br/>○ Match the string "Object".<br/></code>
+		</details>
+		<details>
+			<summary>
+				<code>Documentation.<cyan>Generate</cyan>()</code>
+			</summary>
+			Generates an HTML file from a given file path.
+		</details>
+		<details>
+			<summary>
+				<code>Documentation.<cyan>Get</cyan>()</code>
+			</summary>
+			Gets the documentation file as a <code>System.Collections.Generic.<cyan>List`1</cyan></code> of string tuples.
+		</details>
+		<details>
+			<summary>
+				<code>Documentation.<cyan>Format</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
+			</summary>
+			Formats a member's name.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>MemberTagRegex</cyan>()</code>
+			</summary>
+			Pattern:<br/><code>\\uEEEC</code><br/>Explanation:<br/><code>○ Match ''.<br/></code>
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>IndentTags</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Formats the final HTML document to have proper spacing for code readability.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>LT</cyan></code>
+			</summary>
+			Represents the safe replacement character for its equivalent XML entity.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>GT</cyan></code>
+			</summary>
+			Represents the safe replacement character for its equivalent XML entity.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>Code</cyan></code>
+			</summary>
+			Part of the <code>code</code> tag pair, used for font application.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>cCode</cyan></code>
+			</summary>
+			Part of the <code>code</code> tag pair, used for font application.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>Blue</cyan></code>
+			</summary>
+			Part of the <code>blue</code> tag pair, used for highlighting.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>cBlue</cyan></code>
+			</summary>
+			Part of the <code>blue</code> tag pair, used for highlighting.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>Cyan</cyan></code>
+			</summary>
+			Part of the <code>cyan</code> tag pair, used for highlighting.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>cCyan</cyan></code>
+			</summary>
+			Part of the <code>cyan</code> tag pair, used for highlighting.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>Details</cyan></code>
+			</summary>
+			Part of the <code>details</code> tag pair, used for formatting.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>cDetails</cyan></code>
+			</summary>
+			Part of the <code>details</code> tag pair, used for formatting.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>Summary</cyan></code>
+			</summary>
+			Part of the <code>summary</code> tag pair, used for formatting.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>cSummary</cyan></code>
+			</summary>
+			Part of the <code>summary</code> tag pair, used for formatting.
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>MemberOpen</cyan></code>
+			</summary>
+			Indicate the start and end of a member name section, used in <code>Documentation.<cyan>Get</cyan>()</code>
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>MemberClose</cyan></code>
+			</summary>
+			Indicate the start and end of a member name section, used in <code>Documentation.<cyan>Get</cyan>()</code>
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>SummaryOpen</cyan></code>
+			</summary>
+			Indicate the start and end of a summary section, used in <code>Documentation.<cyan>Get</cyan>()</code>
+		</details>
+		<details>
+			<summary>
+				<code>HtmlTags.<cyan>SummaryClose</cyan></code>
+			</summary>
+			Indicate the start and end of a summary section, used in <code>Documentation.<cyan>Get</cyan>()</code>
+		</details>
+		<details>
+			<summary>
+				<code><cyan>Embeds</cyan></code>
+			</summary>
+			Contains functions for the creation of embeds and their components.
+		</details>
+		<details>
+			<summary>
+				<code>Embeds.<cyan>CreateAuthor</cyan>(<blue>string</blue>, <blue>string</blue>, <blue>string</blue>)</code>
+			</summary>
+			 Creates an <code>Rest.<cyan>EmbedAuthorProperties</cyan></code> object for use in an <code><cyan>Embed</cyan></code>. 
+		</details>
+		<details>
+			<summary>
+				<code>Embeds.<cyan>CreateFooter</cyan>(<blue>string</blue>, <blue>string</blue>)</code>
+			</summary>
+			 Creates an <code>Rest.<cyan>EmbedAuthorProperties</cyan></code> object for use in an <code><cyan>Embed</cyan></code>. 
+		</details>
+		<details>
+			<summary>
+				<code>Embeds.<cyan>CreateField</cyan>(<blue>string</blue>, <blue>string</blue>, <blue>bool</blue>)</code>
+			</summary>
+			 Creates an <code>Rest.<cyan>EmbedFieldProperties</cyan></code> object for use in an <code><cyan>Embed</cyan></code>. 
+		</details>
+		<details>
+			<summary>
+				<code>Embeds.<cyan>GetAssetURL</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Gets the GitHub hosted URL of the given asset.
+		</details>
+		<details>
+			<summary>
+				<code>Embeds.<cyan>ASSETS</cyan></code>
+			</summary>
+			The URL to the GitHub Assets folder.
+		</details>
+		<details>
+			<summary>
+				<code>Embeds.<cyan>STD_COLOR</cyan></code>
+			</summary>
+			The hex code for standard embed gray.
+		</details>
+		<details>
+			<summary>
+				<code>Embeds.<cyan>RandomColor</cyan></code>
+			</summary>
+			Generates a random 24-bit integer from the current time in ticks.
+		</details>
+		<details>
+			<summary>
+				<code>Embeds.<cyan>Generate</cyan>(Rest.EmbedProperties, <blue>string</blue>[], <blue>string</blue>, <blue>bool</blue>)</code>
+			</summary>
+			 Combines the specified parameters to generate an embed. 
+		</details>
+		<details>
+			<summary>
+				<code>Embeds.<cyan>ToEmbed</cyan>(Rest.RestMessage, <blue>string</blue>, Rest.EmbedFooterProperties, <blue>string</blue>, <blue>string</blue>)</code>
+			</summary>
+			 Combines the specified parameters with parameters extracted from a given <code>Rest.<cyan>RestMessage</cyan></code> to generate an embed. 
+		</details>
+		<details>
+			<summary>
+				<code>Embeds.<cyan>Title</cyan>(<blue>string</blue>, Rest.EmbedFieldProperties[], <blue>ulong</blue>)</code>
+			</summary>
+			Creates a <code>Rest.<cyan>MessageProperties</cyan></code> object suitable for <code>Commands.SlashCommands.<cyan>GetTitle</cyan>(Commands.Helpers.Library.Titles)</code>.
+		</details>
+		<details>
+			<summary>
+				<code><cyan>Events</cyan></code>
+			</summary>
+			Contains methods responsible for handling message events.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>GuildUserUpdate</cyan>(GuildUser)</code>
+			</summary>
+			Updates the <code>Caches.Members.<cyan>List</cyan></code> dictionary when a user is added or modified.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>GuildUserRemove</cyan>(Gateway.GuildUserRemoveEventArgs)</code>
+			</summary>
+			Removes users from the Caches.Content.List dictionary when a member is modified.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>RoleUpdate</cyan>(Role)</code>
+			</summary>
+			Updates the <code>Caches.Members.<cyan>Roles</cyan></code> dictionary when roles are created or updated.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>RoleDelete</cyan>(Gateway.RoleDeleteEventArgs)</code>
+			</summary>
+			Updates the <code>Caches.Members.<cyan>Roles</cyan></code> dictionary when roles are deleted.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>MapClientHandlers</cyan>()</code>
+			</summary>
+			Maps the <code>Bot.<cyan>Client</cyan></code>'s events to their appropriate response method.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>InteractionCreate</cyan>(Interaction)</code>
+			</summary>
+			Processes received interactions.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>DeletedSpamMessage</cyan></code>
+			</summary>
+			Used by <code>Messages.Functions.<cyan>Filter</cyan>(Gateway.Message)</code> to pass a message to <code>Events.<cyan>MessageDelete</cyan>(Gateway.MessageDeleteEventArgs)</code>, bypassing the cache.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>MessageCreate</cyan>(Gateway.Message)</code>
+			</summary>
+			Processes new messages.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>MessageDelete</cyan>(Gateway.MessageDeleteEventArgs)</code>
+			</summary>
+			Logs message deletions.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>MessageUpdate</cyan>(Gateway.IPartialMessage)</code>
+			</summary>
+			Logs message edits and updates.
+		</details>
+		<details>
+			<summary>
+				<code>Events.<cyan>ReactionAdded</cyan>(Gateway.MessageReactionAddEventArgs)</code>
+			</summary>
+			Logs reactions to messages.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.<cyan>Functions</cyan></code>
+			</summary>
+			Contains methods and variables used for basic message functionality and parsing.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Functions.<cyan>AddToStarBoard</cyan>(Gateway.MessageReactionAddEventArgs)</code>
+			</summary>
+			 Parses the contents of a given <code>Gateway.<cyan>MessageReactionAddEventArgs</cyan></code> and adds the result to the starboard. 
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Functions.<cyan>ParseLinks</cyan>(Gateway.Message)</code>
+			</summary>
+			Parses a given message to check for message links, and displays their content if possible.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Functions.<cyan>Filter</cyan>(Gateway.Message)</code>
+			</summary>
+			Compares a given message's attributes to other messages by the same user, and deletes it if the filter's criteria are met.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.<cyan>Logging</cyan></code>
+			</summary>
+			Contains methods responsible for logging messages to the console.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Logging.<cyan>LastAuthorID</cyan></code>
+			</summary>
+			The ID of the latest logged user.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Logging.<cyan>LastDeletedAuthorID</cyan></code>
+			</summary>
+			The ID of the latest deleted user.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Logging.<cyan>LOG_CHANNEL</cyan></code>
+			</summary>
+			The ID of the channel to send logs to.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Logging.<cyan>LogNetworkMessage</cyan>(Gateway.LogMessage)</code>
+			</summary>
+			Logs messages from the system.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Logging.<cyan>LogCreatedMessage</cyan>(Gateway.Message)</code>
+			</summary>
+			Logs new discord messages.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Logging.<cyan>LogDeletedMessage</cyan>(Gateway.Message)</code>
+			</summary>
+			Logs deleted discord messages.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Logging.<cyan>LogUpdatedMessage</cyan>(Gateway.Message, Gateway.Message)</code>
+			</summary>
+			Logs edited discord messages.
+		</details>
+		<details>
+			<summary>
+				<code>Messages.Logging.<cyan>WriteAsID</cyan>(<blue>string</blue>, Messages.Logging.SpecialId)</code>
+			</summary>
+			Writes a message to the console using a specified <code>Messages.Logging.<cyan>SpecialId</cyan></code>.
+		</details>
+	</body>
+</html>

@@ -86,8 +86,8 @@ public static class Library
 			"""),
 
 		Embeds.CreateField("Shopping", """
-			- Iceland has a *ton* of souvenir shops and specialties, so check out everything you can
-			- The most common specialties are silver jewellery, which you'll want to pick up with why you're there
+			- Iceland has a *ton* of souvenir shops and specialities, so check out everything you can
+			- The most common specialities are silver jewellery, which you'll want to pick up with why you're there
 			- Lava stones and fish leather are *everywhere*, make sure to check for the high quality stuff
 			- Check out all the different shops you can, everywhere has something different
 			- Most shops are open from 9am - 6pm from Monday to Friday, and from 10am to 4pm on Saturday

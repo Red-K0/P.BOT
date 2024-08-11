@@ -12,7 +12,7 @@ internal static partial class Events
 	public static async ValueTask GuildUserUpdate(GuildUser guildUser) => Members.List[guildUser.Id] = new(await guildUser.GetInfoAsync());
 
 	/// <summary>
-	/// Removes users from the Caches.Members.List dictionaryy when a member is modified.
+	/// Removes users from the Caches.Content.List dictionary when a member is modified.
 	/// </summary>
 	public static async ValueTask GuildUserRemove(GuildUserRemoveEventArgs guildUser) => await Task.Run(() => Members.List.Remove(guildUser.User.Id));
 

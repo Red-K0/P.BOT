@@ -8,7 +8,7 @@ namespace PBot.Commands;
 /// <summary>
 /// Contains the text commands used by P.BOT and their associated tasks.
 /// </summary>
-public static class TextCommands
+internal static class TextCommands
 {
 	/// <summary>
 	/// Parses a given message, running the associated text command if a valid prefix is found.

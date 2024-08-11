@@ -1,43 +1,60 @@
-﻿using System.Runtime.InteropServices;
+﻿using static Windows.Win32.System.Console.CONSOLE_MODE;
+using static Windows.Win32.System.Console.STD_HANDLE;
+using System.Runtime.InteropServices;
+using static Windows.Win32.PInvoke;
+using Windows.Win32.System.Console;
 
 namespace PBot;
 
 /// <summary>
-/// Contains constants and method calls related to unmanaged code in 'phlpr.dll'.
+/// Contains constants and method calls related to unmanaged code.
 /// </summary>
-internal static unsafe partial class PHelper
+internal static class VirtualTerminalSequences
 {
+	static readonly SafeHandle OutHandle = GetStdHandle_SafeHandle(STD_OUTPUT_HANDLE);
+	static readonly SafeHandle InHandle  = GetStdHandle_SafeHandle(STD_INPUT_HANDLE);
+
 	#region Control Codes
 	/// <summary>
-	/// Indicates the start of a virtual terminal sequence.
-	/// </summary>
-	public const string CSI = "\x1b[";
-
-	/// <summary>
-	/// Sets the console color.
+	/// Sets the console foreground color.
 	/// </summary>
 	public const string
-	BrightBlack    = CSI + "30m", Black    = CSI + "90m",
-	BrightRed      = CSI + "31m", Red      = CSI + "91m",
-	BrightGreen    = CSI + "32m", Green    = CSI + "92m",
-	BrightYellow   = CSI + "33m", Yellow   = CSI + "93m",
-	BrightBlue     = CSI + "34m", Blue     = CSI + "94m",
-	BrightMagenta  = CSI + "35m", Magenta  = CSI + "95m",
-	BrightCyan     = CSI + "36m", Cyan     = CSI + "96m",
-	None           = CSI + "37m", White    = CSI + "97m",
-	bBrightBlack   = CSI + "40m", bBlack   = CSI + "100m",
-	bBrightRed     = CSI + "41m", bRed     = CSI + "101m",
-	bBrightGreen   = CSI + "42m", bGreen   = CSI + "102m",
-	bBrightYellow  = CSI + "43m", bYellow  = CSI + "103m",
-	bBrightBlue    = CSI + "44m", bBlue    = CSI + "104m",
-	bBrightMagenta = CSI + "45m", bMagenta = CSI + "105m",
-	bBrightCyan    = CSI + "46m", bCyan    = CSI + "106m",
-	bBrightWhite   = CSI + "47m", bWhite   = CSI + "107m";
+	DarkGray = "\e[30m", Black       = "\e[90m",
+	Red      = "\e[31m", DarkRed     = "\e[91m",
+	Green    = "\e[32m", DarkGreen   = "\e[92m",
+	Yellow   = "\e[33m", DarkYellow  = "\e[93m",
+	Blue     = "\e[34m", DarkBlue    = "\e[94m",
+	Magenta  = "\e[35m", DarkMagenta = "\e[95m",
+	Cyan     = "\e[36m", DarkCyan    = "\e[96m",
+	White    = "\e[37m", Gray        = "\e[97m";
+
+	/// <summary>
+	/// Sets the console background color.
+	/// </summary>
+	public const string
+	DarkGrayB = "\e[40m", BlackB       = "\e[100m",
+	RedB      = "\e[41m", DarkRedB     = "\e[101m",
+	GreenB    = "\e[42m", DarkGreenB   = "\e[102m",
+	YellowB   = "\e[43m", DarkYellowB  = "\e[103m",
+	BlueB     = "\e[44m", DarkBlueB    = "\e[104m",
+	MagentaB  = "\e[45m", DarkMagentaB = "\e[105m",
+	CyanB     = "\e[46m", DarkCyanB    = "\e[106m",
+	WhiteB    = "\e[47m", GrayB        = "\e[107m";
 	#endregion
 
-	/// <summary> Unmanaged method imported via 'phlpr.dll', enables the use of virtual terminal sequences globally, and hides the cursor. </summary>
-	/// <returns> True if successful, otherwise returns false. </returns>
-	[LibraryImport("phlpr.dll", SetLastError = true)]
-	[return: MarshalAs(UnmanagedType.Bool)]
-	public static partial bool EnableVirtualAndHideCursor();
+public static void Enable()
+{
+	GetConsoleMode(OutHandle, out CONSOLE_MODE OriginalOut);
+	GetConsoleMode(InHandle,  out CONSOLE_MODE OriginalIn);
+	SetConsoleMode(OutHandle, OriginalOut | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	SetConsoleMode(InHandle,  OriginalIn  | ENABLE_VIRTUAL_TERMINAL_INPUT);
+}
+
+public static void Disable()
+{
+	GetConsoleMode(OutHandle, out CONSOLE_MODE OriginalOut);
+	GetConsoleMode(InHandle,  out CONSOLE_MODE OriginalIn);
+	SetConsoleMode(OutHandle, OriginalOut &~ ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	SetConsoleMode(InHandle,  OriginalIn  &~ ENABLE_VIRTUAL_TERMINAL_INPUT);
+}
 }

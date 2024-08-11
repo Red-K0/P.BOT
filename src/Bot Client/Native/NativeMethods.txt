@@ -1,0 +1,7 @@
+STD_HANDLE
+CONSOLE_MODE
+INVALID_HANDLE_VALUE
+
+GetStdHandle
+GetConsoleMode
+SetConsoleMode

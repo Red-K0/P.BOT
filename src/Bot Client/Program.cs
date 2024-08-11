@@ -1,16 +1,22 @@
 ﻿using static PBot.Messages.Logging;
 
-if (!PHelper.EnableVirtualAndHideCursor()) throw new OperationCanceledException("'phlpr.dll' failed to initlialize the console.");
+await Documentation.Generate();
+
+VirtualTerminalSequences.Enable();
 Console.OutputEncoding = System.Text.Encoding.Unicode;
+Console.CursorVisible = false;
 
-await Start();
+AppDomain current = AppDomain.CurrentDomain; // Load handler after client to prevent infinite loop.
 
-AppDomain current = AppDomain.CurrentDomain; // Load handler after client and phlpr.dll to prevent infinite loop.
+current.ProcessExit += (_, _) => VirtualTerminalSequences.Disable(); // Restore input and output modes after exit.
+
 current.UnhandledException += async (_, e) =>
 {
 	Console.Clear();
-	WriteAsID($"An unhandled '{e.ExceptionObject.GetType()}' occured at {DateTime.Now}", SpecialId.Network);
+	WriteAsID($"An unhandled '{e.ExceptionObject.GetType()}' occurred at {DateTime.UtcNow}", SpecialId.Network);
 	await Restart();
 };
+
+await Start();
 
 await Task.Delay(Timeout.Infinite);

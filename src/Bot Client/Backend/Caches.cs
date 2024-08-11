@@ -13,6 +13,26 @@ internal static class Messages
 	/// Contains all messages in the bot's cache.
 	/// </summary>
 	public static ConcurrentLru<ulong, Message> Recent { get; } = new(capacity: 10000);
+
+	/// <summary>
+	/// The index of the last assigned <see cref="IgnoreCache"/> slot.
+	/// </summary>
+	private static sbyte IgnoreCounter = -1;
+
+	/// <summary>
+	/// A short array of messages to be ignored by <see cref="Events.MessageDelete(MessageDeleteEventArgs)"/> to prevent clutter.
+	/// </summary>
+	public static readonly ulong[] IgnoreCache = [0, 0, 0, 0, 0];
+
+	/// <summary>
+	/// Adds a message ID to the <see cref="IgnoreCache"/>.
+	/// </summary>
+	public static void IgnoreID(ulong id)
+	{
+		if (IgnoreCounter == 4) IgnoreCounter = -1;
+		IgnoreCounter++;
+		IgnoreCache[IgnoreCounter] = id;
+	}
 }
 
 /// <summary>

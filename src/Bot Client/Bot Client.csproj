@@ -1,89 +1,95 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
-    <RootNamespace>PBot</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AnalysisLevel>latest-recommended</AnalysisLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>x64</PlatformTarget>
-    <PublishAot>true</PublishAot>
-    <IsAotCompatible>true</IsAotCompatible>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Trimming>full</Trimming>
-    <PublishAot>True</PublishAot>
-    <UserSecretsId>00fd273c-e691-4c01-8d8e-f6afd8339d21</UserSecretsId>
-    <ApplicationIcon>Assets\Bot Icon.ico</ApplicationIcon>
-    <PackageIcon>Bot Icon.png</PackageIcon>
-    <DocumentationFile>F:\!PBOT\src\HTML Documentation Generator\Source.xml</DocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+		<RootNamespace>PBot</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AnalysisLevel>latest-recommended</AnalysisLevel>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<PlatformTarget>x64</PlatformTarget>
+		<PublishAot>true</PublishAot>
+		<IsAotCompatible>true</IsAotCompatible>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<Trimming>full</Trimming>
+		<UserSecretsId>00fd273c-e691-4c01-8d8e-f6afd8339d21</UserSecretsId>
+		<ApplicationIcon>Assets\Bot Icon.ico</ApplicationIcon>
+		<PackageIcon>Bot Icon.png</PackageIcon>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <WarningLevel>9999</WarningLevel>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <DebugType>full</DebugType>
-    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
-    <Optimize>False</Optimize>
-    <Deterministic>False</Deterministic>
-  </PropertyGroup>
+	<PropertyGroup>
+		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+		<IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+		<InvariantGlobalization>true</InvariantGlobalization>
+		<SelfContained>true</SelfContained>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <WarningLevel>9999</WarningLevel>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <DebugType>none</DebugType>
-    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
-    <Deterministic>False</Deterministic>
-    <Optimize>True</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<WarningLevel>9999</WarningLevel>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<DebugType>full</DebugType>
+		<CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+		<Optimize>False</Optimize>
+		<Deterministic>False</Deterministic>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="CommonFunctions.cs" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<WarningLevel>9999</WarningLevel>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<DebugType>none</DebugType>
+		<CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+		<Deterministic>False</Deterministic>
+		<Optimize>True</Optimize>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove=".gitattributes" />
-    <None Remove=".gitignore" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove=".gitattributes" />
+		<None Remove=".gitignore" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Assets\Bot Icon.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="Assets\Bot Icon.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="BitFaster.Caching" Version="2.5.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0-preview.5.24306.7" />
-    <PackageReference Include="NetCord" Version="1.0.0-alpha.298" />
-    <PackageReference Include="NetCord.Services" Version="1.0.0-alpha.199" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.12.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Roslynator.CodeFixes" Version="4.12.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BitFaster.Caching" Version="2.5.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0-preview.6.24327.7" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="NetCord" Version="1.0.0-alpha.302" />
+		<PackageReference Include="NetCord.Services" Version="1.0.0-alpha.203" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Roslynator.Analyzers" Version="4.12.4">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Roslynator.CodeFixes" Version="4.12.4">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Using Include="NetCord" />
-    <Using Include="NetCord.Gateway" />
-    <Using Include="NetCord.Rest" />
-    <Using Include="NetCord.Services" />
-    <Using Include="PBot" />
-    <Using Include="PBot.Bot">
-      <Static>True</Static>
-    </Using>
-    <Using Include="System.Diagnostics" />
-    <Using Include="System.Diagnostics.CodeAnalysis" />
-  </ItemGroup>
+	<ItemGroup>
+		<Using Include="NetCord" />
+		<Using Include="NetCord.Gateway" />
+		<Using Include="NetCord.Rest" />
+		<Using Include="NetCord.Services" />
+		<Using Include="PBot" />
+		<Using Include="PBot.Bot">
+			<Static>True</Static>
+		</Using>
+		<Using Include="System.Diagnostics" />
+		<Using Include="System.Diagnostics.CodeAnalysis" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="phlpr.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<AdditionalFiles Include="$(ProjectDir)Native\NativeMethods.txt" />
+	</ItemGroup>
 
 </Project>

@@ -50,20 +50,20 @@ internal static partial class Embeds
 	public static InteractionMessageProperties ToEmbed(this RestMessage message, string? url = null, EmbedFooterProperties? footer = null,
 	string? title = null, string? thumbnail = null)
 	{
-		string?[]? attachmentUrls = new string[message.Attachments.Count];
-		foreach (var (attachment, i) in message.Attachments.Values.Select((v, i) => (v, i))) attachmentUrls[i] = attachment.Url;
+		string?[]? urls = message.Attachments.Count != 0 ? new string[message.Attachments.Count] : null;
+		foreach (var (attachment, i) in message.Attachments.Values.Select((v, i) => (v, i))) urls![i] = attachment.Url;
 		return Generate(CreateProperties(
 			message.Content,
 			CreateAuthor(message.Author.GetDisplayName(), message.Author.GetAvatar()),
 			message.CreatedAt,
 			footer,
-			attachmentUrls[0],
+			urls?[0],
 			thumbnail,
 			title,
 			url,
 			null,
 			message.Author.Id
-		), attachmentUrls);
+		), urls);
 	}
 
 	/// <summary>

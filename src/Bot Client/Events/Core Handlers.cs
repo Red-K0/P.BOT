@@ -29,7 +29,7 @@ internal static partial class Events
 	}
 
 	/// <summary>
-	/// Processes recieved interactions.
+	/// Processes received interactions.
 	/// </summary>
 	public static async ValueTask InteractionCreate(Interaction interaction)
 	{

@@ -262,3 +262,15 @@ dotnet_diagnostic.S1121.severity = none
 
 # RCS1001: Add braces (when expression spans over multiple lines)
 dotnet_diagnostic.RCS1001.severity = none
+
+# S2583: Conditionally executed code should be reachable
+dotnet_diagnostic.S2583.severity = none
+
+# S125: Sections of code should not be commented out
+dotnet_diagnostic.S125.severity = none
+
+# S108: Nested blocks of code should not be left empty
+dotnet_diagnostic.S108.severity = none
+
+# RCS1036: Remove unnecessary blank line
+dotnet_diagnostic.RCS1036.severity = none

@@ -8,7 +8,12 @@ internal static class Logging
 	/// <summary>
 	/// The ID of the latest logged user.
 	/// </summary>
-	private static ulong LastAuthor;
+	private static ulong LastAuthorID;
+
+	/// <summary>
+	/// The ID of the latest deleted user.
+	/// </summary>
+	private static ulong LastDeletedAuthorID;
 
 	/// <summary>
 	/// The ID of the channel to send logs to.
@@ -29,7 +34,7 @@ internal static class Logging
 	/// </summary>
 	public static void LogCreatedMessage(Message message)
 	{
-		string Message = (LastAuthor != message.Author.Id) ?
+		string Message = (LastAuthorID != message.Author.Id) ?
 		$"\n{message.CreatedAt.ToString()[..^7]} {message.Author,-22} - {message.Author.GetDisplayName()}\n" : "";
 
 		if (message.ReferencedMessage?.Content != null)
@@ -41,7 +46,7 @@ internal static class Logging
 			Message += message.Content;
 		}
 
-		Console.WriteLine(Message); LastAuthor = message.Author.Id;
+		Console.WriteLine(Message); LastAuthorID = message.Author.Id;
 	}
 
 	/// <summary>
@@ -52,15 +57,18 @@ internal static class Logging
 		int AttachmentCount = message.Attachments.Count;
 		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
 
-		await Client.Rest.SendMessageAsync(LOG_CHANNEL, message.ToEmbed(
-			GuildURL + message.Channel!.Id.ToString(),
-			Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")),
-			title: $"Message Deleted {(message.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}"
-		).ToMessage());
+		EmbedProperties embed = message.ToEmbed().Embeds!.First()
+			.WithUrl(GuildURL + message.Channel!.Id)
+			.WithFooter(Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")))
+			.WithTitle($"Message Deleted {(message.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}");
 
-		WriteAsID(
-		$"The message with ID '{message.Id}' was deleted. It was sent by {message.Author.GetDisplayName()} @ {message.CreatedAt.ToString()[..^7]}" +
-		$" with contents:\n{message.Content}", SpecialId.Discord);
+		if (LastDeletedAuthorID == message.Author.Id) embed = embed.WithAuthor(null);
+
+		await Client.Rest.SendMessageAsync(LOG_CHANNEL, Embeds.Generate(embed, message.Attachments.GetImageURLs(), $"{GuildURL}{message.Channel!.Id}").ToMessage());
+
+		WriteAsID($"The message with ID '{message.Id}' was deleted. It was sent by {message.Author.GetDisplayName()} @ {message.CreatedAt.ToString()[..^7]} with contents:\n{message.Content}", SpecialId.Discord);
+
+		LastDeletedAuthorID = message.Author.Id;
 	}
 
 	/// <summary>
@@ -94,14 +102,14 @@ internal static class Logging
 	{
 		string IdString = "\n" + id switch
 		{
-			SpecialId.Network => $"{PHelper.Green}Network",
-			SpecialId.Discord => $"{PHelper.Blue}Discord",
-			SpecialId.Verbose => $"{PHelper.Red}Command",
+			SpecialId.Network => $"{VirtualTerminalSequences.DarkGreen}Network",
+			SpecialId.Discord => $"{VirtualTerminalSequences.DarkBlue}Discord",
+			SpecialId.Verbose => $"{VirtualTerminalSequences.DarkRed}Command",
 			_ => "Unknown"
 		};
 
-		Console.WriteLine($"{IdString[((LastAuthor != (ulong)id) ? 0 : 1)..]}:{PHelper.None} {message}");
-		LastAuthor = (ulong)id;
+		Console.WriteLine($"{IdString[((LastAuthorID != (ulong)id) ? 0 : 1)..]}:{VirtualTerminalSequences.White} {message}");
+		LastAuthorID = (ulong)id;
 	}
 
 	/// <summary>

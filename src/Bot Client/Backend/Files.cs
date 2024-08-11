@@ -10,9 +10,9 @@ internal static class Files
 	/// <summary>
 	/// Whether the specified file contains the given data.
 	/// </summary>
-	/// <param name="file">The file to search for a match in.</param>
-	/// <param name="data">The data to search for.</param>
-	/// <param name="append">Whether to append the data if it isn't found.</param>
+	/// <param name="file"> The file to search for a match in. </param>
+	/// <param name="data"> The data to search for. </param>
+	/// <param name="append"> Whether to append the data if it isn't found. </param>
 	public static async Task<bool> FileContains(Names file, string data, bool append = false)
 	{
 		if ((await File.ReadAllLinesAsync(Paths[file])).Contains(data))
@@ -29,8 +29,8 @@ internal static class Files
 	/// <summary>
 	/// Reads the value of a counter.
 	/// </summary>
-	/// <param name="line">The counter to read the value of.</param>
-	/// <param name="mod">The value to modify the counter by after reading.</param>
+	/// <param name="line"> The counter to read the value of. </param>
+	/// <param name="mod"> The value to modify the counter by after reading. </param>
 	public static async Task<int> ReadCounter(CounterLines line, int mod = 0)
 	{
 		string  Path = Paths[Counters];

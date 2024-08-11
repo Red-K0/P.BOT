@@ -1,9 +1,12 @@
-﻿namespace PBot;
+﻿using System.Text.RegularExpressions;
+using System.Text;
+
+namespace PBot;
 
 /// <summary>
 /// Convenience class for simple type conversions.
 /// </summary>
-internal static class Extensions
+internal static partial class Extensions
 {
 	/// <summary>
 	/// Converts the value of this instance to its equivalent <see cref="InteractionMessageProperties"/> representation.
@@ -18,46 +21,6 @@ internal static class Extensions
 		Flags = obj.Flags,
 		Tts = obj.Tts
 	};
-
-	/// <summary>
-	/// Converts a <see cref="User"/> object to a <see cref="GuildUser"/> compatible object. The values appended to the object are always set to their defaults.
-	/// </summary>
-	public static GuildUser ToGuildUser(this User user) => new(new()
-	{
-		Deafened = default,
-		GuildAvatarHash = default,
-		GuildBoostStart = default,
-		GuildFlags = default,
-		HoistedRoleId = default,
-		IsPending = default,
-		JoinedAt = default,
-		Muted = default,
-		Nickname = default,
-		Permissions = default,
-		RoleIds = [],
-		TimeOutUntil = default,
-		User = new()
-		{
-			AccentColor = user.AccentColor,
-			AvatarDecorationHash = user.AvatarDecorationHash,
-			AvatarHash = user.AvatarHash,
-			BannerHash = user.BannerHash,
-			Discriminator = user.Discriminator,
-			Email = user.Email,
-			MfaEnabled = user.MfaEnabled,
-			Flags = user.Flags,
-			GlobalName = user.GlobalName,
-			GuildUser = null,
-			Id = user.Id,
-			IsBot = user.IsBot,
-			IsSystemUser = user.IsSystemUser,
-			Locale = user.Locale,
-			PremiumType = user.PremiumType,
-			PublicFlags = user.PublicFlags,
-			Username = user.Username,
-			Verified = user.Verified,
-		}
-	}, GuildID, Client.Rest);
 
 	/// <summary>
 	/// Converts a set of attachments to an array of the attachments' URLs.
@@ -100,11 +63,11 @@ internal static class Extensions
 	{
 		if (Caches.Members.List.TryGetValue(user.Id, out Caches.Members.Member? member) && member.Info.User.HasGuildAvatar)
 		{
-			return member.Info.User.GetGuildAvatarUrl(format).ToString();
+			return member.Info.User.GetGuildAvatarUrl(format)!.ToString();
 		}
 		else if (user.HasAvatar)
 		{
-			return user.GetAvatarUrl(format).ToString();
+			return user.GetAvatarUrl(format)!.ToString();
 		}
 		else
 		{
@@ -117,18 +80,9 @@ internal static class Extensions
 	/// </summary>
 	public static string GetAvatar(this GuildUser user, ImageFormat? format = null)
 	{
-		if (user.HasGuildAvatar)
-		{
-			return user.GetGuildAvatarUrl(format).ToString();
-		}
-		else if (user.HasAvatar)
-		{
-			return user.GetAvatarUrl(format).ToString();
-		}
-		else
-		{
-			return user.DefaultAvatarUrl.ToString();
-		}
+		if (user.HasGuildAvatar) return user.GetGuildAvatarUrl(format)!.ToString();
+		else if (user.HasAvatar) return user.GetAvatarUrl(format)!.ToString();
+		else return user.DefaultAvatarUrl.ToString();
 	}
 
 	/// <summary>
@@ -136,35 +90,40 @@ internal static class Extensions
 	/// </summary>
 	public static string ToParsedUnicode(this string unparsed)
 	{
-		if (unparsed == null) return "";
-		char[] CharArray = unparsed.ToCharArray();
+		if (!unparsed.Contains('\\')) return unparsed;
 
-		// Fix for escape characters in raw text, such as "\u2014" instead of '—' (U+2014 | Em Dash).
-		for (int i = 0; i < CharArray.Length - 1; i++)
+		int Position = 0;
+		StringBuilder Result = new();
+		foreach (Match match in UnicodeIdentifierRegex().Matches(unparsed))
 		{
-			// If a raw text unicode identifier is present (\u****).
-			if (CharArray[i] == '\\' && CharArray[i + 1] == 'u')
+			Result.Append(unparsed, Position, match.Index - Position);
+			Position = match.Index + match.Length;
+			Result.Append((char)Convert.ToInt32(match.Groups[1].ToString(), 16));
+		}
+		Result.Append(unparsed, Position, unparsed.Length - Position);
+
+		unparsed = Result.ToString();
+		Result.Clear();
+		Position = 0;
+
+		foreach (Match match in EscapeCharacterRegex().Matches(unparsed))
+		{
+			Result.Append(unparsed, Position, match.Index - Position);
+			Position = match.Index + match.Length;
+			Result.Append(match.ValueSpan[1] switch
 			{
-				// Get the chars present after "\u", and merge them into one identifier.
-				string Identifier = CharArray[i + 2].ToString()
-								  + CharArray[i + 3].ToString()
-								  + CharArray[i + 4].ToString()
-								  + CharArray[i + 5].ToString();
-
-				// Convert the Identifier into a char value, and replace the '\' w
-				// ith it.
-				CharArray[i] = Convert.ToChar(int.Parse(Identifier, System.Globalization.NumberStyles.HexNumber));
-
-				// Replace the 'u' and identifier characters with null '\0' characters.
-				CharArray[i + 1] = '\0';
-				CharArray[i + 2] = '\0';
-				CharArray[i + 3] = '\0';
-				CharArray[i + 4] = '\0';
-				CharArray[i + 5] = '\0';
-			}
+				 'b' => "\b",
+				 'f' => "\f",
+				 'n' => "\n",
+				 'r' => "\r",
+				 't' => "\t",
+				 '"' => "\"",
+				'\\' => "\\",
+				_ => throw new InvalidOperationException()
+			});
 		}
 
-		return new string(CharArray).Replace("\0", "");
+		return Result.ToString();
 	}
 
 	/// <summary>
@@ -176,18 +135,22 @@ internal static class Extensions
 	/// <summary>
 	/// Gets the relevant <see cref="Message"/> object from a Discord message URL.
 	/// </summary>
-	public static async Task<RestMessage?> GetMessage(this string messageLink)
+	public static async Task<RestMessage?> GetMessage(this string link)
 	{
-		if (!messageLink.Contains(GuildURL) || messageLink.Length <= (messageLink.IndexOf(GuildURL) + 49)) return null;
-		string CurrentScan = messageLink[(messageLink.IndexOf(GuildURL) + 49)..];
+		if (link.Contains(GuildURL) && link.Length > (link.IndexOf(GuildURL) + GuildURL.Length))
+		{
+			link = link[(link.IndexOf(GuildURL) + GuildURL.Length)..];
 
-		if (CurrentScan.Contains(' ')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf(' '));
-		if (CurrentScan.Contains('\n')) CurrentScan = CurrentScan.Remove(CurrentScan.IndexOf('\n'));
+			if (link.Contains(' ')) link = link.Remove(link.IndexOf(' '));
+			if (link.Contains('\n')) link = link.Remove(link.IndexOf('\n'));
 
-		if (!ulong.TryParse(CurrentScan.Remove(CurrentScan.LastIndexOf('/')), out ulong ChannelID)) return null;
-		if (!ulong.TryParse(CurrentScan[(CurrentScan.LastIndexOf('/') + 1)..], out ulong MessageID)) return null;
+			if (ulong.TryParse(link.Remove(link.LastIndexOf('/')), out ulong Channel) && ulong.TryParse(link[(link.LastIndexOf('/') + 1)..], out ulong Message))
+			{
+				return await Client.Rest.GetMessageAsync(Channel, Message);
+			}
+		}
 
-		return await Client.Rest.GetMessageAsync(ChannelID, MessageID);
+		return null;
 	}
 
 	/// <summary>
@@ -195,4 +158,10 @@ internal static class Extensions
 	/// </summary>
 	public static string GetDisplayName(this User user) =>
 		Caches.Members.List.TryGetValue(user.Id, out Caches.Members.Member? member) ? member.DisplayName : user.GlobalName ?? user.Username;
+
+	[GeneratedRegex(@"\\u([0-9A-Fa-f]{4})")]
+	private static partial Regex UnicodeIdentifierRegex();
+
+	[GeneratedRegex(@"\\(b|f|n|r|t|""|\\)")]
+	private static partial Regex EscapeCharacterRegex();
 }

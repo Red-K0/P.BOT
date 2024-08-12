@@ -16,6 +16,10 @@ internal static partial class Documentation
 	/// </summary>
 	public static async Task Generate()
 	{
+		List<(string, string)>? Pairs = await Get();
+
+		if (Pairs == null) return;
+
 		string path = Environment.CurrentDirectory;
 
 		StringBuilder Html = new("""
@@ -32,7 +36,7 @@ internal static partial class Documentation
 
 		char LastChar = 'B';
 
-		foreach ((string, string) pair in await Get())
+		foreach ((string, string) pair in Pairs)
 		{
 			if (pair.Item1[7] != LastChar) { LastChar = pair.Item1[7]; Html.Append("<br>"); }
 
@@ -46,11 +50,11 @@ internal static partial class Documentation
 	/// <summary>
 	/// Gets the documentation file as a <see cref="List{T}"/> of string tuples.
 	/// </summary>
-	private static async Task<List<(string, string)>> Get()
+	private static async Task<List<(string, string)>?> Get()
 	{
 		const string Source = "Bot Client.xml";
 
-		if (!File.Exists(Source)) throw new FileNotFoundException("No documentation file was generated, please check your project settings.");
+		if (!File.Exists(Source)) return null;
 
 		int StartIndex, EndIndex; string Data;
 		string Documentation = await File.ReadAllTextAsync(Source);

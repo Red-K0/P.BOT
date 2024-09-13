@@ -3,7 +3,7 @@
 using System.Collections.ObjectModel;
 using NetCord.Services.ApplicationCommands;
 
-namespace PBot.Commands.Helpers;
+namespace Bot.Commands.Helpers;
 
 /// <summary>
 /// Contains data involving dictionaries and the <see cref="SlashCommands.GetTitle(Titles)"/> command.

@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace PBot;
-internal static partial class HtmlTags
+namespace Bot.Documentation;
+internal static partial class Tags
 {
 	[GeneratedRegex(@"\uEEEC")]
 	public static partial Regex MemberTagRegex();
@@ -49,12 +49,12 @@ internal static partial class HtmlTags
 	public const string Summary = $"{LT}summary{GT}", cSummary = $"{LT}/summary{GT}";
 
 	/// <summary>
-	/// Indicate the start and end of a member name section, used in <see cref="Documentation.Get"/>
+	/// Indicate the start and end of a member name section, used in <see cref="Generator.GetMemberSummaryPairs"/>
 	/// </summary>
 	public const string MemberOpen = "\uEEEC", MemberClose = "\uEEED";
 
 	/// <summary>
-	/// Indicate the start and end of a summary section, used in <see cref="Documentation.Get"/>
+	/// Indicate the start and end of a summary section, used in <see cref="Generator.GetMemberSummaryPairs"/>
 	/// </summary>
 	public const string SummaryOpen = "\uEEEE", SummaryClose = "\uEEEF";
 }

@@ -1,8 +1,8 @@
-﻿using PBot.Commands;
-using static PBot.Messages.Functions;
-using static PBot.Messages.Logging;
+﻿using Bot.Commands;
+using static Bot.Messages.Functions;
+using static Bot.Messages.Logging;
 
-namespace PBot;
+namespace Bot.Backend;
 
 internal static partial class Events
 {
@@ -17,7 +17,14 @@ internal static partial class Events
 	public static async ValueTask MessageCreate(Message message)
 	{
 		// Massive performance save.
-		if (message.Author.IsBot) { Caches.Messages.IgnoreID(message.Id); return; }
+		if (message.Author.IsBot)
+		{
+			Caches.Messages.IgnoreID(message.Id);
+			return;
+		}
+
+		// Octocon support
+		if (message.Content[1] == ':') Caches.Messages.IgnoreID(message.Id);
 
 		// If a command runs, do nothing else.
 		if (message.Content.Length > 3 && message.Content[0] == '.')
@@ -66,11 +73,8 @@ internal static partial class Events
 	/// <summary>
 	/// Logs message edits and updates.
 	/// </summary>
-	public static async ValueTask MessageUpdate(IPartialMessage partialMessage)
+	public static async ValueTask MessageUpdate(Message message)
 	{
-		// Ignore partial messages
-		if (partialMessage is not Message message) return;
-
 		// Don't process bot messages.
 		// Too expensive computationally, as a lot of bots rely on frequent edits.
 		if (message.Author.IsBot) return;

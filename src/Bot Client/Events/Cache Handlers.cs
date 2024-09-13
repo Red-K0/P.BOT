@@ -1,6 +1,6 @@
-﻿using PBot.Caches;
+﻿using Bot.Caches;
 
-namespace PBot;
+namespace Bot.Backend;
 
 internal static partial class Events
 {

@@ -1,4 +1,6 @@
-﻿namespace PBot.Messages;
+﻿using Bot.Commands.Helpers;
+
+namespace Bot.Messages;
 
 /// <summary>
 /// Contains methods and variables used for basic message functionality and parsing.
@@ -31,6 +33,27 @@ internal static class Functions
 	}
 
 	/// <summary>
+	/// Gets the relevant <see cref="Message"/> object from a Discord message URL.
+	/// </summary>
+	public static async Task<RestMessage?> GetMessageFromLink(string link)
+	{
+		if (link.Contains(GuildURL) && link.Length > (link.IndexOf(GuildURL) + GuildURL.Length))
+		{
+			link = link[(link.IndexOf(GuildURL) + GuildURL.Length)..];
+
+			if (link.Contains(' ')) link = link.Remove(link.IndexOf(' '));
+			if (link.Contains('\n')) link = link.Remove(link.IndexOf('\n'));
+
+			if (ulong.TryParse(link.Remove(link.LastIndexOf('/')), out ulong Channel) && ulong.TryParse(link[(link.LastIndexOf('/') + 1)..], out ulong Message))
+			{
+				return await Client.Rest.GetMessageAsync(Channel, Message);
+			}
+		}
+
+		return null;
+	}
+
+	/// <summary>
 	/// Parses a given <paramref name="message"/> to check for message links, and displays their content if possible.
 	/// </summary>
 	/// <param name="message"> The <see cref="Message"/> object to check for and parse links in. </param>
@@ -42,18 +65,13 @@ internal static class Functions
 		do
 		{
 			i++;
-			if ((LinkedMessage = await Scan.GetMessage()) != null && !ParsedLinks.Contains(LinkedMessage.Id))
+			if ((LinkedMessage = await GetMessageFromLink(Scan)) != null && !ParsedLinks.Contains(LinkedMessage.Id))
 			{
 				EmbedProperties embed = LinkedMessage.ToEmbed().Embeds!.First().WithUrl($"{GuildURL}{message.ChannelId}/{message.Id}");
 
-				if (i == LinkCount)
-				{
-					embed = embed.WithFooter(Embeds.CreateFooter($"Message linked by {message.Author.GetDisplayName()}", message.Author.GetAvatar()));
-				}
-				else
-				{
-					embed = embed.WithTimestamp(null);
-				}
+				embed = i == LinkCount
+					? embed.WithFooter(Embeds.CreateFooter($"Message linked by {message.Author.GetDisplayName()}", message.Author.GetAvatar()))
+					: embed.WithTimestamp(null);
 
 				await Client.Rest.SendMessageAsync(
 					message.ChannelId,
@@ -63,7 +81,7 @@ internal static class Functions
 						embed.Url).ToChecked().ToMessage()
 				);
 
-				ParsedLinks[i] = LinkedMessage.Id;
+				ParsedLinks[i - 1] = LinkedMessage.Id;
 				LastAuthorID = LinkedMessage.Author.Id;
 			}
 
@@ -80,7 +98,9 @@ internal static class Functions
 	{
 		Caches.Members.Member Member = Caches.Members.List[message.Author.Id];
 
-		if (message.Content.StartsWith("# "))
+		ReadOnlySpan<char> Content = message.Content.AsSpan();
+
+		if (Content.StartsWith("# "))
 		{
 			if (Member.SpamLastMessageHeading)
 			{
@@ -96,16 +116,21 @@ internal static class Functions
 			Member.SpamLastMessageHeading = false;
 		}
 
-		if (message.Content == Member.SpamLastMessage)
+		if (Content == Member.SpamLastMessage)
 		{
 			// Double penalize link spam.
-			if (message.Content.Contains("://")) Member.SpamSameMessageCount++;
+			if (Content.Contains("://", StringComparison.Ordinal)) Member.SpamSameMessageCount++;
 			if (Member.SpamSameMessageCount++ > 1) return await FilterHit();
 		}
 		else
 		{
 			if (Member.SpamSameMessageCount != 0) Member.SpamSameMessageCount--;
 			Member.SpamLastMessage = message.Content;
+		}
+
+		if (Content.Contains("lost", StringComparison.OrdinalIgnoreCase) && Content.Contains("game", StringComparison.OrdinalIgnoreCase))
+		{
+			return await FilterHit(true);
 		}
 
 		// If there are no attachments, save state and exit early.
@@ -125,12 +150,21 @@ internal static class Functions
 		Caches.Members.List[message.Author.Id] = Member;
 		return false;
 
-		async Task<bool> FilterHit()
+		async Task<bool> FilterHit(bool gameLost = false)
 		{
 			// This passes the message to the deleted message handler directly.
 			// More information on this is in the handler's code.
 			Events.DeletedSpamMessage = message;
 			await Client.Rest.DeleteMessageAsync(message.ChannelId, message.Id);
+
+			if (gameLost)
+			{
+				if ((ProbabilityStateMachine.Next() & 0b0110) == 0b0110)
+				{
+					await Client.Rest.SendMessageAsync(message.ChannelId, $"<@{message.Author.Id}>, shame on you.");
+				}
+				return false;
+			}
 
 			if (Member.SpamSameMessageCount > 5)
 			{

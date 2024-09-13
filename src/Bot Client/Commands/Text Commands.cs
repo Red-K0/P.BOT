@@ -3,7 +3,7 @@
 // An example of these commands is the .rl command, which performs a basic dice roll.
 // Commands in this file rely on selector functions, and are called during message parsing.
 
-namespace PBot.Commands;
+namespace Bot.Commands;
 
 /// <summary>
 /// Contains the text commands used by P.BOT and their associated tasks.

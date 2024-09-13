@@ -1,7 +1,7 @@
 ﻿using NetCord.Services.ApplicationCommands;
-using static PBot.Messages.Logging;
+using static Bot.Messages.Logging;
 
-namespace PBot;
+namespace Bot.Backend;
 
 /// <summary>
 /// Contains methods responsible for handling message events.
@@ -15,7 +15,7 @@ internal static partial class Events
 	/// </summary>
 	public static async Task MapClientHandlers()
 	{
-		CommandService.AddModule(typeof(Commands.SlashCommands));
+		CommandService.AddModule<Commands.SlashCommands>();
 		await CommandService.CreateCommandsAsync(Client.Rest, Client.Id);
 
 		Client.Log += LogNetworkMessage;

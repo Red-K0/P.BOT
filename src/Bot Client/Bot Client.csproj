@@ -2,8 +2,8 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
-		<RootNamespace>PBot</RootNamespace>
+		<TargetFramework>net9.0-windows10.0.22621.0</TargetFramework>
+		<RootNamespace>Bot</RootNamespace>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AnalysisLevel>latest-recommended</AnalysisLevel>
@@ -35,6 +35,7 @@
 		<CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
 		<Optimize>False</Optimize>
 		<Deterministic>False</Deterministic>
+		<NoWarn>1701;1702;NU1903;NU1902</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -44,6 +45,7 @@
 		<CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
 		<Deterministic>False</Deterministic>
 		<Optimize>True</Optimize>
+		<NoWarn>1701;1702;NU1903;NU1902</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -57,14 +59,13 @@
 
 	<ItemGroup>
 		<PackageReference Include="BitFaster.Caching" Version="2.5.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0-preview.6.24327.7" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0-preview.7.24405.7" />
 		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NetCord" Version="1.0.0-alpha.302" />
-		<PackageReference Include="NetCord.Services" Version="1.0.0-alpha.203" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="NetCord" Version="1.0.0-alpha.311" />
+		<PackageReference Include="NetCord.Services" Version="1.0.0-alpha.212" />
 		<PackageReference Include="Roslynator.Analyzers" Version="4.12.4">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -77,14 +78,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Using Include="Bot.Backend" />
+		<Using Include="Bot.Backend.Core">
+		  <Static>True</Static>
+		</Using>
 		<Using Include="NetCord" />
 		<Using Include="NetCord.Gateway" />
 		<Using Include="NetCord.Rest" />
-		<Using Include="NetCord.Services" />
-		<Using Include="PBot" />
-		<Using Include="PBot.Bot">
-			<Static>True</Static>
-		</Using>
 		<Using Include="System.Diagnostics" />
 		<Using Include="System.Diagnostics.CodeAnalysis" />
 	</ItemGroup>

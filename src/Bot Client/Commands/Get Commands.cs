@@ -5,10 +5,10 @@
 
 using System.Text;
 using NetCord.Services.ApplicationCommands;
-using PBot.Commands.Helpers;
-using static PBot.Caches.Members;
-using static PBot.Embeds;
-namespace PBot.Commands;
+using Bot.Commands.Helpers;
+using static Bot.Caches.Members;
+using static Bot.Backend.Embeds;
+namespace Bot.Commands;
 
 public sealed partial class SlashCommands
 {
@@ -161,10 +161,10 @@ public sealed partial class SlashCommands
 		{
 			await RespondAsync(InteractionCallback.Message(List.TryGetValue(user.Id, out Member? Raw)
 			? string.Format(null, RawServerMember,
-			user.AccentColor?.RawValue, user.AvatarDecorationHash, user.AvatarHash, user.BannerHash,  user.CreatedAt,
-			user.DefaultAvatarUrl,      user.Discriminator,        user.Email,      user.Flags,       user.GlobalName,
-			user.HasAvatar,             user.HasAvatarDecoration,  user.HasBanner,  user.Id,          user.IsBot,
-			user.IsSystemUser,          user.Locale,               user.MfaEnabled, user.PremiumType, user.PublicFlags,
+			user.AccentColor?.RawValue, user.AvatarDecorationData?.Hash, user.AvatarHash, user.BannerHash,  user.CreatedAt,
+			user.DefaultAvatarUrl,      user.Discriminator,              user.Email,      user.Flags,       user.GlobalName,
+			user.HasAvatar,             user.HasAvatarDecoration,        user.HasBanner,  user.Id,          user.IsBot,
+			user.IsSystemUser,          user.Locale,                     user.MfaEnabled, user.PremiumType, user.PublicFlags,
 			user.Username,              user.Verified,
 
 			// Guild User Fields
@@ -182,10 +182,10 @@ public sealed partial class SlashCommands
 			)
 
 			: string.Format(null, RawStandardUser,
-			user.AccentColor?.RawValue, user.AvatarDecorationHash, user.AvatarHash, user.BannerHash,  user.CreatedAt,
-			user.DefaultAvatarUrl,      user.Discriminator,        user.Email,      user.Flags,       user.GlobalName,
-			user.HasAvatar,             user.HasAvatarDecoration,  user.HasBanner,  user.Id,          user.IsBot,
-			user.IsSystemUser,          user.Locale,               user.MfaEnabled, user.PremiumType, user.PublicFlags,
+			user.AccentColor?.RawValue, user.AvatarDecorationData?.Hash, user.AvatarHash, user.BannerHash,  user.CreatedAt,
+			user.DefaultAvatarUrl,      user.Discriminator,              user.Email,      user.Flags,       user.GlobalName,
+			user.HasAvatar,             user.HasAvatarDecoration,        user.HasBanner,  user.Id,          user.IsBot,
+			user.IsSystemUser,          user.Locale,                     user.MfaEnabled, user.PremiumType, user.PublicFlags,
 			user.Username,              user.Verified
 			)));
 			return;

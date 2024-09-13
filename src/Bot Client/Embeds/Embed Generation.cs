@@ -1,6 +1,6 @@
-﻿using static PBot.Caches.Members;
+﻿using static Bot.Caches.Members;
 
-namespace PBot;
+namespace Bot.Backend;
 
 /// <summary>
 /// Contains functions for the creation of embeds and their components.
@@ -50,20 +50,20 @@ internal static partial class Embeds
 	public static InteractionMessageProperties ToEmbed(this RestMessage message, string? url = null, EmbedFooterProperties? footer = null,
 	string? title = null, string? thumbnail = null)
 	{
-		string?[]? urls = message.Attachments.Count != 0 ? new string[message.Attachments.Count] : null;
-		foreach (var (attachment, i) in message.Attachments.Values.Select((v, i) => (v, i))) urls![i] = attachment.Url;
+		string?[]? URLs = message.Attachments.Count != 0 ? new string[message.Attachments.Count] : null;
+		foreach ((Attachment attachment, int i) in message.Attachments.Values.Select((v, i) => (v, i))) URLs![i] = attachment.Url;
 		return Generate(CreateProperties(
 			message.Content,
 			CreateAuthor(message.Author.GetDisplayName(), message.Author.GetAvatar()),
 			message.CreatedAt,
 			footer,
-			urls?[0],
+			URLs?[0],
 			thumbnail,
 			title,
 			url,
 			null,
 			message.Author.Id
-		), urls);
+		), URLs);
 	}
 
 	/// <summary>

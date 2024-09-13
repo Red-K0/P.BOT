@@ -5,7 +5,7 @@
 
 using NetCord.Services.ApplicationCommands;
 
-namespace PBot.Commands;
+namespace Bot.Commands;
 
 /// <summary>
 /// Contains the slash commands used by P.BOT and their associated tasks.
@@ -83,7 +83,7 @@ public sealed partial class SlashCommands : ApplicationCommandModule<SlashComman
 			return;
 		}
 
-		bool SpecificRole = (role != null);
+		bool SpecificRole = role != null;
 
 		int MoveCount = 0;
 		foreach (VoiceState state in Guild.VoiceStates.Values)

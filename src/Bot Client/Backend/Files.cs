@@ -1,6 +1,6 @@
 ﻿using System.Collections.Frozen;
-using static PBot.Files.Names;
-namespace PBot;
+using static Bot.Backend.Files.Names;
+namespace Bot.Backend;
 
 /// <summary>
 /// Contains methods and constants used for persistent data storage.

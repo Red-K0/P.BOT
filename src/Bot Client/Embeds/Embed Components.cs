@@ -1,4 +1,4 @@
-﻿namespace PBot;
+﻿namespace Bot.Backend;
 
 internal static partial class Embeds
 {

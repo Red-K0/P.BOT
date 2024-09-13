@@ -1,4 +1,4 @@
-﻿namespace PBot.Messages;
+﻿namespace Bot.Messages;
 
 /// <summary>
 /// Contains methods responsible for logging messages to the console.

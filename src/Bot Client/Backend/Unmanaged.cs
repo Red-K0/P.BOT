@@ -4,15 +4,15 @@ using System.Runtime.InteropServices;
 using static Windows.Win32.PInvoke;
 using Windows.Win32.System.Console;
 
-namespace PBot;
+namespace Bot.Backend;
 
 /// <summary>
 /// Contains constants and method calls related to unmanaged code.
 /// </summary>
 internal static class VirtualTerminalSequences
 {
-	static readonly SafeHandle OutHandle = GetStdHandle_SafeHandle(STD_OUTPUT_HANDLE);
-	static readonly SafeHandle InHandle  = GetStdHandle_SafeHandle(STD_INPUT_HANDLE);
+	private static readonly SafeHandle OutHandle = GetStdHandle_SafeHandle(STD_OUTPUT_HANDLE);
+	private static readonly SafeHandle InHandle  = GetStdHandle_SafeHandle(STD_INPUT_HANDLE);
 
 	#region Control Codes
 	/// <summary>

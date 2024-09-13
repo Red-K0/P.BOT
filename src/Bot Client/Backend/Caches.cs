@@ -2,7 +2,7 @@
 using System.Collections.Frozen;
 using System.Text;
 
-namespace PBot.Caches;
+namespace Bot.Caches;
 
 /// <summary>
 /// Contains the recent messages cache and its relevant methods.
@@ -120,7 +120,7 @@ internal static partial class Members
 	public static void Load()
 	{
 		IEnumerable<KeyValuePair<ulong, Member>> TempList = [];
-		foreach (var item in Client.Rest.SearchGuildUsersAsync(GuildID).ToBlockingEnumerable()) TempList = TempList.Append(new KeyValuePair<ulong, Member>(item.User.Id, new(item)));
+		foreach (GuildUserInfo? item in Client.Rest.SearchGuildUsersAsync(GuildID).ToBlockingEnumerable()) TempList = TempList.Append(new KeyValuePair<ulong, Member>(item.User.Id, new(item)));
 		List = TempList.Reverse().ToDictionary();
 	}
 }

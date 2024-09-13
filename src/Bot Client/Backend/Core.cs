@@ -1,14 +1,13 @@
-﻿namespace PBot;
+﻿namespace Bot.Backend;
 
 using Microsoft.Extensions.Configuration;
-using NetCord.Gateway.Voice;
-using PBot.Commands.Helpers;
+using Bot.Commands.Helpers;
 using static GatewayIntents;
 
 /// <summary>
 /// Contains methods for initializing and preparing the bot's client.
 /// </summary>
-internal static class Bot
+internal static class Core
 {
 	/// <summary>
 	/// Allows the fetching of private data from user secrets.
@@ -71,6 +70,6 @@ internal static class Bot
 		await Client.ReadyAsync;
 		Caches.Members.Load();
 
-		ProbabilityStateMachine.InitXShift128();
+		ProbabilityStateMachine.LoadMersenneTwister();
 	}
 }

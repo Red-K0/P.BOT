@@ -1,10 +1,10 @@
-﻿using static PBot.Messages.Logging;
-
-await Documentation.Generate();
+﻿using static Bot.Messages.Logging;
 
 VirtualTerminalSequences.Enable();
 Console.OutputEncoding = System.Text.Encoding.Unicode;
 Console.CursorVisible = false;
+
+await Bot.Documentation.Generator.Generate();
 
 AppDomain current = AppDomain.CurrentDomain; // Load handler after client to prevent infinite loop.
 

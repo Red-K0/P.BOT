@@ -1,22 +1,22 @@
 ﻿using System.Text.RegularExpressions;
-using static PBot.HtmlTags;
+using static Bot.Documentation.Tags;
+using Bot.Messages;
 using System.Text;
-namespace PBot;
+namespace Bot.Documentation;
 
 /// <summary>
 /// Contains classes and methods for accessing and serializing XML documentation.
 /// </summary>
-internal static partial class Documentation
+internal static partial class Generator
 {
-	[GeneratedRegex(@"System\.(Boolean|Byte|SByte|Char|Decimal|Double|Single|Int32|UInt32|IntPtr|UIntPtr|Int64|UInt64|Int16|UInt16|Object|String)")]
-	private static partial Regex SystemTypeRegex();
-
 	/// <summary>
 	/// Generates an HTML file from a given file path.
 	/// </summary>
 	public static async Task Generate()
 	{
-		List<(string, string)>? Pairs = await Get();
+		Logging.WriteAsID("Generating HTML", Logging.SpecialId.Network);
+
+		List<(string, string)>? Pairs = await GetMemberSummaryPairs();
 
 		if (Pairs == null) return;
 
@@ -36,12 +36,11 @@ internal static partial class Documentation
 
 		char LastChar = 'B';
 
-		foreach ((string, string) pair in Pairs)
+		foreach ((string name, string summary) pair in Pairs)
 		{
-			if (pair.Item1[7] != LastChar) { LastChar = pair.Item1[7]; Html.Append("<br>"); }
+			if (pair.name[7] != LastChar) { LastChar = pair.name[7]; Html.Append("<br>"); }
 
-			Html.Append(pair.Item1);
-			Html.Append(pair.Item2);
+			Html.Append(pair.name).Append(pair.summary);
 		}
 
 		await File.WriteAllTextAsync(path.Remove(path.IndexOf("src")) + "docs\\index.html", IndentTags(Html.ToString()));
@@ -50,7 +49,7 @@ internal static partial class Documentation
 	/// <summary>
 	/// Gets the documentation file as a <see cref="List{T}"/> of string tuples.
 	/// </summary>
-	private static async Task<List<(string, string)>?> Get()
+	private static async Task<List<(string, string)>?> GetMemberSummaryPairs()
 	{
 		const string Source = "Bot Client.xml";
 
@@ -106,8 +105,7 @@ internal static partial class Documentation
 
 				string TagData = Data[StartIndex..EndIndex];
 
-				if (TagData.Contains("paramref")) TagData = TagData[16..^3];
-				else TagData = Format(Data[(StartIndex + 11)..(EndIndex - 3)], true);
+				TagData = TagData.Contains("paramref") ? TagData[16..^3] : Format(Data[(StartIndex + 11)..(EndIndex - 3)], true);
 
 				Data = string.Concat(Data[..StartIndex], TagData, Data[EndIndex..]);
 			}
@@ -201,7 +199,6 @@ internal static partial class Documentation
 						}
 						break;
 					case '@':
-#pragma warning disable S127
 						chars[i] = '\0';
 
 						for (int j = i; j > -1; j--)
@@ -214,7 +211,6 @@ internal static partial class Documentation
 						}
 
 						i += 4; // Advance index by 4 to account for added string.
-#pragma warning restore S127
 						break;
 				}
 			}
@@ -261,4 +257,7 @@ internal static partial class Documentation
 			if (!cref) str = str.Replace(LT, "<").Replace(GT, ">");
 		}
 	}
+
+	[GeneratedRegex(@"System\.(Boolean|Byte|SByte|Char|Decimal|Double|Single|Int32|UInt32|IntPtr|UIntPtr|Int64|UInt64|Int16|UInt16|Object|String)")]
+	private static partial Regex SystemTypeRegex();
 }

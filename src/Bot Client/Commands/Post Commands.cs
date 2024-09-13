@@ -3,10 +3,10 @@
 // An example of these commands is the CreatePost() command, which creates and records a post.
 // Commands in this file heavily rely on content found in the PostDB folder.
 
+namespace Bot.Commands;
 using NetCord.Services.ApplicationCommands;
-using static PBot.Embeds;
-using static PBot.Files;
-namespace PBot.Commands;
+using static Bot.Backend.Embeds;
+using static Bot.Backend.Files;
 
 public sealed partial class SlashCommands
 {

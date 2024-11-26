@@ -141,14 +141,14 @@ internal static class Functions
 		// If there are no attachments, save state and exit early.
 		if (message.Attachments.Any())
 		{
-			if (message.Attachments.First().Value.Size == Member.SpamLastAttachmentSize)
+			if (message.Attachments[0].Size == Member.SpamLastAttachmentSize)
 			{
 				if (Member.SpamSameMessageCount++ > 1) return await FilterHit();
 			}
 			else
 			{
 				if (Member.SpamSameMessageCount != 0) Member.SpamSameMessageCount--;
-				Member.SpamLastAttachmentSize = message.Attachments.First().Value.Size;
+				Member.SpamLastAttachmentSize = message.Attachments[0].Size;
 			}
 		}
 

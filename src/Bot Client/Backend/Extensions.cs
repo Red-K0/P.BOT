@@ -23,10 +23,10 @@ internal static class Extensions
 	/// <summary>
 	/// Converts a set of attachments to an array of the attachments' URLs.
 	/// </summary>
-	public static IEnumerable<string?> GetImageURLs(this IReadOnlyDictionary<ulong, Attachment> attachments)
+	public static IEnumerable<string?> GetImageURLs(this IReadOnlyList<Attachment> attachments)
 	{
 		IEnumerable<string?> ImageURLs = [];
-		foreach (KeyValuePair<ulong, Attachment> attachment in attachments) ImageURLs = ImageURLs.Append(attachment.Value.Url);
+		foreach (Attachment attachment in attachments) ImageURLs = ImageURLs.Append(attachment.Url);
 		return ImageURLs;
 	}
 

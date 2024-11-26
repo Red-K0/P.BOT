@@ -54,7 +54,6 @@ internal static class Core
 	{
 		await Events.MapClientHandlers();
 		await Client.StartAsync();
-		await Client.ReadyAsync;
 
 		ProbabilityStateMachine.LoadMersenneTwister();
 	}

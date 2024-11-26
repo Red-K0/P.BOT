@@ -1,9 +1,4 @@
-﻿// Text Commands Extension File
-// This file contains commands that are relevant to the bot's text-based functions.
-// An example of these commands is the .rl command, which performs a basic dice roll.
-// Commands in this file rely on selector functions, and are called during message parsing.
-
-namespace Bot.Commands;
+﻿namespace Bot.Interactions;
 
 /// <summary>
 /// Contains the text commands used by P.BOT and their associated tasks.

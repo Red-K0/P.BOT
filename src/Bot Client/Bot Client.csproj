@@ -13,9 +13,9 @@
 		<IsAotCompatible>true</IsAotCompatible>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<Trimming>full</Trimming>
+		<ServerGarbageCollection>true</ServerGarbageCollection>
 		<UserSecretsId>00fd273c-e691-4c01-8d8e-f6afd8339d21</UserSecretsId>
-		<ApplicationIcon>Assets\Bot Icon.ico</ApplicationIcon>
-		<PackageIcon>Bot Icon.png</PackageIcon>
+		<ApplicationIcon>..\..\assets\Bot Icon.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -54,7 +54,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="Assets\Bot Icon.ico" />
+		<Content Include="..\..\assets\Bot Icon.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -82,6 +82,7 @@
 		<Using Include="Bot.Backend.Core">
 		  <Static>True</Static>
 		</Using>
+		<Using Include="Bot.Data" />
 		<Using Include="NetCord" />
 		<Using Include="NetCord.Gateway" />
 		<Using Include="NetCord.Rest" />
@@ -90,7 +91,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<AdditionalFiles Include="$(ProjectDir)Native\NativeMethods.txt" />
+		<AdditionalFiles Include="Native\NativeMethods.txt" />
 	</ItemGroup>
 
 </Project>

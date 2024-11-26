@@ -1,4 +1,6 @@
-﻿namespace Bot.Messages;
+﻿using Bot.Interactions;
+
+namespace Bot.Messages;
 
 /// <summary>
 /// Contains methods responsible for logging messages to the console.
@@ -32,19 +34,14 @@ internal static class Logging
 	/// <summary>
 	/// Logs new discord messages.
 	/// </summary>
-	public static void LogCreatedMessage(Message message)
+	public static void LogCreatedMessage(Message message, bool octoconTrigger)
 	{
 		string Message = (LastAuthorID != message.Author.Id) ?
 		$"\n{message.CreatedAt.ToString()[..^7]} {message.Author,-22} - {message.Author.GetDisplayName()}\n" : "";
 
-		if (message.ReferencedMessage?.Content != null)
-		{
-			Message += $"↳ {message.ReferencedMessage.Content.Replace("\n", "\n  ")}\n{message.Content}";
-		}
-		else
-		{
-			Message += message.Content;
-		}
+		if (message.ReferencedMessage?.Content != null) Message += $"↳ {message.ReferencedMessage.Content.Replace("\n", "\n  ")}\n";
+
+		Message += octoconTrigger ? message.Content[2..] : message.Content;
 
 		Console.WriteLine(Message); LastAuthorID = message.Author.Id;
 	}
@@ -57,14 +54,17 @@ internal static class Logging
 		int AttachmentCount = message.Attachments.Count;
 		string FooterAttachmentMessage = $"{AttachmentCount} Attachment" + (AttachmentCount == 1 ? "" : "s");
 
-		EmbedProperties embed = message.ToEmbed().Embeds!.First()
+		EmbedProperties embed = message.ToEmbedSet().First()
 			.WithUrl(GuildURL + message.Channel!.Id)
-			.WithFooter(Embeds.CreateFooter(FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "")))
+			.WithFooter(new() { Text = FooterAttachmentMessage + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : "") })
 			.WithTitle($"Message Deleted {(message.Channel!.TryGetName(out string? Name) ? $"in {Name}" : "")}");
 
 		if (LastDeletedAuthorID == message.Author.Id) embed = embed.WithAuthor(null);
 
-		await Client.Rest.SendMessageAsync(LOG_CHANNEL, Embeds.Generate(embed, message.Attachments.GetImageURLs(), $"{GuildURL}{message.Channel!.Id}").ToMessage());
+		await Client.Rest.SendMessageAsync(LOG_CHANNEL, new()
+		{
+			Embeds = Embeds.CreateImageSet(($"{GuildURL}{message.Channel!.Id}", message.Attachments.GetImageURLs())).Prepend(embed)
+		});
 
 		WriteAsID($"The message with ID '{message.Id}' was deleted. It was sent by {message.Author.GetDisplayName()} @ {message.CreatedAt.ToString()[..^7]} with contents:\n{message.Content}", SpecialId.Discord);
 
@@ -76,23 +76,25 @@ internal static class Logging
 	/// </summary>
 	public static async ValueTask LogUpdatedMessage(Message originalMessage, Message editedMessage)
 	{
-		await Client.Rest.SendMessageAsync(LOG_CHANNEL, editedMessage.ToEmbed(
+		await Client.Rest.SendMessageAsync(LOG_CHANNEL, new()
+		{
+			Embeds = editedMessage.ToEmbedSet(
 			$"{GuildURL}{editedMessage.Channel!.Id}/{editedMessage.Id}",
 			title: $"Message Edited {((editedMessage.Channel?.TryGetName(out string? Name) ?? false) ? $"in {Name}" : null)}"
-		).ToMessage());
+		)});
 
 		int AttachmentCount = originalMessage.Attachments.Count;
 
-		await Client.Rest.SendMessageAsync(LOG_CHANNEL, Embeds.Generate(
-			Embeds.CreateProperties(
-			originalMessage.Content,
-			Embeds.CreateAuthor("Original Message:"),
-			originalMessage.CreatedAt,
-			Embeds.CreateFooter($"{AttachmentCount} Attachment(s)" + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : null)),
-			refId: originalMessage.Author.Id
-			),
-			originalMessage.Attachments.GetImageURLs()
-		).ToMessage());
+		await Client.Rest.SendMessageAsync(LOG_CHANNEL, new() {
+			Embeds = Embeds.CreateImageSet(("text", originalMessage.Attachments.GetImageURLs())).Prepend(new()
+			{
+				Description = originalMessage.Content,
+				Author = new() { Name = "Original Message:" },
+				Timestamp = originalMessage.CreatedAt,
+				Footer = new() { Text = $"{AttachmentCount} Attachment(s)" + (AttachmentCount > 4 ? " (Attachments not displayed can be seen in fullscreen mode)" : null) },
+				Color = Common.GetColor(originalMessage.Author.Id),
+			})
+		});
 	}
 
 	/// <summary>

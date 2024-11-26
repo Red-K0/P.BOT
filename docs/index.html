@@ -6,1002 +6,979 @@
 	<meta name="viewport" content="width=device-width">
 	<link rel="stylesheet" href="style.css" type="text/css">
 </head>
-<body><br>
+<body>
+<br>
 		<details>
 			<summary>
-				<code>Backend.<cyan>Bot</cyan></code>
+				<code>Bot.Backend.<cyan>Core</cyan></code>
 			</summary>
 			Contains methods for initializing and preparing the bot's client.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Bot.<cyan>Secrets</cyan></code>
-			</summary>
-			Allows the fetching of private data from user secrets.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Bot.<cyan>GetSecret</cyan>(<blue>string</blue>)</code>
-			</summary>
-			Extracts a value from the project secrets, returning null if the identifier does not exist.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Bot.<cyan>Client</cyan></code>
+				<code>Bot.Backend.Core.<cyan>Client</cyan></code>
 			</summary>
 			Main client, used for communicating with Discord.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Bot.<cyan>NetClient</cyan></code>
+				<code>Bot.Backend.Core.<cyan>NetClient</cyan></code>
 			</summary>
 			HTTP client, used for external network requests.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Bot.<cyan>GetGuild</cyan>(<blue>ulong</blue>)</code>
+				<code>Bot.Backend.Core.<cyan>Guild</cyan></code>
 			</summary>
-			Gets a guild from the <code>Backend.Bot.<cyan>Client</cyan></code>'s cache from using its ID.
+			Gets the bot's main guild.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Bot.<cyan>GuildID</cyan></code>
+				<code>Bot.Backend.Core.<cyan>GuildID</cyan></code>
 			</summary>
-			The current guild's ID, fetched via <code>Backend.Bot.<cyan>GetSecret</cyan>(<blue>string</blue>)</code>.
+			The current guild's ID, fetched via <code>Bot.Data.Files.<cyan>GetSecret</cyan>(<blue>string</blue>)</code>.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Bot.<cyan>GuildURL</cyan></code>
+				<code>Bot.Backend.Core.<cyan>GuildURL</cyan></code>
 			</summary>
 			The base guild URL.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Bot.<cyan>Restart</cyan>()</code>
+				<code>Bot.Backend.Core.<cyan>Restart</cyan>()</code>
 			</summary>
 			Stops the client, releases its resources, and restarts the bot client.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Bot.<cyan>Start</cyan>()</code>
+				<code>Bot.Backend.Core.<cyan>Start</cyan>()</code>
 			</summary>
 			Starts the bot's client, initializes event handlers, and prepares caches.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.<cyan>Extensions</cyan></code>
+				<code>Bot.Backend.<cyan>Extensions</cyan></code>
 			</summary>
 			Convenience class for simple type conversions.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Extensions.<cyan>ToMessage</cyan>(Rest.InteractionMessageProperties)</code>
+				<code>Bot.Backend.Extensions.<cyan>ToMessage</cyan>(Rest.InteractionMessageProperties)</code>
 			</summary>
 			Converts the value of this instance to its equivalent <code>Rest.<cyan>InteractionMessageProperties</cyan></code> representation.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Extensions.<cyan>GetImageURLs</cyan>(ReadOnlyDictionary&lt;<blue>ulong</blue>, Attachment&gt;)</code>
+				<code>Bot.Backend.Extensions.<cyan>GetImageURLs</cyan>(ReadOnlyDictionary&lt;<blue>ulong</blue>, Attachment&gt;)</code>
 			</summary>
 			Converts a set of attachments to an array of the attachments' URLs.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Extensions.<cyan>TryGetName</cyan>(TextChannel, out <blue>string</blue>)</code>
+				<code>Bot.Backend.Extensions.<cyan>TryGetName</cyan>(TextChannel, out <blue>string</blue>)</code>
 			</summary>
 			Attempts to get the channel's name, returning null if it doesn't have one.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Extensions.<cyan>ToChecked</cyan>(Rest.InteractionMessageProperties)</code>
+				<code>Bot.Backend.Extensions.<cyan>ToChecked</cyan>(Rest.InteractionMessageProperties)</code>
 			</summary>
 			Caps the embed count of this instance to 10 embeds maximum.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Extensions.<cyan>GetAvatar</cyan>(User, ImageFormat?)</code>
+				<code>Bot.Backend.Extensions.<cyan>GetAvatar</cyan>(User, ImageFormat?)</code>
 			</summary>
 			Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Extensions.<cyan>GetAvatar</cyan>(GuildUser, ImageFormat?)</code>
+				<code>Bot.Backend.Extensions.<cyan>GetAvatar</cyan>(GuildUser, ImageFormat?)</code>
 			</summary>
 			Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.Extensions.<cyan>GetDisplayName</cyan>(User)</code>
+				<code>Bot.Backend.Extensions.<cyan>GetDisplayName</cyan>(User)</code>
 			</summary>
 			Gets a <code><cyan>User</cyan></code>'s displayed discord name using the cached member list.
 		</details>
 		<details>
 			<summary>
-				<code>Backend.<cyan>Files</cyan></code>
-			</summary>
-			Contains methods and constants used for persistent data storage.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Files.<cyan>FileContains</cyan>(Backend.Files.Names, <blue>string</blue>, <blue>bool</blue>)</code>
-			</summary>
-			Whether the specified file contains the given data.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Files.<cyan>ReadCounter</cyan>(Backend.Files.CounterLines, <blue>int</blue>)</code>
-			</summary>
-			Reads the value of a counter.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Files.<cyan>MAIN</cyan></code>
-			</summary>
-			The main path containing all the memory files used by P.BOT.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Files.<cyan>Names</cyan></code>
-			</summary>
-			A list of files used by P.BOT for storage.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Files.Names.<cyan>Counters</cyan></code>
-			</summary>
-			 Contains data related to basic operations, such as incremental counters. 
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Files.Names.<cyan>Starboard</cyan></code>
-			</summary>
-			 Contains a list of starred messages. 
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Files.<cyan>CounterLines</cyan></code>
-			</summary>
-			A list of names for lines in the <code>Backend.Files.Names.<cyan>Counters</cyan></code> file.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Files.<cyan>Paths</cyan></code>
-			</summary>
-			The bot's internal list of file paths, indexed by their names.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Parsing.<cyan>ToParsedUnicode</cyan>(<blue>string</blue>)</code>
-			</summary>
-			Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <code>\u0041' -> 'A'</code>).
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Parsing.<cyan>ToEscapedMarkdown</cyan>(<blue>string</blue>)</code>
-			</summary>
-			Converts the contents of this string into an escaped version, avoiding markdown formatting issues.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Parsing.<cyan>UnicodeIdentifierRegex</cyan>()</code>
-			</summary>
-			Pattern:<br/><code>\\\\u([0-9A-Fa-f]{4})</code><br/>Explanation:<br/><code>○ Match the string "\\u".<br/>○ 1st capture group.<br/>○ Match a character in the set [0-9A-Fa-f] exactly 4 times.<br/></code>
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Parsing.<cyan>EscapeCharacterRegex</cyan>()</code>
-			</summary>
-			Pattern:<br/><code>\\\\(b|f|n|r|t|"|\\\\)</code><br/>Explanation:<br/><code>○ Match '\\'.<br/>○ 1st capture group.<br/>○ Match a character in the set ["\\bfnrt].<br/></code>
-		</details>
-		<details>
-			<summary>
-				<code>Backend.<cyan>VirtualTerminalSequences</cyan></code>
-			</summary>
-			Contains constants and method calls related to unmanaged code.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkGray</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>Black</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>Red</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkRed</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>Green</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkGreen</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>Yellow</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkYellow</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>Blue</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkBlue</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>Magenta</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkMagenta</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>Cyan</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkCyan</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>White</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>Gray</cyan></code>
-			</summary>
-			Sets the console foreground color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkGrayB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>BlackB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>RedB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkRedB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>GreenB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkGreenB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>YellowB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkYellowB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>BlueB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkBlueB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>MagentaB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkMagentaB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>CyanB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>DarkCyanB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>WhiteB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.VirtualTerminalSequences.<cyan>GrayB</cyan></code>
-			</summary>
-			Sets the console background color.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.<cyan>Embeds</cyan></code>
-			</summary>
-			Contains functions for the creation of embeds and their components.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Embeds.<cyan>CreateAuthor</cyan>(<blue>string</blue>, <blue>string</blue>, <blue>string</blue>)</code>
-			</summary>
-			 Creates an <code>Rest.<cyan>EmbedAuthorProperties</cyan></code> object for use in an <code><cyan>Embed</cyan></code>. 
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Embeds.<cyan>CreateFooter</cyan>(<blue>string</blue>, <blue>string</blue>)</code>
-			</summary>
-			 Creates an <code>Rest.<cyan>EmbedAuthorProperties</cyan></code> object for use in an <code><cyan>Embed</cyan></code>. 
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Embeds.<cyan>CreateField</cyan>(<blue>string</blue>, <blue>string</blue>, <blue>bool</blue>)</code>
-			</summary>
-			 Creates an <code>Rest.<cyan>EmbedFieldProperties</cyan></code> object for use in an <code><cyan>Embed</cyan></code>. 
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Embeds.<cyan>GetAssetURL</cyan>(<blue>string</blue>)</code>
-			</summary>
-			Gets the GitHub hosted URL of the given asset.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Embeds.<cyan>ASSETS</cyan></code>
-			</summary>
-			The URL to the GitHub Assets folder.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Embeds.<cyan>STD_COLOR</cyan></code>
-			</summary>
-			The hex code for standard embed gray.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Embeds.<cyan>RandomColor</cyan></code>
-			</summary>
-			Generates a random 24-bit integer from the current time in ticks.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Embeds.<cyan>Generate</cyan>(Rest.EmbedProperties, <blue>string</blue>[], <blue>string</blue>, <blue>bool</blue>)</code>
-			</summary>
-			 Combines the specified parameters to generate an embed. 
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Embeds.<cyan>ToEmbed</cyan>(Rest.RestMessage, <blue>string</blue>, Rest.EmbedFooterProperties, <blue>string</blue>, <blue>string</blue>)</code>
-			</summary>
-			 Combines the specified parameters with parameters extracted from a given <code>Rest.<cyan>RestMessage</cyan></code> to generate an embed. 
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Embeds.<cyan>Title</cyan>(<blue>string</blue>, Rest.EmbedFieldProperties[], <blue>ulong</blue>)</code>
-			</summary>
-			Creates a <code>Rest.<cyan>MessageProperties</cyan></code> object suitable for <code>Commands.SlashCommands.<cyan>GetTitle</cyan>(Commands.Helpers.Library.Titles)</code>.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.<cyan>Events</cyan></code>
-			</summary>
-			Contains methods responsible for handling message events.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>GuildUserUpdate</cyan>(GuildUser)</code>
-			</summary>
-			Updates the <code>Caches.Members.<cyan>List</cyan></code> dictionary when a user is added or modified.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>GuildUserRemove</cyan>(Gateway.GuildUserRemoveEventArgs)</code>
-			</summary>
-			Removes users from the Caches.Content.List dictionary when a member is modified.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>RoleUpdate</cyan>(Role)</code>
-			</summary>
-			Updates the <code>Caches.Members.<cyan>Roles</cyan></code> dictionary when roles are created or updated.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>RoleDelete</cyan>(Gateway.RoleDeleteEventArgs)</code>
-			</summary>
-			Updates the <code>Caches.Members.<cyan>Roles</cyan></code> dictionary when roles are deleted.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>MapClientHandlers</cyan>()</code>
-			</summary>
-			Maps the <code>Backend.Bot.<cyan>Client</cyan></code>'s events to their appropriate response method.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>InteractionCreate</cyan>(Interaction)</code>
-			</summary>
-			Processes received interactions.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>DeletedSpamMessage</cyan></code>
-			</summary>
-			Used by <code>Messages.Functions.<cyan>Filter</cyan>(Gateway.Message)</code> to pass a message to <code>Backend.Events.<cyan>MessageDelete</cyan>(Gateway.MessageDeleteEventArgs)</code>, bypassing the cache.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>MessageCreate</cyan>(Gateway.Message)</code>
-			</summary>
-			Processes new messages.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>MessageDelete</cyan>(Gateway.MessageDeleteEventArgs)</code>
-			</summary>
-			Logs message deletions.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>MessageUpdate</cyan>(Gateway.Message)</code>
-			</summary>
-			Logs message edits and updates.
-		</details>
-		<details>
-			<summary>
-				<code>Backend.Events.<cyan>ReactionAdded</cyan>(Gateway.MessageReactionAddEventArgs)</code>
-			</summary>
-			Logs reactions to messages.
-		</details>
-		<details>
-			<summary>
-				<code>Caches.<cyan>Messages</cyan></code>
-			</summary>
-			Contains the recent messages cache and its relevant methods.
-		</details>
-		<details>
-			<summary>
-				<code>Caches.Messages.<cyan>Recent</cyan></code>
-			</summary>
-			Contains all messages in the bot's cache.
-		</details>
-		<details>
-			<summary>
-				<code>Caches.Messages.<cyan>IgnoreCounter</cyan></code>
-			</summary>
-			The index of the last assigned <code>Caches.Messages.<cyan>IgnoreCache</cyan></code> slot.
-		</details>
-		<details>
-			<summary>
-				<code>Caches.Messages.<cyan>IgnoreCache</cyan></code>
-			</summary>
-			A short array of messages to be ignored by <code>Backend.Events.<cyan>MessageDelete</cyan>(Gateway.MessageDeleteEventArgs)</code> to prevent clutter.
-		</details>
-		<details>
-			<summary>
-				<code>Caches.Messages.<cyan>IgnoreID</cyan>(<blue>ulong</blue>)</code>
-			</summary>
-			Adds a message ID to the <code>Caches.Messages.<cyan>IgnoreCache</cyan></code>.
-		</details>
-		<details>
-			<summary>
-				<code>Caches.<cyan>Members</cyan></code>
+				<code>Bot.Backend.<cyan>Members</cyan></code>
 			</summary>
 			Contains the cached members list, role list, and their relevant methods. This class possesses a static constructor not shipped in the GitHub repo for privacy reasons.
 		</details>
 		<details>
 			<summary>
-				<code>Caches.Members.<cyan>Member</cyan></code>
+				<code>Bot.Backend.Members.<cyan>Member</cyan></code>
 			</summary>
 			Represents a <code>Rest.<cyan>GuildUserInfo</cyan></code> object with additional bot-related fields.
 		</details>
 		<details>
 			<summary>
-				<code>Caches.Members.<cyan>Member</cyan>(Rest.GuildUserInfo)</code>
+				<code>Bot.Backend.Members.<cyan>Member</cyan>(Rest.GuildUserInfo)</code>
 			</summary>
 			Represents a <code>Rest.<cyan>GuildUserInfo</cyan></code> object with additional bot-related fields.
 		</details>
 		<details>
 			<summary>
-				<code>Caches.Members.<cyan>List</cyan></code>
+				<code>Bot.Backend.Members.<cyan>MemberList</cyan></code>
 			</summary>
 			The bot's internal member list, generated from the <code>members-search</code> endpoint.
 		</details>
 		<details>
 			<summary>
-				<code>Caches.Members.<cyan>Accolades</cyan></code>
+				<code>Bot.Backend.Members.<cyan>Accolades</cyan></code>
 			</summary>
 			The bot's internal list of event roles, and their appropriate descriptions.
 		</details>
 		<details>
 			<summary>
-				<code>Caches.Members.<cyan>FounderRoles</cyan></code>
+				<code>Bot.Backend.Members.<cyan>FounderRoles</cyan></code>
 			</summary>
 			The bot's internal list of founder roles, alongside their owners' user IDs.
 		</details>
 		<details>
 			<summary>
-				<code>Caches.Members.<cyan>Roles</cyan></code>
-			</summary>
-			The bot's internal role list, generated with <code>Rest.RestClient.<cyan>GetGuildRolesAsync</cyan>(<blue>ulong</blue>, Rest.RestRequestProperties)</code>.
-		</details>
-		<details>
-			<summary>
-				<code>Caches.Members.<cyan>IsAccolade</cyan>(<blue>ulong</blue>)</code>
-			</summary>
-			Checks if the role referenced by the ID is an event role.
-		</details>
-		<details>
-			<summary>
-				<code>Caches.Members.<cyan>GetUserAccolades</cyan>(Caches.Members.Member)</code>
+				<code>Bot.Backend.Members.<cyan>GetUserAccolades</cyan>(Bot.Backend.Members.Member)</code>
 			</summary>
 			Returns a string summarizing a user's accolades and other important roles.
 		</details>
 		<details>
 			<summary>
-				<code>Caches.Members.<cyan>Load</cyan>()</code>
+				<code>Bot.Backend.Members.<cyan>LoadDictionaries</cyan>()</code>
 			</summary>
 			Initializes the class with data from the <code>members-search</code> endpoint.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.<cyan>SlashCommands</cyan></code>
+				<code>Bot.Backend.<cyan>VirtualTerminalSequences</cyan></code>
 			</summary>
-			Contains the slash commands used by P.BOT and their associated tasks.
+			Contains constants and method calls related to unmanaged code.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.SlashCommands.<cyan>SystemsCheck</cyan>()</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkGray</cyan></code>
 			</summary>
-			Command task. Checks if P.BOT's system is active.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.SlashCommands.<cyan>MoveVoiceUsers</cyan>(VoiceGuildChannel, VoiceGuildChannel, Role)</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>Black</cyan></code>
 			</summary>
-			Command task. Moves a group of users from one voice channel to another.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.SlashCommands.<cyan>GetAvatar</cyan>(User, ImageFormat?)</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>Red</cyan></code>
 			</summary>
-			Command task. Gets the avatar of the user, in a specific format if specified in format.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.SlashCommands.<cyan>GetTitle</cyan>(Commands.Helpers.Library.Titles)</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkRed</cyan></code>
 			</summary>
-			Command task. Gets the library entry of the title specified in the title parameter.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.SlashCommands.<cyan>GetUser</cyan>(User, <blue>bool</blue>)</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>Green</cyan></code>
 			</summary>
-			Command task. Displays data relevant to a specified user.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.SlashCommands.<cyan>GetWiki</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkGreen</cyan></code>
 			</summary>
-			Command task. Searches for a Wikipedia page similar to the given term, and gets its content if a page is found.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.SlashCommands.<cyan>CreatePost</cyan>(<blue>string</blue>, Attachment, <blue>bool</blue>, Channel, <blue>bool</blue>)</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>Yellow</cyan></code>
 			</summary>
-			Command task. Creates an embed with the specified content and image.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.<cyan>Library</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkYellow</cyan></code>
 			</summary>
-			Contains data involving dictionaries and the <code>Commands.SlashCommands.<cyan>GetTitle</cyan>(Commands.Helpers.Library.Titles)</code> command.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.Library.<cyan>Titles</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>Blue</cyan></code>
 			</summary>
-			A list of possible choices for the <code>Commands.SlashCommands.<cyan>GetTitle</cyan>(Commands.Helpers.Library.Titles)</code> command.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.Library.Titles.<cyan>WhatIs_ThePPP</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkBlue</cyan></code>
 			</summary>
-			The history of the PPP.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.Library.Titles.<cyan>IcelandGuide</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>Magenta</cyan></code>
 			</summary>
-			Angel's Iceland travel guide.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.Library.<cyan>Entries</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkMagenta</cyan></code>
 			</summary>
-			Contains definitions used for the <code>Commands.SlashCommands.<cyan>GetTitle</cyan>(Commands.Helpers.Library.Titles)</code> command.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.<cyan>ProbabilityStateMachine</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>Cyan</cyan></code>
 			</summary>
-			Contains constants, variables and the function responsible for probability calculations and roll results.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>ErrMessage</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkCyan</cyan></code>
 			</summary>
-			The message to format and print if the roll command is invalid.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>RollString</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>White</cyan></code>
 			</summary>
-			The message to format and append per standard roll result.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>CritString</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>Gray</cyan></code>
 			</summary>
-			The message to format and append per critical success.
+			Sets the console foreground color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>FailString</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkGrayB</cyan></code>
 			</summary>
-			The message to format and append per critical failure.
+			Sets the console background color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>LoadMersenneTwister</cyan>()</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>BlackB</cyan></code>
 			</summary>
-			Initializes the xShift128 algorithm based off the current time in ticks.
+			Sets the console background color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>Run</cyan>(Gateway.Message)</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>RedB</cyan></code>
 			</summary>
-			 Applies the appropriate logic to use based on the given message. 
+			Sets the console background color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.ProbabilityStateMachine.<cyan>Next</cyan>()</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkRedB</cyan></code>
 			</summary>
-			Runs a single iteration of the roller algorithm, returning the result.
+			Sets the console background color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.<cyan>Wikipedia</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>GreenB</cyan></code>
 			</summary>
-			Contains the Wikipedia API constant, as well as the method responsible for page retrieval.
+			Sets the console background color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.Wikipedia.<cyan>WIKI_API</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkGreenB</cyan></code>
 			</summary>
-			The URL and preset parameters for the Wikipedia content API.
+			Sets the console background color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.Wikipedia.<cyan>GetPage</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>YellowB</cyan></code>
 			</summary>
-			Sends the request responsible for retrieving the page, and formats it properly.
+			Sets the console background color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.Helpers.Wikipedia.<cyan>CitationRegex</cyan>()</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkYellowB</cyan></code>
 			</summary>
-			Pattern:<br/><code>:\\d\\.\\d|\\[\\d+\\]</code><br/>Explanation:<br/><code>○ Match with 2 alternative expressions, atomically.<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match a Unicode digit.<br/>○ Match '.'.<br/>○ Match a Unicode digit.<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match a Unicode digit atomically at least once.<br/>○ Match ']'.<br/></code>
+			Sets the console background color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.<cyan>TextCommands</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>BlueB</cyan></code>
 			</summary>
-			Contains the text commands used by P.BOT and their associated tasks.
+			Sets the console background color.
 		</details>
 		<details>
 			<summary>
-				<code>Commands.TextCommands.<cyan>Parse</cyan>(Gateway.Message)</code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkBlueB</cyan></code>
 			</summary>
-			Parses a given message, running the associated text command if a valid prefix is found.
+			Sets the console background color.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.<cyan>Generator</cyan></code>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>MagentaB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkMagentaB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>CyanB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>DarkCyanB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>WhiteB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.VirtualTerminalSequences.<cyan>GrayB</cyan></code>
+			</summary>
+			Sets the console background color.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.<cyan>Events</cyan></code>
+			</summary>
+			Contains methods responsible for handling message events.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.Events.<cyan>GuildUserUpdate</cyan>(GuildUser)</code>
+			</summary>
+			Updates the <code>Bot.Backend.Members.<cyan>MemberList</cyan></code> dictionary when a user is added or modified.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.Events.<cyan>GuildUserRemove</cyan>(Gateway.GuildUserRemoveEventArgs)</code>
+			</summary>
+			Removes users from the Caches.Content.List dictionary when a member is modified.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.Events.<cyan>MapClientHandlers</cyan>()</code>
+			</summary>
+			Maps the <code>Bot.Backend.Core.<cyan>Client</cyan></code>'s events to their appropriate response method.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.Events.<cyan>InteractionCreate</cyan>(Interaction)</code>
+			</summary>
+			Processes received interactions.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.Events.<cyan>DeletedSpamMessage</cyan></code>
+			</summary>
+			Used by <code>Bot.Messages.Functions.<cyan>Filter</cyan>(Gateway.Message)</code> to pass a message to <code>Bot.Backend.Events.<cyan>MessageDelete</cyan>(Gateway.MessageDeleteEventArgs)</code>, bypassing the cache.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.Events.<cyan>MessageCreate</cyan>(Gateway.Message)</code>
+			</summary>
+			Processes new messages.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.Events.<cyan>MessageDelete</cyan>(Gateway.MessageDeleteEventArgs)</code>
+			</summary>
+			Logs message deletions.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.Events.<cyan>MessageUpdate</cyan>(Gateway.Message)</code>
+			</summary>
+			Logs message edits and updates.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Backend.Events.<cyan>ReactionAdded</cyan>(Gateway.MessageReactionAddEventArgs)</code>
+			</summary>
+			Logs reactions to messages.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.<cyan>Cache</cyan></code>
+			</summary>
+			Contains the recent messages cache and its relevant methods.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Cache.<cyan>RecentMessages</cyan></code>
+			</summary>
+			Contains all messages in the bot's cache.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Cache.<cyan>IgnoredMessageListPointer</cyan></code>
+			</summary>
+			The index of the last assigned <code>Bot.Data.Cache.<cyan>IgnoredMessageIDs</cyan></code> slot.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Cache.<cyan>IgnoredMessageIDs</cyan></code>
+			</summary>
+			A short array of messages to be ignored by <code>Bot.Backend.Events.<cyan>MessageDelete</cyan>(Gateway.MessageDeleteEventArgs)</code> to prevent clutter.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Cache.<cyan>IgnoreMessageID</cyan>(<blue>ulong</blue>)</code>
+			</summary>
+			Adds a message ID to the <code>Bot.Data.Cache.<cyan>IgnoredMessageIDs</cyan></code>.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.<cyan>Files</cyan></code>
+			</summary>
+			Contains methods and constants used for persistent data storage.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.<cyan>Secrets</cyan></code>
+			</summary>
+			Allows the fetching of private data from user secrets.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.<cyan>EnsurePathsExist</cyan>()</code>
+			</summary>
+			Ensures all files required for data storage are present and formatted correctly.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.<cyan>GetSecret</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Extracts a value from the project secrets, returning null if the identifier does not exist.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.<cyan>FileContains</cyan>(Bot.Data.Files.Names, <blue>string</blue>, <blue>bool</blue>)</code>
+			</summary>
+			Whether the specified file contains the given data.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.<cyan>GetCounter</cyan>(Bot.Data.Files.CounterLines, <blue>ulong</blue>)</code>
+			</summary>
+			Reads the value of a counter.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.<cyan>DataPath</cyan></code>
+			</summary>
+			The main path containing all the memory files used by P.BOT.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.<cyan>Paths</cyan></code>
+			</summary>
+			The bot's internal list of file paths, indexed by their names.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.<cyan>Names</cyan></code>
+			</summary>
+			A list of files used by P.BOT for storage.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.Names.<cyan>Accoaldes</cyan></code>
+			</summary>
+			 Contains a list of event role IDs, alongside their descriptions. 
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.Names.<cyan>Counters</cyan></code>
+			</summary>
+			 Contains data related to basic operations, such as incremental counters. 
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.Names.<cyan>Starboard</cyan></code>
+			</summary>
+			 Contains a list of starred messages. 
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.Names.<cyan>FounderRoles</cyan></code>
+			</summary>
+			 Contains a list of founder IDs, alongside their role IDs. 
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Files.<cyan>CounterLines</cyan></code>
+			</summary>
+			A list of names for lines in the <code>Bot.Data.Files.Names.<cyan>Counters</cyan></code> file.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Parsing.<cyan>FromEscapedUnicode</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <code>\u0041' to 'A'</code>).
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Parsing.<cyan>ToEscapedMarkdown</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Converts the contents of this string into an escaped version, avoiding markdown formatting issues.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Parsing.<cyan>UnicodeIdentifierRegex</cyan>()</code>
+			</summary>
+			Pattern:<br/><code>\\\\u([0-9A-Fa-f]{4})</code><br/>Explanation:<br/><code>○ Match the string "\\u".<br/>○ 1st capture group.<br/>○ Match a character in the set [0-9A-Fa-f] exactly 4 times.<br/></code>
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Data.Parsing.<cyan>EscapeCharacterRegex</cyan>()</code>
+			</summary>
+			Pattern:<br/><code>\\\\(b|f|n|r|t|"|\\\\)</code><br/>Explanation:<br/><code>○ Match '\\'.<br/>○ 1st capture group.<br/>○ Match a character in the set ["\\bfnrt].<br/></code>
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Documentation.<cyan>Generator</cyan></code>
 			</summary>
 			Contains classes and methods for accessing and serializing XML documentation.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Generator.<cyan>Generate</cyan>()</code>
+				<code>Bot.Documentation.Generator.<cyan>Generate</cyan>()</code>
 			</summary>
 			Generates an HTML file from a given file path.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
+				<code>Bot.Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
 			</summary>
 			Gets the documentation file as a <code>System.Collections.Generic.<cyan>List`1</cyan></code> of string tuples.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Generator.<cyan>Format</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
+				<code>Bot.Documentation.Generator.<cyan>Format</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
 			</summary>
 			Formats a member's name.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Generator.<cyan>SystemTypeRegex</cyan>()</code>
+				<code>Bot.Documentation.Generator.<cyan>SystemTypeRegex</cyan>()</code>
 			</summary>
 			Pattern:<br/><code>System\\.(Boolean|Byte|SByte|Char|Decimal|Double|Single|Int32|UInt32|IntPtr|UIntPtr|Int64|UInt64|Int16|UInt16|Object|String)</code><br/>Explanation:<br/><code>○ Match the string "System.".<br/>○ 1st capture group.<br/>○ Match with 7 alternative expressions, atomically.<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match with 2 alternative expressions, atomically.<br/>○ Match the string "oolean".<br/>○ Match the string "yte".<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match with 3 alternative expressions, atomically.<br/>○ Match the string "Byte".<br/>○ Match the string "ingle".<br/>○ Match the string "tring".<br/>○ Match the string "Char".<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match with 2 alternative expressions, atomically.<br/>○ Match the string "ecimal".<br/>○ Match the string "ouble".<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match with 4 alternative expressions, atomically.<br/>○ Match the string "32".<br/>○ Match the string "Ptr".<br/>○ Match the string "64".<br/>○ Match the string "16".<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match with 4 alternative expressions, atomically.<br/>○ Match the string "32".<br/>○ Match the string "Ptr".<br/>○ Match the string "64".<br/>○ Match the string "16".<br/>○ Match the string "Object".<br/></code>
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>MemberTagRegex</cyan>()</code>
+				<code>Bot.Documentation.Tags.<cyan>MemberTagRegex</cyan>()</code>
 			</summary>
 			Pattern:<br/><code>\\uEEEC</code><br/>Explanation:<br/><code>○ Match ''.<br/></code>
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>IndentTags</cyan>(<blue>string</blue>)</code>
+				<code>Bot.Documentation.Tags.<cyan>IndentTags</cyan>(<blue>string</blue>)</code>
 			</summary>
 			Formats the final HTML document to have proper spacing for code readability.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>LT</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>LT</cyan></code>
 			</summary>
 			Represents the safe replacement character for its equivalent XML entity.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>GT</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>GT</cyan></code>
 			</summary>
 			Represents the safe replacement character for its equivalent XML entity.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>Code</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>Code</cyan></code>
 			</summary>
 			Part of the <code>code</code> tag pair, used for font application.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>cCode</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>cCode</cyan></code>
 			</summary>
 			Part of the <code>code</code> tag pair, used for font application.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>Blue</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>Blue</cyan></code>
 			</summary>
 			Part of the <code>blue</code> tag pair, used for highlighting.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>cBlue</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>cBlue</cyan></code>
 			</summary>
 			Part of the <code>blue</code> tag pair, used for highlighting.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>Cyan</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>Cyan</cyan></code>
 			</summary>
 			Part of the <code>cyan</code> tag pair, used for highlighting.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>cCyan</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>cCyan</cyan></code>
 			</summary>
 			Part of the <code>cyan</code> tag pair, used for highlighting.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>Details</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>Details</cyan></code>
 			</summary>
 			Part of the <code>details</code> tag pair, used for formatting.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>cDetails</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>cDetails</cyan></code>
 			</summary>
 			Part of the <code>details</code> tag pair, used for formatting.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>Summary</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>Summary</cyan></code>
 			</summary>
 			Part of the <code>summary</code> tag pair, used for formatting.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>cSummary</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>cSummary</cyan></code>
 			</summary>
 			Part of the <code>summary</code> tag pair, used for formatting.
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>MemberOpen</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>MemberOpen</cyan></code>
 			</summary>
-			Indicate the start and end of a member name section, used in <code>Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
+			Indicate the start and end of a member name section, used in <code>Bot.Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>MemberClose</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>MemberClose</cyan></code>
 			</summary>
-			Indicate the start and end of a member name section, used in <code>Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
+			Indicate the start and end of a member name section, used in <code>Bot.Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>SummaryOpen</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>SummaryOpen</cyan></code>
 			</summary>
-			Indicate the start and end of a summary section, used in <code>Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
+			Indicate the start and end of a summary section, used in <code>Bot.Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
 		</details>
 		<details>
 			<summary>
-				<code>Documentation.Tags.<cyan>SummaryClose</cyan></code>
+				<code>Bot.Documentation.Tags.<cyan>SummaryClose</cyan></code>
 			</summary>
-			Indicate the start and end of a summary section, used in <code>Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
+			Indicate the start and end of a summary section, used in <code>Bot.Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
 		</details>
 		<details>
 			<summary>
-				<code>Messages.<cyan>Functions</cyan></code>
+				<code>Bot.Interactions.Common.<cyan>ASSETS</cyan></code>
+			</summary>
+			The URL to the GitHub Assets folder.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Common.<cyan>STD_COLOR</cyan></code>
+			</summary>
+			The hex code for standard embed gray.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Common.<cyan>RandomColor</cyan></code>
+			</summary>
+			Generates a random 24-bit integer from the current time in ticks.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Common.<cyan>GetAssetURL</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Gets the GitHub hosted URL of the given asset.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Generation.<cyan>ToEmbedSet</cyan>(Rest.RestMessage, <blue>string</blue>, Rest.EmbedFooterProperties, <blue>string</blue>, <blue>string</blue>)</code>
+			</summary>
+			 Combines the specified parameters with parameters extracted from a given <code>Rest.<cyan>RestMessage</cyan></code> to generate an embed. 
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.<cyan>Library</cyan></code>
+			</summary>
+			Contains data involving dictionaries and the <code>Bot.Interactions.SlashCommands.<cyan>GetTitle</cyan>(<blue>string</blue>)</code> command.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.Library.<cyan>#cctor</cyan>()</code>
+			</summary>
+			Precomputes embeds for library entries, sourced from the bot's data folder.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.Library.<cyan>Entries</cyan></code>
+			</summary>
+			Contains the precomputed embeds for all available library entries.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.Library.<cyan>NextPage</cyan>()</code>
+			</summary>
+			WIP
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.Library.<cyan>LastPage</cyan>()</code>
+			</summary>
+			WIP
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.<cyan>ProbabilityStateMachine</cyan></code>
+			</summary>
+			Contains constants, variables and the function responsible for probability calculations and roll results.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.ProbabilityStateMachine.<cyan>ErrMessage</cyan></code>
+			</summary>
+			The message to format and print if the roll command is invalid.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.ProbabilityStateMachine.<cyan>RollString</cyan></code>
+			</summary>
+			The message to format and append per standard roll result.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.ProbabilityStateMachine.<cyan>CritString</cyan></code>
+			</summary>
+			The message to format and append per critical success.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.ProbabilityStateMachine.<cyan>FailString</cyan></code>
+			</summary>
+			The message to format and append per critical failure.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.ProbabilityStateMachine.<cyan>LoadMersenneTwister</cyan>()</code>
+			</summary>
+			Initializes the xShift128 algorithm based off the current time in ticks.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.ProbabilityStateMachine.<cyan>ParseParameters</cyan>(ReadOnlySpan&lt;<blue>char</blue>&gt;)</code>
+			</summary>
+			 Parses a given content, extracting its roll parameters.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.ProbabilityStateMachine.<cyan>Run</cyan>(Gateway.Message)</code>
+			</summary>
+			 Performs the approriate calculations based off the passed message, replying to it. 
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.ProbabilityStateMachine.<cyan>Next</cyan>()</code>
+			</summary>
+			Runs a single iteration of the roller algorithm, returning the result.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.ProbabilityStateMachine.<cyan>NextArray</cyan>(Span&lt;<blue>uint</blue>&gt;, <blue>uint</blue>, <blue>uint</blue>)</code>
+			</summary>
+			 Randomly fills a given array with numbers. 
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.ProbabilityStateMachine.<cyan>Next</cyan>(<blue>uint</blue>, <blue>uint</blue>, <blue>uint</blue>, out <blue>ulong</blue>)</code>
+			</summary>
+			Calculates the maximum possible result according to the given count, max, and mod, randomly generating a number in that range.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.<cyan>Wikipedia</cyan></code>
+			</summary>
+			Contains the Wikipedia API constant, as well as the method responsible for page retrieval.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.Wikipedia.<cyan>WIKI_API</cyan></code>
+			</summary>
+			The URL and preset parameters for the Wikipedia content API.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.Wikipedia.<cyan>GetPage</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
+			</summary>
+			Sends the request responsible for retrieving the page, and formats it properly.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.Wikipedia.<cyan>FormatHeaders</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Applies varying types of formatting to page headers.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Helpers.Wikipedia.<cyan>CitationRegex</cyan>()</code>
+			</summary>
+			Pattern:<br/><code>:\\d\\.\\d|\\[\\d+\\]</code><br/>Explanation:<br/><code>○ Match with 2 alternative expressions, atomically.<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match a Unicode digit.<br/>○ Match '.'.<br/>○ Match a Unicode digit.<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match a Unicode digit atomically at least once.<br/>○ Match ']'.<br/></code>
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.<cyan>SlashCommands</cyan></code>
+			</summary>
+			Contains the slash commands used by P.BOT and their associated tasks.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>SystemsCheck</cyan>()</code>
+			</summary>
+			Command task. Checks if P.BOT's system is active.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>MoveVoiceUsers</cyan>(VoiceGuildChannel, VoiceGuildChannel, Role)</code>
+			</summary>
+			Command task. Moves a group of users from one voice channel to another.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>GetAvatar</cyan>(User, ImageFormat?)</code>
+			</summary>
+			Command task. Gets the avatar of the user, in a specific format if specified in format.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>GetTitle</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Command task. Gets the library entry of the title specified in the title parameter.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>GetUser</cyan>(User, <blue>bool</blue>)</code>
+			</summary>
+			Command task. Displays data relevant to a specified user.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>GetWiki</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
+			</summary>
+			Command task. Searches for a Wikipedia page similar to the given term, and gets its content if a page is found.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.<cyan>TextCommands</cyan></code>
+			</summary>
+			Contains the text commands used by P.BOT and their associated tasks.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.TextCommands.<cyan>Parse</cyan>(Gateway.Message)</code>
+			</summary>
+			Parses a given message, running the associated text command if a valid prefix is found.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Messages.<cyan>Functions</cyan></code>
 			</summary>
 			Contains methods and variables used for basic message functionality and parsing.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Functions.<cyan>AddToStarBoard</cyan>(Gateway.MessageReactionAddEventArgs)</code>
+				<code>Bot.Messages.Functions.<cyan>AddToStarBoard</cyan>(Gateway.MessageReactionAddEventArgs)</code>
 			</summary>
 			 Parses the contents of a given <code>Gateway.<cyan>MessageReactionAddEventArgs</cyan></code> and adds the result to the starboard. 
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Functions.<cyan>GetMessageFromLink</cyan>(<blue>string</blue>)</code>
+				<code>Bot.Messages.Functions.<cyan>GetMessageFromLink</cyan>(<blue>string</blue>)</code>
 			</summary>
 			Gets the relevant <code>Gateway.<cyan>Message</cyan></code> object from a Discord message URL.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Functions.<cyan>ParseLinks</cyan>(Gateway.Message)</code>
+				<code>Bot.Messages.Functions.<cyan>ParseLinks</cyan>(Gateway.Message)</code>
 			</summary>
 			Parses a given message to check for message links, and displays their content if possible.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Functions.<cyan>Filter</cyan>(Gateway.Message)</code>
+				<code>Bot.Messages.Functions.<cyan>Filter</cyan>(Gateway.Message)</code>
 			</summary>
 			Compares a given message's attributes to other messages by the same user, and deletes it if the filter's criteria are met.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.<cyan>Logging</cyan></code>
+				<code>Bot.Messages.<cyan>Logging</cyan></code>
 			</summary>
 			Contains methods responsible for logging messages to the console.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Logging.<cyan>LastAuthorID</cyan></code>
+				<code>Bot.Messages.Logging.<cyan>LastAuthorID</cyan></code>
 			</summary>
 			The ID of the latest logged user.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Logging.<cyan>LastDeletedAuthorID</cyan></code>
+				<code>Bot.Messages.Logging.<cyan>LastDeletedAuthorID</cyan></code>
 			</summary>
 			The ID of the latest deleted user.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Logging.<cyan>LOG_CHANNEL</cyan></code>
+				<code>Bot.Messages.Logging.<cyan>LOG_CHANNEL</cyan></code>
 			</summary>
 			The ID of the channel to send logs to.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Logging.<cyan>LogNetworkMessage</cyan>(Gateway.LogMessage)</code>
+				<code>Bot.Messages.Logging.<cyan>LogNetworkMessage</cyan>(Gateway.LogMessage)</code>
 			</summary>
 			Logs messages from the system.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Logging.<cyan>LogCreatedMessage</cyan>(Gateway.Message)</code>
+				<code>Bot.Messages.Logging.<cyan>LogCreatedMessage</cyan>(Gateway.Message, <blue>bool</blue>)</code>
 			</summary>
 			Logs new discord messages.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Logging.<cyan>LogDeletedMessage</cyan>(Gateway.Message)</code>
+				<code>Bot.Messages.Logging.<cyan>LogDeletedMessage</cyan>(Gateway.Message)</code>
 			</summary>
 			Logs deleted discord messages.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Logging.<cyan>LogUpdatedMessage</cyan>(Gateway.Message, Gateway.Message)</code>
+				<code>Bot.Messages.Logging.<cyan>LogUpdatedMessage</cyan>(Gateway.Message, Gateway.Message)</code>
 			</summary>
 			Logs edited discord messages.
 		</details>
 		<details>
 			<summary>
-				<code>Messages.Logging.<cyan>WriteAsID</cyan>(<blue>string</blue>, Messages.Logging.SpecialId)</code>
+				<code>Bot.Messages.Logging.<cyan>WriteAsID</cyan>(<blue>string</blue>, Bot.Messages.Logging.SpecialId)</code>
 			</summary>
-			Writes a message to the console using a specified <code>Messages.Logging.<cyan>SpecialId</cyan></code>.
+			Writes a message to the console using a specified <code>Bot.Messages.Logging.<cyan>SpecialId</cyan></code>.
 		</details>
 	</body>
 </html>

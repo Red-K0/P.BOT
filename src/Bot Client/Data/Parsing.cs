@@ -1,32 +1,36 @@
 ﻿using System.Text.RegularExpressions;
 using System.Text;
 
-namespace Bot.Backend;
+namespace Bot.Data;
 internal static partial class Parsing
 {
 	/// <summary>
-	/// Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <c>\u0041' -> 'A'</c>).
+	/// Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <c>\u0041' to 'A'</c>).
 	/// </summary>
-	public static string ToParsedUnicode(this string unparsed)
+	public static string FromEscapedUnicode(this string unparsed)
 	{
+		bool ContainsIdentifier = false, ContainsEscape = false;
+
 		if (!unparsed.Contains('\\')) return unparsed;
 
 		int Position = 0;
 		StringBuilder Result = new();
 		foreach (Match match in UnicodeIdentifierRegex().Matches(unparsed))
 		{
+			ContainsIdentifier = true;
 			Result.Append(unparsed, Position, match.Index - Position);
 			Position = match.Index + match.Length;
 			Result.Append((char)Convert.ToInt32(match.Groups[1].ToString(), 16));
 		}
 		Result.Append(unparsed, Position, unparsed.Length - Position);
 
-		unparsed = Result.ToString();
+		unparsed = ContainsIdentifier ? Result.ToString() : unparsed;
 		Result.Clear();
 		Position = 0;
 
 		foreach (Match match in EscapeCharacterRegex().Matches(unparsed))
 		{
+			ContainsEscape = true;
 			Result.Append(unparsed, Position, match.Index - Position);
 			Position = match.Index + match.Length;
 			Result.Append(match.ValueSpan[1] switch
@@ -42,7 +46,7 @@ internal static partial class Parsing
 			});
 		}
 
-		return Result.ToString();
+		return ContainsEscape ? Result.ToString() : unparsed;
 	}
 
 	/// <summary>
@@ -75,5 +79,4 @@ internal static partial class Parsing
 
 	[GeneratedRegex(@"\\(b|f|n|r|t|""|\\)")]
 	private static partial Regex EscapeCharacterRegex();
-
 }

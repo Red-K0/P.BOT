@@ -1,4 +1,5 @@
-﻿using Bot.Commands.Helpers;
+﻿using Bot.Interactions.Helpers;
+using Bot.Interactions;
 
 namespace Bot.Messages;
 
@@ -12,24 +13,27 @@ internal static class Functions
 	public static async Task AddToStarBoard(MessageReactionAddEventArgs message)
 	{
 		RestMessage Message = await Client.Rest.GetMessageAsync(message.ChannelId, message.MessageId);
-		InteractionMessageProperties StarMessage = new();
+		MessageProperties StarMessage = new();
 		RestMessage? RepliedTo = Message.ReferencedMessage;
 
-		if (RepliedTo != null) StarMessage.AddEmbeds(
-			Client.Rest.GetMessageAsync(RepliedTo.ChannelId, RepliedTo.Id).Result.ToEmbed($"{GuildURL}{RepliedTo.ChannelId}/{RepliedTo.Id}")
-			.Embeds!.First().WithAuthor(Embeds.CreateAuthor($"Replying to: {RepliedTo.Author.GetDisplayName()}", RepliedTo.Author.GetAvatar()))
-		);
+		if (RepliedTo != null)
+		{
+			StarMessage.AddEmbeds(Client.Rest.GetMessageAsync(RepliedTo.ChannelId, RepliedTo.Id).Result.ToEmbedSet($"{GuildURL}{RepliedTo.ChannelId}/{RepliedTo.Id}")
+			.First().WithAuthor(new()
+			{
+				IconUrl = RepliedTo.Author.GetAvatar(),
+				Name = $"Replying to: {RepliedTo.Author.GetDisplayName()}"
+			}));
+		}
 
-		StarMessage.AddEmbeds(
-			Message.ToEmbed(
-				$"{GuildURL}{message.ChannelId}/{message.MessageId}",
-				Embeds.CreateFooter($"Message starred by {message.User!.GetDisplayName()}", message.User!.GetAvatar()),
-				$"Starboard Entry #{await Files.ReadCounter(Files.CounterLines.Starboard, 1)}"
-			).Embeds!
-		);
+		StarMessage.AddEmbeds(Message.ToEmbedSet(
+			$"{GuildURL}{message.ChannelId}/{message.MessageId}",
+			new() { IconUrl = message.User!.GetAvatar(), Text = $"Message starred by {message.User!.GetDisplayName()}" },
+			title: $"Starboard Entry #{await Files.GetCounter(Files.CounterLines.Starboard, 1)}"
+		));
 
 		// Starboard Channel
-		await Client.Rest.SendMessageAsync(1133836713194696744, StarMessage.ToChecked().ToMessage());
+		await Client.Rest.SendMessageAsync(1133836713194696744, StarMessage);
 	}
 
 	/// <summary>
@@ -67,18 +71,19 @@ internal static class Functions
 			i++;
 			if ((LinkedMessage = await GetMessageFromLink(Scan)) != null && !ParsedLinks.Contains(LinkedMessage.Id))
 			{
-				EmbedProperties embed = LinkedMessage.ToEmbed().Embeds!.First().WithUrl($"{GuildURL}{message.ChannelId}/{message.Id}");
+				EmbedProperties embed = LinkedMessage.ToEmbedSet().First().WithUrl($"{GuildURL}{message.ChannelId}/{message.Id}");
 
 				embed = i == LinkCount
-					? embed.WithFooter(Embeds.CreateFooter($"Message linked by {message.Author.GetDisplayName()}", message.Author.GetAvatar()))
+					? embed.WithFooter(new() { Text = $"Message linked by {message.Author.GetDisplayName()}", IconUrl = message.Author.GetAvatar() })
 					: embed.WithTimestamp(null);
 
 				await Client.Rest.SendMessageAsync(
 					message.ChannelId,
-					Embeds.Generate(
-						LastAuthorID == LinkedMessage.Author.Id ? embed.WithAuthor(null) : embed,
-						LinkedMessage.Attachments.GetImageURLs(),
-						embed.Url).ToChecked().ToMessage()
+					new()
+					{
+						Embeds = Embeds.CreateImageSet((embed.Url, LinkedMessage.Attachments.GetImageURLs()))
+						.Prepend(LastAuthorID == LinkedMessage.Author.Id ? embed.WithAuthor(null) : embed)
+					}
 				);
 
 				ParsedLinks[i - 1] = LinkedMessage.Id;
@@ -96,7 +101,7 @@ internal static class Functions
 	/// <param name="message">The <see cref="Message"/> object to perform comparison on.</param>
 	public static async Task<bool> Filter(Message message)
 	{
-		Caches.Members.Member Member = Caches.Members.List[message.Author.Id];
+		Members.Member Member = Members.MemberList[message.Author.Id];
 
 		ReadOnlySpan<char> Content = message.Content.AsSpan();
 
@@ -147,7 +152,7 @@ internal static class Functions
 			}
 		}
 
-		Caches.Members.List[message.Author.Id] = Member;
+		Members.MemberList[message.Author.Id] = Member;
 		return false;
 
 		async Task<bool> FilterHit(bool gameLost = false)
@@ -159,10 +164,7 @@ internal static class Functions
 
 			if (gameLost)
 			{
-				if ((ProbabilityStateMachine.Next() & 0b0110) == 0b0110)
-				{
-					await Client.Rest.SendMessageAsync(message.ChannelId, $"<@{message.Author.Id}>, shame on you.");
-				}
+				if ((ProbabilityStateMachine.Next() & 0b0110) == 0b0110) await Client.Rest.SendMessageAsync(message.ChannelId, $"<@{message.Author.Id}>, shame on you.");
 				return false;
 			}
 
@@ -182,7 +184,7 @@ internal static class Functions
 				});
 			}
 
-			Caches.Members.List[message.Author.Id] = Member;
+			Members.MemberList[message.Author.Id] = Member;
 			return true;
 		}
 	}

@@ -12,11 +12,11 @@ internal static partial class Generator
 	/// <summary>
 	/// Generates an HTML file from a given file path.
 	/// </summary>
-	public static async Task Generate()
+	public static void Generate()
 	{
 		Logging.WriteAsID("Generating HTML", Logging.SpecialId.Network);
 
-		List<(string, string)>? Pairs = await GetMemberSummaryPairs();
+		List<(string, string)>? Pairs = GetMemberSummaryPairs();
 
 		if (Pairs == null) return;
 
@@ -32,6 +32,7 @@ internal static partial class Generator
 			<link rel="stylesheet" href="style.css" type="text/css">
 		</head>
 		<body>
+
 		""");
 
 		char LastChar = 'B';
@@ -43,33 +44,30 @@ internal static partial class Generator
 			Html.Append(pair.name).Append(pair.summary);
 		}
 
-		await File.WriteAllTextAsync(path.Remove(path.IndexOf("src")) + "docs\\index.html", IndentTags(Html.ToString()));
+		File.WriteAllText(path.Remove(path.IndexOf("src")) + "docs\\index.html", IndentTags(Html.ToString()));
 	}
 
 	/// <summary>
 	/// Gets the documentation file as a <see cref="List{T}"/> of string tuples.
 	/// </summary>
-	private static async Task<List<(string, string)>?> GetMemberSummaryPairs()
+	private static List<(string, string)>? GetMemberSummaryPairs()
 	{
 		const string Source = "Bot Client.xml";
 
 		if (!File.Exists(Source)) return null;
 
-		int StartIndex, EndIndex; string Data;
-		string Documentation = await File.ReadAllTextAsync(Source);
+		string Documentation = File.ReadAllText(Source);
 
 		Documentation = Documentation.Remove(Documentation.IndexOf("<member name=\"F:Windows"));
 
 		while (Documentation.Contains("<param name"))
 		{
-			StartIndex = Documentation.IndexOf("<param name="); EndIndex = Documentation.IndexOf("</param>") + 8;
-			Documentation = string.Concat(Documentation.Remove(StartIndex), Documentation.AsSpan(EndIndex));
+			Documentation = string.Concat(Documentation.Remove(Documentation.IndexOf("<param name=")), Documentation.AsSpan(Documentation.IndexOf("</param>") + 8));
 		}
 
 		while (Documentation.Contains("<returns>"))
 		{
-			StartIndex = Documentation.IndexOf("<returns>"); EndIndex = Documentation.IndexOf("</returns>") + 10;
-			Documentation = string.Concat(Documentation.Remove(StartIndex), Documentation.AsSpan(EndIndex));
+			Documentation = string.Concat(Documentation.Remove(Documentation.IndexOf("<returns>")), Documentation.AsSpan(Documentation.IndexOf("</returns>") + 10));
 		}
 
 		Documentation = Documentation[Documentation.IndexOf("        <member name")..]
@@ -82,7 +80,8 @@ internal static partial class Generator
 
 		for (int i = 0; i < Members.Capacity - 2; i++)
 		{
-			string Name;
+			int StartIndex, EndIndex;
+			string Name, Data;
 
 			Data = Documentation[(StartIndex = Documentation.IndexOf(MemberOpen) + 1)..];
 			Data = Data[..(EndIndex = Data.IndexOf(MemberClose))];

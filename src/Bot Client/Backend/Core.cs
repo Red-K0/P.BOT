@@ -1,8 +1,6 @@
-﻿namespace Bot.Backend;
-
-using Microsoft.Extensions.Configuration;
-using Bot.Commands.Helpers;
-using static GatewayIntents;
+﻿using Bot.Interactions.Helpers;
+using static NetCord.Gateway.GatewayIntents;
+namespace Bot.Backend;
 
 /// <summary>
 /// Contains methods for initializing and preparing the bot's client.
@@ -10,20 +8,9 @@ using static GatewayIntents;
 internal static class Core
 {
 	/// <summary>
-	/// Allows the fetching of private data from user secrets.
-	/// </summary>
-	private static readonly IConfigurationRoot Secrets = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
-
-	/// <summary>
-	/// Extracts a value from the project secrets, returning null if the identifier does not exist.
-	/// </summary>
-	public static string? GetSecret(string id) => Secrets[id];
-
-
-	/// <summary>
 	/// Main client, used for communicating with Discord.
 	/// </summary>
-	public static readonly GatewayClient Client = new(new BotToken(GetSecret("Token")!), new GatewayClientConfiguration()
+	public static readonly GatewayClient Client = new(new BotToken(Files.GetSecret("Token")!), new GatewayClientConfiguration()
 	{ Intents = MessageContent | Guilds | GuildUsers | GuildMessages | GuildMessageReactions | GuildVoiceStates });
 
 	/// <summary>
@@ -33,14 +20,14 @@ internal static class Core
 
 
 	/// <summary>
-	/// Gets a guild from the <see cref="Client"/>'s cache from using its ID.
+	/// Gets the bot's main guild.
 	/// </summary>
-	public static Guild GetGuild(ulong id) => Client.Cache.Guilds[id];
+	public static Guild Guild { get; set; } = null!;
 
 	/// <summary>
-	/// The current guild's ID, fetched via <see cref="GetSecret(string)"/>.
+	/// The current guild's ID, fetched via <see cref="Files.GetSecret(string)"/>.
 	/// </summary>
-	public static readonly ulong GuildID = Convert.ToUInt64(GetSecret("ServerID"));
+	public static readonly ulong GuildID = Convert.ToUInt64(Files.GetSecret("ServerID"));
 
 	/// <summary>
 	/// The base guild URL.
@@ -68,7 +55,6 @@ internal static class Core
 		await Events.MapClientHandlers();
 		await Client.StartAsync();
 		await Client.ReadyAsync;
-		Caches.Members.Load();
 
 		ProbabilityStateMachine.LoadMersenneTwister();
 	}

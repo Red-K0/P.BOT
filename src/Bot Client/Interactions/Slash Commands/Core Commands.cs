@@ -1,16 +1,9 @@
-﻿// SlashCommand definition file
-// This file contains the definition for the SlashCommand class, as well as commands relevant to the bot's internal functions.
-// An example of these commands are the SystemsCheck() command, which queries the current state of the bot.
-// Commands in this file should be minimal and concise, as well as being able to run entirely locally.
-
-using NetCord.Services.ApplicationCommands;
-
-namespace Bot.Commands;
+﻿using NetCord.Services.ApplicationCommands;
+namespace Bot.Interactions;
 
 /// <summary>
 /// Contains the slash commands used by P.BOT and their associated tasks.
 /// </summary>
-[SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Does not apply here.")]
 public sealed partial class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 {
 	#region Attributes
@@ -70,10 +63,8 @@ public sealed partial class SlashCommands : ApplicationCommandModule<SlashComman
 			return;
 		}
 
-		Guild Guild = GetGuild(GuildID);
-
 		// Prevent users without the appropriate permissions from using the command.
-		if (!(await Client.Rest.GetGuildUserAsync(GuildID, Context.User.Id)).GetPermissions(Guild).HasFlag(Permissions.MoveUsers))
+		if (!(await Client.Rest.GetGuildUserAsync(GuildID, Context.User.Id)).GetPermissions(Core.Guild).HasFlag(Permissions.MoveUsers))
 		{
 			await FollowupAsync(new()
 			{
@@ -86,7 +77,7 @@ public sealed partial class SlashCommands : ApplicationCommandModule<SlashComman
 		bool SpecificRole = role != null;
 
 		int MoveCount = 0;
-		foreach (VoiceState state in Guild.VoiceStates.Values)
+		foreach (VoiceState state in Core.Guild.VoiceStates.Values)
 		{
 			GuildUser User = state.User ?? await Client.Rest.GetGuildUserAsync(GuildID, state.UserId);
 

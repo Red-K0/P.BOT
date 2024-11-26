@@ -1,4 +1,5 @@
-﻿namespace Bot.Backend;
+﻿using static Bot.Backend.Members;
+namespace Bot.Backend;
 
 /// <summary>
 /// Convenience class for simple type conversions.
@@ -22,11 +23,11 @@ internal static class Extensions
 	/// <summary>
 	/// Converts a set of attachments to an array of the attachments' URLs.
 	/// </summary>
-	public static string?[]? GetImageURLs(this IReadOnlyDictionary<ulong, Attachment> attachments)
+	public static IEnumerable<string?> GetImageURLs(this IReadOnlyDictionary<ulong, Attachment> attachments)
 	{
 		IEnumerable<string?> ImageURLs = [];
 		foreach (KeyValuePair<ulong, Attachment> attachment in attachments) ImageURLs = ImageURLs.Append(attachment.Value.Url);
-		return ImageURLs.Any() ? ImageURLs.ToArray() : null;
+		return ImageURLs;
 	}
 
 	/// <summary>
@@ -56,7 +57,7 @@ internal static class Extensions
 	/// <summary>
 	/// Gets the URL of a user's avatar if they have one, otherwise returning their default avatar URL.
 	/// </summary>
-	public static string GetAvatar(this User user, ImageFormat? format = null) => Caches.Members.List.TryGetValue(user.Id, out Caches.Members.Member? member) && member.Info.User.HasGuildAvatar
+	public static string GetAvatar(this User user, ImageFormat? format = null) => MemberList.TryGetValue(user.Id, out Member? member) && member.Info.User.HasGuildAvatar
 			? member.Info.User.GetGuildAvatarUrl(format)!.ToString()
 			: user.HasAvatar ? user.GetAvatarUrl(format)!.ToString() : user.DefaultAvatarUrl.ToString();
 
@@ -70,6 +71,5 @@ internal static class Extensions
 	/// <summary>
 	/// Gets a <see cref="User"/>'s displayed discord name using the cached member list.
 	/// </summary>
-	public static string GetDisplayName(this User user) =>
-		Caches.Members.List.TryGetValue(user.Id, out Caches.Members.Member? member) ? member.DisplayName : user.GlobalName ?? user.Username;
+	public static string GetDisplayName(this User user) => MemberList.TryGetValue(user.Id, out Member? member) ? member.DisplayName : user.GlobalName ?? user.Username;
 }

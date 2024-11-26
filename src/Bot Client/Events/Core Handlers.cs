@@ -1,4 +1,6 @@
-﻿using NetCord.Services.ApplicationCommands;
+﻿using NetCord.Services;
+using NetCord.Services.ApplicationCommands;
+using NetCord.Services.ComponentInteractions;
 using static Bot.Messages.Logging;
 
 namespace Bot.Backend;
@@ -9,21 +11,24 @@ namespace Bot.Backend;
 internal static partial class Events
 {
 	private static readonly ApplicationCommandService<SlashCommandContext> CommandService = new();
+	private static readonly ComponentInteractionService<ButtonInteractionContext> ComponentService = new();
 
 	/// <summary>
 	/// Maps the <see cref="Client"/>'s events to their appropriate response method.
 	/// </summary>
 	public static async Task MapClientHandlers()
 	{
-		CommandService.AddModule<Commands.SlashCommands>();
+		CommandService.AddModule<Interactions.SlashCommands>();
+		ComponentService.AddModule<Interactions.Helpers.Library>();
 		await CommandService.CreateCommandsAsync(Client.Rest, Client.Id);
 
 		Client.Log += LogNetworkMessage;
 		Client.InteractionCreate += InteractionCreate;
 
 		Client.GuildUserAdd  += GuildUserUpdate; Client.GuildUserUpdate += GuildUserUpdate; Client.GuildUserRemove += GuildUserRemove;
-		Client.RoleCreate    +=      RoleUpdate; Client.RoleUpdate      +=      RoleUpdate; Client.RoleDelete      +=      RoleDelete;
 		Client.MessageCreate +=   MessageCreate; Client.MessageUpdate   +=   MessageUpdate; Client.MessageDelete   +=   MessageDelete;
+
+		Client.GuildCreate += static async (e) => { Core.Guild = e.Guild!; await Members.LoadDictionaries(); };
 
 		Client.MessageReactionAdd += ReactionAdded;
 	}
@@ -35,14 +40,30 @@ internal static partial class Events
 	{
 		try
 		{
-			if (interaction is SlashCommandInteraction SlashCommand && await CommandService.ExecuteAsync(new(SlashCommand, Client)) is IFailResult Result)
+			switch (interaction)
 			{
-				WriteAsID("Slash Command failed with message - " + Result.Message + "\n" + $"""
-					            Channel: {SlashCommand.Channel}
-					                 At: {SlashCommand.CreatedAt}
-					         Command ID: {SlashCommand.Id}
-					            User ID: {SlashCommand.User.Id}
-					""", SpecialId.Network);
+				case SlashCommandInteraction SlashCommand:
+					if (await CommandService.ExecuteAsync(new(SlashCommand, Client)) is IFailResult CommandResult)
+					{
+						WriteAsID("Slash Command failed with message - " + CommandResult.Message + "\n" + $"""
+										Channel: {SlashCommand.Channel}
+											 At: {SlashCommand.CreatedAt}
+									 Command ID: {SlashCommand.Id}
+										User ID: {SlashCommand.User.Id}
+							""", SpecialId.Network);
+					}
+					break;
+				case ButtonInteraction Button:
+					if (await ComponentService.ExecuteAsync(new ButtonInteractionContext(Button, Client)) is IFailResult ButtonResult)
+					{
+						WriteAsID("Button Interaction failed with message - " + ButtonResult.Message + "\n" + $"""
+										Channel: {Button.Channel}
+											 At: {Button.CreatedAt}
+									 Command ID: {Button.Id}
+										User ID: {Button.User.Id}
+							""", SpecialId.Network);
+					}
+					break;
 			}
 		}
 		catch (Exception ex)

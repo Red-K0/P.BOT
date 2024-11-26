@@ -1,16 +1,16 @@
 ﻿using static Bot.Messages.Logging;
-
-VirtualTerminalSequences.Enable();
 Console.OutputEncoding = System.Text.Encoding.Unicode;
+VirtualTerminalSequences.Enable();
 Console.CursorVisible = false;
 
-await Bot.Documentation.Generator.Generate();
+Bot.Documentation.Generator.Generate();
+Files.EnsurePathsExist();
 
-AppDomain current = AppDomain.CurrentDomain; // Load handler after client to prevent infinite loop.
+AppDomain current = AppDomain.CurrentDomain;
 
-current.ProcessExit += (_, _) => VirtualTerminalSequences.Disable(); // Restore input and output modes after exit.
+current.ProcessExit += static (_, _) => VirtualTerminalSequences.Disable();
 
-current.UnhandledException += async (_, e) =>
+current.UnhandledException += static async (_, e) =>
 {
 	Console.Clear();
 	WriteAsID($"An unhandled '{e.ExceptionObject.GetType()}' occurred at {DateTime.UtcNow}", SpecialId.Network);

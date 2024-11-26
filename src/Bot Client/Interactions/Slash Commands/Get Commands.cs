@@ -1,14 +1,8 @@
-﻿// Get Commands Extension File
-// This file contains commands that are relevant to the bot's getter functions, local and online.
-// An example of these commands is the GetAvatar() command, which gets a user's avatar.
-// Commands in this file rely frequently on web requests, and the related mess there.
-
-using System.Text;
+﻿using System.Text;
+using Bot.Interactions.Helpers;
 using NetCord.Services.ApplicationCommands;
-using Bot.Commands.Helpers;
-using static Bot.Caches.Members;
-using static Bot.Backend.Embeds;
-namespace Bot.Commands;
+using static Bot.Backend.Members;
+namespace Bot.Interactions;
 
 public sealed partial class SlashCommands
 {
@@ -29,15 +23,24 @@ public sealed partial class SlashCommands
 	/// <param name="format">The format of the image result, the GIF and Lottie formats are only supported for animated avatars.</param>
 	public async partial Task GetAvatar(User user, ImageFormat? format)
 	{
-		string AvatarUrl = (user.Id == Client.Id) ? GetAssetURL("Bot Icon.png") : user.GetAvatar(format);
+		string AvatarUrl = (user.Id == Client.Id) ? Common.GetAssetURL("Icons/Bot Icon.png") : $"{user.GetAvatar(format)}";
 
-		await RespondAsync(InteractionCallback.Message(Generate(CreateProperties(
-			$"Sure, [here]({AvatarUrl}) is <@{user.Id}>'s avatar.",
-			CreateAuthor($"{user.GetDisplayName()}'s Avatar", AvatarUrl),
-			DateTimeOffset.UtcNow,
-			CreateFooter($"Avatar requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),
-			refId: user.Id
-		))));
+		await RespondAsync(InteractionCallback.Message(new()
+		{
+			Embeds = [new()
+			{
+				Author = new()
+				{
+					IconUrl = AvatarUrl,
+					Name = $"{user.GetDisplayName()}'s Avatar"
+				},
+				Color = Common.GetColor(user.Id),
+				Description = $"Sure, [here]({AvatarUrl}) is <@{user.Id}>'s avatar.",
+				Image = AvatarUrl,
+				Timestamp = DateTimeOffset.UtcNow,
+				Url = AvatarUrl,
+			}]
+		}));
 	}
 
 	#region Attributes
@@ -45,15 +48,19 @@ public sealed partial class SlashCommands
 	public partial Task GetTitle
 	(
 		[SlashCommandParameter(Name = "title", Description = "The title to display.")]
-		Library.Titles title
+		string title
 	);
 	#endregion
 
 	/// <summary>Command task. Gets the library entry of the title specified in the <paramref name="title"/> parameter.</summary>
 	/// <param name="title">The title to display.</param>
-	public async partial Task GetTitle(Library.Titles title)
+	public async partial Task GetTitle(string title)
 	{
-		await RespondAsync(InteractionCallback.Message(Library.Entries.GetValueOrDefault(title)!));
+		await RespondAsync(InteractionCallback.Message(new()
+		{
+			Embeds = [Library.Entries[title][0]],
+			Components = [new ActionRowProperties([new ButtonProperties("NextPage", "2", ButtonStyle.Primary)])]
+		}));
 	}
 
 	#region Attributes
@@ -159,7 +166,7 @@ public sealed partial class SlashCommands
 	{
 		if (raw)
 		{
-			await RespondAsync(InteractionCallback.Message(List.TryGetValue(user.Id, out Member? Raw)
+			await RespondAsync(InteractionCallback.Message(MemberList.TryGetValue(user.Id, out Member? Raw)
 			? string.Format(null, RawServerMember,
 			user.AccentColor?.RawValue, user.AvatarDecorationData?.Hash, user.AvatarHash, user.BannerHash,  user.CreatedAt,
 			user.DefaultAvatarUrl,      user.Discriminator,              user.Email,      user.Flags,       user.GlobalName,
@@ -192,56 +199,51 @@ public sealed partial class SlashCommands
 		}
 
 		string DisplayName = user.GetDisplayName();
-		string[] Field = ["Never", "False", "False", "Never", "False", "False", "None", "Unknown", "None", "None", "None", "Never", "> None"];
+		bool MemberFound = MemberList.TryGetValue(user.Id, out Member? Member);
 
-		if (List.TryGetValue(user.Id, out Member? Member))
+		string AkaString = "`AKA` ";
+		if (user.Username != DisplayName) { AkaString += $"{user.Username}, "; }
+		if ((user.GlobalName ?? DisplayName) != DisplayName) { AkaString += $"{user.GlobalName}"; }
+		else { AkaString = AkaString.Contains(',') ? AkaString[..AkaString.IndexOf(',')] : ""; }
+
+		await RespondAsync(InteractionCallback.Message(new()
 		{
-			                                              Field[00] = $"<t:{Member.Info.User.JoinedAt.ToUnixTimeSeconds()}>";
-			if (Member.Info.User.Verified        != null) Field[01] = Member.Info.User.Verified.ToString()!;
-			                                              Field[02] = Member.IsFounder.ToString();
-			if (Member.Info.User.TimeOutUntil    != null) Field[03] = $"<t:{Member.Info.User.TimeOutUntil.Value.ToUnixTimeSeconds()}>";
-			                                              Field[04] = Member.Info.User.Muted.ToString();
-			                                              Field[05] = Member.Info.User.Deafened.ToString();
-			if (Member.Info.SourceInviteCode     != null) Field[06] = Member.Info.SourceInviteCode;
-			if (Member.Info.InviterId            != null) Field[07] = $"<@{Member.Info.InviterId}>";
-			if (Member.PersonalRole              != null)
+			Embeds = [new()
 			{
-				                                          Field[08] = $"<@&{Member.PersonalRole.Id}>";
-				                                          Field[09] = $"#{Member.PersonalRole.Color.RawValue:X6}";
-			}
-			if (Member.Info.User.AccentColor     != null) Field[10] = $"#{Member.Info.User.AccentColor:X6}";
-			if (Member.Info.User.GuildBoostStart != null) Field[11] = $"<t:{Member.Info.User.GuildBoostStart.Value.ToUnixTimeSeconds()}>";
-			                                              Field[12] = GetUserAccolades(Member);
+				Author = null,
+				Color = Common.GetColor(user.Id),
+				Description = $"### {user}{(AkaString.Length == 0 ? "" : "\n")}{AkaString}",
+				Fields = [
+				new() { Name = "ID", Value = $"`{user.Id}`", Inline = true },
+				new() { Name = "Joined", Value = !MemberFound ? "Never" : Member!.Info.User.JoinedAt.ToString(), Inline = true },
 
-			DisplayName = Member.Info.User.Nickname ?? DisplayName;
-		}
+				new(),
+				new() { Name = "Timeout Until", Value = Member?.Info.User.TimeOutUntil == null ? "No timeout" : $"<t:{Member.Info.User.TimeOutUntil.Value.ToUnixTimeSeconds()}>", Inline = true },
+				new() { Name = "Muted",         Value =                           !MemberFound ?      "False" : Member!.Info.User.Muted.ToString(), Inline = true },
+				new() { Name = "Deafened",      Value =                           !MemberFound ?      "False" : Member!.Info.User.Deafened.ToString(), Inline = true },
+				new() { Name = "Invite Code",   Value =  Member?.Info.SourceInviteCode == null ?       "None" : $"`{Member.Info.SourceInviteCode}`", Inline = true },
+				new() { Name = "Special Color", Value =           Member?.PersonalRole == null ?       "None" : $"`#{Member.PersonalRole.Color.RawValue:X6}`", Inline = true },
+				new() { Name = "Accent Color",  Value =  Member?.Info.User.AccentColor == null ?       "None" : $"#{Member.Info.User.AccentColor:X6}", Inline = true },
 
-		bool DisplayAka = false; string AkaString = "`AKA` ";
-		if (user.Username   != DisplayName) { DisplayAka = true; AkaString += $"{user.Username}, "; }
-		if (user.GlobalName != DisplayName) { DisplayAka = true; AkaString += $"{user.GlobalName}"; } else { AkaString = AkaString[..^2]; }
+				new(),
+				new() { Name = "Invited By",     Value =            Member?.Info.InviterId == null ?       "Unknown" : $"<@{Member.Info.InviterId}>", Inline = true },
+				new() { Name = "Boosting Since", Value = Member?.Info.User.GuildBoostStart == null ? "Never boosted" : $"<t:{Member.Info.User.GuildBoostStart.Value.ToUnixTimeSeconds()}>", Inline = true },
 
-		await RespondAsync(InteractionCallback.Message(Generate(CreateProperties(
-			DisplayAka ? AkaString.ToEscapedMarkdown() : "",
-			null,
-			DateTime.Now,
-			CreateFooter($"User requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),
-			null,
-			user.GetAvatar(),
-			DisplayName,
-			null,
-			[
-				CreateField(           "User",                       user.ToString()),
-				CreateField(            "Tag",     user.Discriminator.ToString("X4")),
-				CreateField(             "ID",                    user.Id.ToString()),
-				CreateField(         "Joined", Field[00]), CreateField(    "Verified", Field[01]), CreateField(       "Founder", Field[02]),
-				CreateField("Timed Out Until", Field[03]), CreateField(       "Muted", Field[04]), CreateField(      "Deafened", Field[05]),
-				CreateField(    "Invite Code", Field[06]), CreateField(  "Invited By", Field[07]), CreateField( "Personal Role", Field[08]),
-				CreateField( "Personal Color", Field[09]), CreateField("Accent Color", Field[10]), CreateField("Boosting Since", Field[11]),
-				CreateField(  noInline: true),
-				CreateField(      "Accolades", Field[12]),
-			],
-			user.Id
-		))));
+				new(),
+				new() { Name = "Accolades", Value =!MemberFound ? "" : await GetUserAccolades(Member!), Inline = true },
+				],
+				Footer = new()
+				{
+					Text = $"Requested by {Context.User.GetDisplayName()}",
+					IconUrl = Context.User.GetAvatar()
+				},
+				Image = null,
+				Thumbnail = user.GetAvatar(),
+				Timestamp = DateTime.Now,
+				Title = null,
+				Url = null,
+			}]
+		}));
 	}
 
 	#region Attributes
@@ -264,12 +266,23 @@ public sealed partial class SlashCommands
 		// Make sure the interaction doesn't time out
 		await RespondAsync(InteractionCallback.DeferredMessage());
 
-		await FollowupAsync(Generate(CreateProperties(
-			await Wikipedia.GetPage(term, fullPage),
-			CreateAuthor("Wikipedia", GetAssetURL("Wikipedia Icon.png")),
-			DateTime.Now,
-			CreateFooter($"Definition requested by {Context.User.GetDisplayName()}", Context.User.GetAvatar()),
-			color: STD_COLOR
-		)));
+		await FollowupAsync(new()
+		{
+			Embeds = [new() {
+				Author = new()
+				{
+					IconUrl = Common.GetAssetURL("Icons/Wikipedia Icon.png"),
+					Name = "Wikipedia"
+				},
+				Color = new(Common.STD_COLOR),
+				Description = await Wikipedia.GetPage(term, fullPage),
+				Footer = new()
+				{
+					IconUrl = Context.User.GetAvatar(),
+					Text = $"Definition requested by {Context.User.GetDisplayName()}"
+				},
+				Timestamp = DateTime.Now
+			}]
+		});
 	}
 }

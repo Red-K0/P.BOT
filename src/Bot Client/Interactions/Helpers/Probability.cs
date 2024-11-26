@@ -1,8 +1,6 @@
-﻿// The helper class supporting the .r* commands.
+﻿using System.Text;
 
-using System.Text;
-
-namespace Bot.Commands.Helpers;
+namespace Bot.Interactions.Helpers;
 
 /// <summary>
 /// Contains constants, variables and the function responsible for probability calculations and roll results.

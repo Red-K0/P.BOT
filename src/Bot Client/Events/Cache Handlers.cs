@@ -2,12 +2,12 @@
 internal static partial class Events
 {
 	/// <summary>
-	/// Updates the <see cref="Members.MemberList"/> dictionary when a user is added or modified.
+	/// Adds/updates the <see cref="Members.MemberList"/> when a user is added or modified.
 	/// </summary>
 	public static async ValueTask GuildUserUpdate(GuildUser guildUser) => Members.MemberList[guildUser.Id] = new(await guildUser.GetInfoAsync());
 
 	/// <summary>
-	/// Removes users from the Caches.Content.List dictionary when a member is modified.
+	/// Removes users from the <see cref="Members.MemberList"/> when a member leaves the guild.
 	/// </summary>
-	public static async ValueTask GuildUserRemove(GuildUserRemoveEventArgs guildUser) => await Task.Run(() => Members.MemberList.Remove(guildUser.User.Id));
+	public static async ValueTask GuildUserRemove(GuildUserRemoveEventArgs guildUser) { Members.MemberList.Remove(guildUser.User.Id); await Task.CompletedTask; }
 }

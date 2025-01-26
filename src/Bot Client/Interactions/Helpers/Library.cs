@@ -1,8 +1,10 @@
 ﻿using NetCord.Services.ComponentInteractions;
+using System.Collections.Frozen;
+
 namespace Bot.Interactions.Helpers;
 
 /// <summary>
-/// Contains data involving dictionaries and the <see cref="SlashCommands.GetTitle(string)"/> command.
+/// Contains methods and data involving the <see cref="SlashCommands.GetTitle(string)"/> command.
 /// </summary>
 public class Library : ComponentInteractionModule<ButtonInteractionContext>
 {
@@ -11,36 +13,34 @@ public class Library : ComponentInteractionModule<ButtonInteractionContext>
 	/// </summary>
 	static Library()
 	{
-		string[] Titles, Metadata;
-		EmbedProperties[] Pages;
+		string[] titles, metadata; EmbedProperties[] pages;
 
-		foreach (string directory in Directory.EnumerateDirectories(Files.DataPath + "Library\\"))
+		Entries = Directory.EnumerateDirectories(Files.Root + "Library\\").Select(s =>
 		{
-			Metadata = File.ReadAllLines(directory + @"\metadata.txt");
-			Titles = File.ReadAllLines(directory + @"\titles.txt");
-			Pages = new EmbedProperties[Titles.Length];
+			metadata = File.ReadAllLines(s + @"\metadata.txt");
+			titles = File.ReadAllLines(s + @"\titles.txt");
+			pages = new EmbedProperties[titles.Length];
 
-			for (int i = 0; i < Pages.Length; i++)
+			for (int i = 0; i < pages.Length; i++)
 			{
-				Pages[i] = new() {
-					Author = new() { Name = Titles[i] },
-					Description = File.ReadAllText(directory + $@"\{i + 1}.txt"),
-					Footer = new() { Text = $"{i + 1} - {Metadata[0]}" }
+				pages[i] = new() {
+					Author = new() { Name = titles[i] },
+					Description = File.ReadAllText(s + $@"\{i + 1}.txt"),
+					Footer = new() { Text = $"{i + 1} - {metadata[0]}" }
 				};
 			}
 
-			Entries.Add(Metadata[0], Pages);
-			return;
-		}
+			return new KeyValuePair<string, EmbedProperties[]>(metadata[0], pages);
+		}).ToFrozenDictionary();
 	}
 
 	/// <summary>
 	/// Contains the precomputed embeds for all available library entries.
 	/// </summary>
-	public static Dictionary<string, EmbedProperties[]> Entries { get; } = [];
+	public static FrozenDictionary<string, EmbedProperties[]> Entries { get; }
 
 	/// <summary>
-	/// WIP
+	/// Interaction Task. Modifies an embed to display the next page of a contained book.
 	/// </summary>
 	[ComponentInteraction("NextPage")]
 	public async Task NextPage()
@@ -58,7 +58,7 @@ public class Library : ComponentInteractionModule<ButtonInteractionContext>
 	}
 
 	/// <summary>
-	/// WIP
+	/// Interaction Task. Modifies an embed to display the previous page of a contained book.
 	/// </summary>
 	[ComponentInteraction("LastPage")]
 	public async Task LastPage()

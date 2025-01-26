@@ -1,19 +1,17 @@
 ﻿using static Bot.Messages.Logging;
+
 Console.OutputEncoding = System.Text.Encoding.Unicode;
-VirtualTerminalSequences.Enable();
 Console.CursorVisible = false;
+Ansi.EnableSequences();
 
-Bot.Documentation.Generator.Generate();
-Files.EnsurePathsExist();
+AppDomain app = AppDomain.CurrentDomain;
 
-AppDomain current = AppDomain.CurrentDomain;
+app.ProcessExit += static (_, _) => Ansi.DisableSequences();
 
-current.ProcessExit += static (_, _) => VirtualTerminalSequences.Disable();
-
-current.UnhandledException += static async (_, e) =>
+app.UnhandledException += static async (_, e) =>
 {
 	Console.Clear();
-	WriteAsID($"An unhandled '{e.ExceptionObject.GetType()}' occurred at {DateTime.UtcNow}", SpecialId.Network);
+	WriteAsID($"An unhandled exception occurred at {DateTime.UtcNow}, with message: {((Exception)e.ExceptionObject).Message}", SpecialId.Network);
 	await Restart();
 };
 

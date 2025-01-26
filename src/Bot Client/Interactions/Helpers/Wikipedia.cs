@@ -2,45 +2,51 @@
 namespace Bot.Interactions.Helpers;
 
 /// <summary>
-/// Contains the Wikipedia API constant, as well as the method responsible for page retrieval.
+/// Contains methods for interacting with the Wikipedia API, and handling requests.
 /// </summary>
 internal static partial class Wikipedia
 {
 	/// <summary>
 	/// The URL and preset parameters for the Wikipedia content API.
 	/// </summary>
-	private const string WIKI_API = "https://en.wikipedia.org/w/api.php?action=query&generator=prefixsearch&redirects=1&gpslimit=1&explaintext=0&format=json&prop=extracts&gpssearch=";
+	private const string _root = "https://en.wikipedia.org/w/api.php?action=query&generator=prefixsearch&redirects=1&gpslimit=1&explaintext=0&format=json&prop=extracts&gpssearch=";
+
+	[GeneratedRegex(@":\d\.\d|\[\d+\]")]
+	private static partial Regex CitationRegex();
 
 	/// <summary>
-	/// Sends the request responsible for retrieving the page, and formats it properly.
+	/// Sends the request responsible for retrieving a Wikipedia page, and formats it appropriately.
 	/// </summary>
+	/// <param name="searchTerm">The term to retrieve a page for.</param>
+	/// <param name="full">Whether to attempt to extract a term's full page.</param>
 	public static async Task<string> GetPage(string searchTerm, bool full)
 	{
-		string Page = await NetClient.GetStringAsync(WIKI_API + searchTerm + (full ? "" : "&exintro"));
+		string page = await NetClient.GetStringAsync(_root + searchTerm + (full ? "" : "&exintro"));
 
-		string Title = Page[(Page.IndexOf("title\"") + 8)..];
-		Title = Title.Remove(Title.IndexOf('"'));
+		string title = page[(page.IndexOf("title\"") + 8)..];
+		title = title.Remove(title.IndexOf('"'));
 
-		if (!Page.Contains("xtract")) return $"Wikipedia does not have a definition for '{searchTerm}'.";
+		if (!page.Contains("xtract")) return $"Wikipedia does not have a definition for '{searchTerm}'.";
 
 		// While the response is truncated to 4000 characters later, 5000 gives some leeway for formatting.
-		if (Page.Length >= 5000) Page = Page[..5000];
+		if (page.Length >= 5000) page = page[..5000];
 
-		Page = Page[(Page.IndexOf("xtract") + 9)..^5].FromEscapedUnicode().Replace(":\n", ".\n");
+		page = page[(page.IndexOf("xtract") + 9)..^5].FromEscapedUnicode().Replace(":\n", ".\n");
 
-		CitationRegex().Replace(Page, _ => "");
+		CitationRegex().Replace(page, _ => "");
 
-		Page = $"{(full ? "##" : "###")} [{Title.FromEscapedUnicode()}](https://en.wikipedia.org/wiki/{System.Web.HttpUtility.UrlEncode(Title.Replace(' ', '_'))})\n{Page}";
+		page = $"{(full ? "##" : "###")} [{title.FromEscapedUnicode()}](https://en.wikipedia.org/wiki/{System.Web.HttpUtility.UrlEncode(title.Replace(' ', '_'))})\n{page}";
 
-		if (full) FormatHeaders(ref Page);
+		if (full) FormatHeaders(ref page);
 
-		return Page.Length >= 4000 ? $"{Page[..4000]}..." : Page;
+		return page.Length >= 4000 ? $"{page[..4000]}..." : page;
 	}
 
 	/// <summary>
 	/// Applies varying types of formatting to page headers.
 	/// </summary>
-	public static void FormatHeaders(ref string page)
+	/// <param name="page">The page to format.</param>
+	private static void FormatHeaders(ref string page)
 	{
 		// HEADERS_REMOVE_EMPTY
 		// The following section is to remove empty headers that look like the following:
@@ -57,27 +63,27 @@ internal static partial class Wikipedia
 
 		if (page.Contains("\n== References")) page = page.Remove(page.IndexOf("\n== References"));
 
-		int EmptyHeaderEndingIndex;
-		while ((EmptyHeaderEndingIndex = page.IndexOf("==\n\n== ")) != -1)
+		int emptyHeaderEndIndex;
+		while ((emptyHeaderEndIndex = page.IndexOf("==\n\n== ")) != -1)
 		{
-			bool EqualsTrigger = false;
-			int EmptyHeaderStartIndex = 0;
+			bool equalsTrigger = false;
+			int emptyHeaderStartIndex = 0;
 
-			for (int i = EmptyHeaderEndingIndex - 1; i >= 0; i--)
+			for (int i = emptyHeaderEndIndex - 1; i >= 0; i--)
 			{
-				if (!EqualsTrigger)
+				if (!equalsTrigger)
 				{
-					if (page[i] == '=') EqualsTrigger = true;
+					if (page[i] == '=') equalsTrigger = true;
 				}
 				else if (page[i] != '=')
 				{
-					EmptyHeaderStartIndex = i + 1;
+					emptyHeaderStartIndex = i + 1;
 					break;
 				}
 			}
 
-			ReadOnlySpan<char> ResponseSpan = page.AsSpan();
-			page = string.Concat(ResponseSpan[..EmptyHeaderStartIndex], ResponseSpan[(EmptyHeaderEndingIndex + 4)..]);
+			ReadOnlySpan<char> response = page.AsSpan();
+			page = string.Concat(response[..emptyHeaderStartIndex], response[(emptyHeaderEndIndex + 4)..]);
 		}
 
 		// HEADERS_USE_MARKDOWN
@@ -88,13 +94,10 @@ internal static partial class Wikipedia
 		// "=== Header2 ===" to "**Header2**"
 
 		page = page
-			.Replace("\n===", "\n**")
-			.Replace("\n==", "###")
-			.Replace(" ==\n", "\n")
+			.Replace( "\n===", "\n**")
+			.Replace(  "\n==",  "###")
+			.Replace( " ==\n",   "\n")
 			.Replace(" ===\n", "**\n")
 			.Replace("**\n\n", "**\n");
 	}
-
-	[GeneratedRegex(@":\d\.\d|\[\d+\]")]
-	private static partial Regex CitationRegex();
 }

@@ -1,9 +1,9 @@
-﻿using System.Text;
-using Bot.Interactions.Helpers;
-using NetCord.Services.ApplicationCommands;
+﻿using NetCord.Services.ApplicationCommands;
 using static Bot.Backend.Members;
-namespace Bot.Interactions;
+using Bot.Interactions.Helpers;
+using System.Text;
 
+namespace Bot.Interactions;
 public sealed partial class SlashCommands
 {
 	#region Attributes
@@ -64,7 +64,7 @@ public sealed partial class SlashCommands
 	}
 
 	#region Attributes
-	private static readonly CompositeFormat RawServerMember = CompositeFormat.Parse("""
+	private static readonly CompositeFormat _rawServerMember = CompositeFormat.Parse("""
 	```
 	-- User Fields --
 	Accent Color: {0}
@@ -120,7 +120,7 @@ public sealed partial class SlashCommands
 	Spam Filter Trigger Count: {44}
 	```
 	""");
-	private static readonly CompositeFormat RawStandardUser = CompositeFormat.Parse("""
+	private static readonly CompositeFormat _rawStandardUser = CompositeFormat.Parse("""
 	```
 	-- User Fields --
 	Accent Color: {0}
@@ -166,8 +166,8 @@ public sealed partial class SlashCommands
 	{
 		if (raw)
 		{
-			await RespondAsync(InteractionCallback.Message(MemberList.TryGetValue(user.Id, out Member? Raw)
-			? string.Format(null, RawServerMember,
+			await RespondAsync(InteractionCallback.Message(MemberList.TryGetValue(user.Id, out Member? rawMember)
+			? string.Format(null, _rawServerMember,
 			user.AccentColor?.RawValue, user.AvatarDecorationData?.Hash, user.AvatarHash, user.BannerHash,  user.CreatedAt,
 			user.DefaultAvatarUrl,      user.Discriminator,              user.Email,      user.Flags,       user.GlobalName,
 			user.HasAvatar,             user.HasAvatarDecoration,        user.HasBanner,  user.Id,          user.IsBot,
@@ -175,20 +175,20 @@ public sealed partial class SlashCommands
 			user.Username,              user.Verified,
 
 			// Guild User Fields
-			Raw.Info.User.Deafened,      Raw.Info.User.GuildAvatarHash, Raw.Info.User.GuildBoostStart,
-			Raw.Info.User.GuildFlags,    Raw.Info.User.GuildId,         Raw.Info.User.HasGuildAvatar,
-			Raw.Info.User.HoistedRoleId, Raw.Info.User.IsPending,       Raw.Info.User.JoinedAt,
-			Raw.Info.User.Muted,         Raw.Info.User.Nickname,        string.Join(" | ", Raw.Info.User.RoleIds), Raw.Info.User.TimeOutUntil,
+			rawMember.Info.User.Deafened,      rawMember.Info.User.GuildAvatarHash, rawMember.Info.User.GuildBoostStart,
+			rawMember.Info.User.GuildFlags,    rawMember.Info.User.GuildId,         rawMember.Info.User.HasGuildAvatar,
+			rawMember.Info.User.HoistedRoleId, rawMember.Info.User.IsPending,       rawMember.Info.User.JoinedAt,
+			rawMember.Info.User.Muted,         rawMember.Info.User.Nickname,        string.Join(" | ", rawMember.Info.User.RoleIds), rawMember.Info.User.TimeOutUntil,
 
 			// Guild Info Fields
-			Raw.Info.InviterId, Raw.Info.JoinSourceType, Raw.Info.SourceInviteCode,
+			rawMember.Info.InviterId, rawMember.Info.JoinSourceType, rawMember.Info.SourceInviteCode,
 
 			// Server Data
-			Raw.DisplayName,            Raw.IsFounder,       Raw.PersonalRole?.Id,
-			Raw.SpamLastAttachmentSize, Raw.SpamLastMessage, Raw.SpamLastMessageHeading, Raw.SpamSameMessageCount
+			rawMember.DisplayName,            rawMember.IsFounder,       rawMember.PersonalRole?.Id,
+			rawMember.LastAttachmentSize, rawMember.LastMessage, rawMember.SpamLastMessageHeading, rawMember.SpamSameMessageCount
 			)
 
-			: string.Format(null, RawStandardUser,
+			: string.Format(null, _rawStandardUser,
 			user.AccentColor?.RawValue, user.AvatarDecorationData?.Hash, user.AvatarHash, user.BannerHash,  user.CreatedAt,
 			user.DefaultAvatarUrl,      user.Discriminator,              user.Email,      user.Flags,       user.GlobalName,
 			user.HasAvatar,             user.HasAvatarDecoration,        user.HasBanner,  user.Id,          user.IsBot,
@@ -198,13 +198,19 @@ public sealed partial class SlashCommands
 			return;
 		}
 
-		string DisplayName = user.GetDisplayName();
-		bool MemberFound = MemberList.TryGetValue(user.Id, out Member? Member);
+		string displayName = user.GetDisplayName();
+		bool memberFound = MemberList.TryGetValue(user.Id, out Member? member);
 
-		string AkaString = "`AKA` ";
-		if (user.Username != DisplayName) { AkaString += $"{user.Username}, "; }
-		if ((user.GlobalName ?? DisplayName) != DisplayName) { AkaString += $"{user.GlobalName}"; }
-		else { AkaString = AkaString.Contains(',') ? AkaString[..AkaString.IndexOf(',')] : ""; }
+		string akaString = "`AKA` ";
+		if (user.Username != displayName) akaString += $"{user.Username}, ";
+		if ((user.GlobalName ?? displayName) != displayName)
+		{
+			akaString += $"{user.GlobalName}";
+		}
+		else
+		{
+			akaString = akaString.Contains(',') ? akaString[..akaString.IndexOf(',')] : "";
+		}
 
 		await RespondAsync(InteractionCallback.Message(new()
 		{
@@ -212,25 +218,25 @@ public sealed partial class SlashCommands
 			{
 				Author = null,
 				Color = Common.GetColor(user.Id),
-				Description = $"### {user}{(AkaString.Length == 0 ? "" : "\n")}{AkaString}",
+				Description = $"### {user}{(akaString.Length == 0 ? "" : "\n")}{akaString}",
 				Fields = [
 				new() { Name = "ID", Value = $"`{user.Id}`", Inline = true },
-				new() { Name = "Joined", Value = !MemberFound ? "Never" : Member!.Info.User.JoinedAt.ToString(), Inline = true },
+				new() { Name = "Joined", Value = !memberFound ? "Never" : member!.Info.User.JoinedAt.ToString(), Inline = true },
 
 				new(),
-				new() { Name = "Timeout Until", Value = Member?.Info.User.TimeOutUntil == null ? "No timeout" : $"<t:{Member.Info.User.TimeOutUntil.Value.ToUnixTimeSeconds()}>", Inline = true },
-				new() { Name = "Muted",         Value =                           !MemberFound ?      "False" : Member!.Info.User.Muted.ToString(), Inline = true },
-				new() { Name = "Deafened",      Value =                           !MemberFound ?      "False" : Member!.Info.User.Deafened.ToString(), Inline = true },
-				new() { Name = "Invite Code",   Value =  Member?.Info.SourceInviteCode == null ?       "None" : $"`{Member.Info.SourceInviteCode}`", Inline = true },
-				new() { Name = "Special Color", Value =           Member?.PersonalRole == null ?       "None" : $"`#{Member.PersonalRole.Color.RawValue:X6}`", Inline = true },
-				new() { Name = "Accent Color",  Value =  Member?.Info.User.AccentColor == null ?       "None" : $"#{Member.Info.User.AccentColor:X6}", Inline = true },
+				new() { Name = "Timeout Until", Value = member?.Info.User.TimeOutUntil == null ? "No timeout" : $"<t:{member.Info.User.TimeOutUntil.Value.ToUnixTimeSeconds()}>", Inline = true },
+				new() { Name = "Muted",         Value =                           !memberFound ?      "False" : member!.Info.User.Muted.ToString(), Inline = true },
+				new() { Name = "Deafened",      Value =                           !memberFound ?      "False" : member!.Info.User.Deafened.ToString(), Inline = true },
+				new() { Name = "Invite Code",   Value =  member?.Info.SourceInviteCode == null ?       "None" : $"`{member.Info.SourceInviteCode}`", Inline = true },
+				new() { Name = "Special Color", Value =           member?.PersonalRole == null ?       "None" : $"`#{member.PersonalRole.Color.RawValue:X6}`", Inline = true },
+				new() { Name = "Accent Color",  Value =  member?.Info.User.AccentColor == null ?       "None" : $"#{member.Info.User.AccentColor:X6}", Inline = true },
 
 				new(),
-				new() { Name = "Invited By",     Value =            Member?.Info.InviterId == null ?       "Unknown" : $"<@{Member.Info.InviterId}>", Inline = true },
-				new() { Name = "Boosting Since", Value = Member?.Info.User.GuildBoostStart == null ? "Never boosted" : $"<t:{Member.Info.User.GuildBoostStart.Value.ToUnixTimeSeconds()}>", Inline = true },
+				new() { Name = "Invited By",     Value =            member?.Info.InviterId == null ?       "Unknown" : $"<@{member.Info.InviterId}>", Inline = true },
+				new() { Name = "Boosting Since", Value = member?.Info.User.GuildBoostStart == null ? "Never boosted" : $"<t:{member.Info.User.GuildBoostStart.Value.ToUnixTimeSeconds()}>", Inline = true },
 
 				new(),
-				new() { Name = "Accolades", Value =!MemberFound ? "" : await GetUserAccolades(Member!), Inline = true },
+				new() { Name = "Accolades", Value =!memberFound ? "" : await GetAccolades(member!), Inline = true },
 				],
 				Footer = new()
 				{
@@ -274,7 +280,7 @@ public sealed partial class SlashCommands
 					IconUrl = Common.GetAssetURL("Icons/Wikipedia Icon.png"),
 					Name = "Wikipedia"
 				},
-				Color = new(Common.STD_COLOR),
+				Color = new(Common.DefaultColor),
 				Description = await Wikipedia.GetPage(term, fullPage),
 				Footer = new()
 				{

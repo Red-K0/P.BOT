@@ -1,8 +1,9 @@
 ﻿using NetCord.Services.ApplicationCommands;
+
 namespace Bot.Interactions;
 
 /// <summary>
-/// Contains the slash commands used by P.BOT and their associated tasks.
+/// Contains the bot's slash commands and their associated tasks.
 /// </summary>
 public sealed partial class SlashCommands : ApplicationCommandModule<SlashCommandContext>
 {
@@ -14,7 +15,7 @@ public sealed partial class SlashCommands : ApplicationCommandModule<SlashComman
 	#endregion Attributes
 
 	/// <summary>
-	/// Command task. Checks if P.BOT's system is active.
+	/// Command task. Checks if the bot's command system is active.
 	/// </summary>
 	public async partial Task SystemsCheck()
 	{
@@ -74,23 +75,23 @@ public sealed partial class SlashCommands : ApplicationCommandModule<SlashComman
 			return;
 		}
 
-		bool SpecificRole = role != null;
+		bool specificRole = role != null;
 
-		int MoveCount = 0;
+		int moveCount = 0;
 		foreach (VoiceState state in Core.Guild.VoiceStates.Values)
 		{
-			GuildUser User = state.User ?? await Client.Rest.GetGuildUserAsync(GuildID, state.UserId);
+			GuildUser user = state.User ?? await Client.Rest.GetGuildUserAsync(GuildID, state.UserId);
 
-			if (state.ChannelId == originChannel.Id && (!SpecificRole || User.RoleIds.Contains(role!.Id)))
+			if (state.ChannelId == originChannel.Id && (!specificRole || user.RoleIds.Contains(role!.Id)))
 			{
-				await User.ModifyAsync(o => o.ChannelId = destinationChannel.Id);
-				MoveCount++;
+				await user.ModifyAsync(o => o.ChannelId = destinationChannel.Id);
+				moveCount++;
 			}
 		}
 
 		await FollowupAsync(new()
 		{
-			Content = MoveCount > 0 ? $"Successfully moved {MoveCount} users." : "Sorry, but no users were found in the specified channel.",
+			Content = moveCount > 0 ? $"Successfully moved {moveCount} users." : "Sorry, but no users were found in the specified channel.",
 			Flags = MessageFlags.Ephemeral
 		});
 	}

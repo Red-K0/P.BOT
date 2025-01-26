@@ -70,7 +70,7 @@
 		</details>
 		<details>
 			<summary>
-				<code>Bot.Backend.Extensions.<cyan>GetImageURLs</cyan>(ReadOnlyDictionary&lt;<blue>ulong</blue>, Attachment&gt;)</code>
+				<code>Bot.Backend.Extensions.<cyan>GetImageURLs</cyan>(Collections.Generic.IReadOnlyList&lt;Attachment&gt;)</code>
 			</summary>
 			Converts a set of attachments to an array of the attachments' URLs.
 		</details>
@@ -378,7 +378,7 @@
 			<summary>
 				<code>Bot.Backend.Events.<cyan>InteractionCreate</cyan>(Interaction)</code>
 			</summary>
-			Processes received interactions.
+			Processes received interactions by identifying their type, and passing them to the correct service.
 		</details>
 		<details>
 			<summary>
@@ -409,7 +409,7 @@
 				<code>Bot.Backend.Events.<cyan>ReactionAdded</cyan>(Gateway.MessageReactionAddEventArgs)</code>
 			</summary>
 			Logs reactions to messages.
-		</details>
+		</details><br>
 		<details>
 			<summary>
 				<code>Bot.Data.<cyan>Cache</cyan></code>
@@ -520,6 +520,12 @@
 		</details>
 		<details>
 			<summary>
+				<code>Bot.Data.Files.Names.<cyan>Webhooks</cyan></code>
+			</summary>
+			 Contains a list of webhook URLs. 
+		</details>
+		<details>
+			<summary>
 				<code>Bot.Data.Files.<cyan>CounterLines</cyan></code>
 			</summary>
 			A list of names for lines in the <code>Bot.Data.Files.Names.<cyan>Counters</cyan></code> file.
@@ -547,7 +553,7 @@
 				<code>Bot.Data.Parsing.<cyan>EscapeCharacterRegex</cyan>()</code>
 			</summary>
 			Pattern:<br/><code>\\\\(b|f|n|r|t|"|\\\\)</code><br/>Explanation:<br/><code>○ Match '\\'.<br/>○ 1st capture group.<br/>○ Match a character in the set ["\\bfnrt].<br/></code>
-		</details>
+		</details><br>
 		<details>
 			<summary>
 				<code>Bot.Documentation.<cyan>Generator</cyan></code>
@@ -685,6 +691,60 @@
 				<code>Bot.Documentation.Tags.<cyan>SummaryClose</cyan></code>
 			</summary>
 			Indicate the start and end of a summary section, used in <code>Bot.Documentation.Generator.<cyan>GetMemberSummaryPairs</cyan>()</code>
+		</details><br>
+		<details>
+			<summary>
+				<code>Bot.Interactions.<cyan>SlashCommands</cyan></code>
+			</summary>
+			Contains the slash commands used by P.BOT and their associated tasks.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>RollSecretSantaPartner</cyan>()</code>
+			</summary>
+			N/A
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>SystemsCheck</cyan>()</code>
+			</summary>
+			Command task. Checks if P.BOT's system is active.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>MoveVoiceUsers</cyan>(VoiceGuildChannel, VoiceGuildChannel, Role)</code>
+			</summary>
+			Command task. Moves a group of users from one voice channel to another.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>CreatePost</cyan>()</code>
+			</summary>
+			WIP
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>GetAvatar</cyan>(User, ImageFormat?)</code>
+			</summary>
+			Command task. Gets the avatar of the user, in a specific format if specified in format.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>GetTitle</cyan>(<blue>string</blue>)</code>
+			</summary>
+			Command task. Gets the library entry of the title specified in the title parameter.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>GetUser</cyan>(User, <blue>bool</blue>)</code>
+			</summary>
+			Command task. Displays data relevant to a specified user.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.SlashCommands.<cyan>GetWiki</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
+			</summary>
+			Command task. Searches for a Wikipedia page similar to the given term, and gets its content if a page is found.
 		</details>
 		<details>
 			<summary>
@@ -712,7 +772,13 @@
 		</details>
 		<details>
 			<summary>
-				<code>Bot.Interactions.Generation.<cyan>ToEmbedSet</cyan>(Rest.RestMessage, <blue>string</blue>, Rest.EmbedFooterProperties, <blue>string</blue>, <blue>string</blue>)</code>
+				<code>Bot.Interactions.Common.<cyan>GetColor</cyan>(<blue>ulong</blue>)</code>
+			</summary>
+			Gets the color associated with a user based on their ID, returning a random color if not associated.
+		</details>
+		<details>
+			<summary>
+				<code>Bot.Interactions.Generation.<cyan>ToEmbedSet</cyan>(Rest.RestMessage, <blue>string</blue>, Rest.EmbedFooterProperties, <blue>string</blue>, <blue>string</blue>, <blue>bool</blue>)</code>
 			</summary>
 			 Combines the specified parameters with parameters extracted from a given <code>Rest.<cyan>RestMessage</cyan></code> to generate an embed. 
 		</details>
@@ -841,61 +907,7 @@
 				<code>Bot.Interactions.Helpers.Wikipedia.<cyan>CitationRegex</cyan>()</code>
 			</summary>
 			Pattern:<br/><code>:\\d\\.\\d|\\[\\d+\\]</code><br/>Explanation:<br/><code>○ Match with 2 alternative expressions, atomically.<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match a Unicode digit.<br/>○ Match '.'.<br/>○ Match a Unicode digit.<br/>○ Match a sequence of expressions.<br/>○ Match an empty string.<br/>○ Match a Unicode digit atomically at least once.<br/>○ Match ']'.<br/></code>
-		</details>
-		<details>
-			<summary>
-				<code>Bot.Interactions.<cyan>SlashCommands</cyan></code>
-			</summary>
-			Contains the slash commands used by P.BOT and their associated tasks.
-		</details>
-		<details>
-			<summary>
-				<code>Bot.Interactions.SlashCommands.<cyan>SystemsCheck</cyan>()</code>
-			</summary>
-			Command task. Checks if P.BOT's system is active.
-		</details>
-		<details>
-			<summary>
-				<code>Bot.Interactions.SlashCommands.<cyan>MoveVoiceUsers</cyan>(VoiceGuildChannel, VoiceGuildChannel, Role)</code>
-			</summary>
-			Command task. Moves a group of users from one voice channel to another.
-		</details>
-		<details>
-			<summary>
-				<code>Bot.Interactions.SlashCommands.<cyan>GetAvatar</cyan>(User, ImageFormat?)</code>
-			</summary>
-			Command task. Gets the avatar of the user, in a specific format if specified in format.
-		</details>
-		<details>
-			<summary>
-				<code>Bot.Interactions.SlashCommands.<cyan>GetTitle</cyan>(<blue>string</blue>)</code>
-			</summary>
-			Command task. Gets the library entry of the title specified in the title parameter.
-		</details>
-		<details>
-			<summary>
-				<code>Bot.Interactions.SlashCommands.<cyan>GetUser</cyan>(User, <blue>bool</blue>)</code>
-			</summary>
-			Command task. Displays data relevant to a specified user.
-		</details>
-		<details>
-			<summary>
-				<code>Bot.Interactions.SlashCommands.<cyan>GetWiki</cyan>(<blue>string</blue>, <blue>bool</blue>)</code>
-			</summary>
-			Command task. Searches for a Wikipedia page similar to the given term, and gets its content if a page is found.
-		</details>
-		<details>
-			<summary>
-				<code>Bot.Interactions.<cyan>TextCommands</cyan></code>
-			</summary>
-			Contains the text commands used by P.BOT and their associated tasks.
-		</details>
-		<details>
-			<summary>
-				<code>Bot.Interactions.TextCommands.<cyan>Parse</cyan>(Gateway.Message)</code>
-			</summary>
-			Parses a given message, running the associated text command if a valid prefix is found.
-		</details>
+		</details><br>
 		<details>
 			<summary>
 				<code>Bot.Messages.<cyan>Functions</cyan></code>

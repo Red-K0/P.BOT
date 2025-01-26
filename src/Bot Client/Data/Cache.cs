@@ -1,32 +1,31 @@
-﻿using BitFaster.Caching.Lru;
-namespace Bot.Data;
+﻿namespace Bot.Data;
 
 /// <summary>
-/// Contains the recent messages cache and its relevant methods.
+/// Contains the bot's message cache and its relevant methods.
 /// </summary>
 internal static class Cache
 {
 	/// <summary>
-	/// Contains all messages in the bot's cache.
+	/// The index of the last assigned <see cref="MessageIgnoreList"/> slot.
 	/// </summary>
-	public static ConcurrentLru<ulong, Message> RecentMessages { get; } = new(capacity: 10000);
-
-	/// <summary>
-	/// The index of the last assigned <see cref="IgnoredMessageIDs"/> slot.
-	/// </summary>
-	private static sbyte IgnoredMessageListPointer = -1;
+	private static int _ignoreIndex;
 
 	/// <summary>
 	/// A short array of messages to be ignored by <see cref="Events.MessageDelete(MessageDeleteEventArgs)"/> to prevent clutter.
 	/// </summary>
-	public static readonly ulong[] IgnoredMessageIDs = [0, 0, 0, 0, 0];
+	public static readonly ulong[] MessageIgnoreList = [0, 0, 0, 0, 0];
 
 	/// <summary>
-	/// Adds a message ID to the <see cref="IgnoredMessageIDs"/>.
+	/// The message cache, indexed by message IDs.
 	/// </summary>
-	public static void IgnoreMessageID(ulong id)
+	public static readonly Dictionary<ulong, Message> RecentMessages = new(capacity: 10000);
+
+	/// <summary>
+	/// Adds a message ID to the <see cref="MessageIgnoreList"/> list.
+	/// </summary>
+	public static void AddToIgnoreList(ulong id)
 	{
-		if (IgnoredMessageListPointer == 4) IgnoredMessageListPointer = -1;
-		IgnoredMessageIDs[++IgnoredMessageListPointer] = id;
+		MessageIgnoreList[_ignoreIndex] = id;
+		_ignoreIndex += _ignoreIndex == 4 ? -4 : 1;
 	}
 }

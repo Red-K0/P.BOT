@@ -2,38 +2,50 @@
 using System.Text;
 
 namespace Bot.Data;
+
+/// <summary>
+/// Contains extensions for parsing and handling formatted text, such as markdown.
+/// </summary>
 internal static partial class Parsing
 {
+	/// <summary>
+	/// Used for parsing markdown strings efficiently.
+	/// </summary>
+	private static readonly StringBuilder _markdownBuilder = new(128);
+
+	[GeneratedRegex(@"\\(b|f|n|r|t|""|\\)")]
+	private static partial Regex EscapeCharacterRegex();
+
 	/// <summary>
 	/// Replaces any unparsed unicode identifiers with their appropriate symbols (i.e. <c>\u0041' to 'A'</c>).
 	/// </summary>
 	public static string FromEscapedUnicode(this string unparsed)
 	{
-		bool ContainsIdentifier = false, ContainsEscape = false;
+		bool containsIdentifier = false, containsEscape = false;
 
 		if (!unparsed.Contains('\\')) return unparsed;
 
-		int Position = 0;
-		StringBuilder Result = new();
+		int position = 0;
+		StringBuilder result = new();
 		foreach (Match match in UnicodeIdentifierRegex().Matches(unparsed))
 		{
-			ContainsIdentifier = true;
-			Result.Append(unparsed, Position, match.Index - Position);
-			Position = match.Index + match.Length;
-			Result.Append((char)Convert.ToInt32(match.Groups[1].ToString(), 16));
+			containsIdentifier = true;
+			result.Append(unparsed, position, match.Index - position);
+			position = match.Index + match.Length;
+			result.Append((char)Convert.ToInt32(match.Groups[1].ToString(), 16));
 		}
-		Result.Append(unparsed, Position, unparsed.Length - Position);
+		result.Append(unparsed, position, unparsed.Length - position);
 
-		unparsed = ContainsIdentifier ? Result.ToString() : unparsed;
-		Result.Clear();
-		Position = 0;
+		unparsed = containsIdentifier ? result.ToString() : unparsed;
+		result.Clear();
+		position = 0;
 
 		foreach (Match match in EscapeCharacterRegex().Matches(unparsed))
 		{
-			ContainsEscape = true;
-			Result.Append(unparsed, Position, match.Index - Position);
-			Position = match.Index + match.Length;
-			Result.Append(match.ValueSpan[1] switch
+			containsEscape = true;
+			result.Append(unparsed, position, match.Index - position);
+			position = match.Index + match.Length;
+			result.Append(match.ValueSpan[1] switch
 			{
 				'b' => "\b",
 				'f' => "\f",
@@ -46,37 +58,36 @@ internal static partial class Parsing
 			});
 		}
 
-		return ContainsEscape ? Result.ToString() : unparsed;
+		return containsEscape ? result.ToString() : unparsed;
 	}
 
 	/// <summary>
-	/// Converts the contents of this string into an escaped version, avoiding markdown formatting issues.
+	/// Converts the contents of a string into a markdown-safe escaped version, avoiding formatting issues.
 	/// </summary>
 	public static string ToEscapedMarkdown(this string unparsed)
 	{
-		StringBuilder Parsed = new(unparsed.Length + 20);
+		_markdownBuilder.Clear();
+
+		_markdownBuilder.EnsureCapacity(unparsed.Length * 2);
 
 		foreach (char c in unparsed)
 		{
 			switch (c)
 			{
 				default:
-					Parsed.Append(c);
+					_markdownBuilder.Append(c);
 					break;
 
 				case '*' or '_' or '#' or '-' or '~' or '`' or '(' or ')' or '[' or ']' or '>':
-					Parsed.Append('\\');
-					Parsed.Append(c);
+					_markdownBuilder.Append('\\');
+					_markdownBuilder.Append(c);
 					break;
 			}
 		}
 
-		return Parsed.ToString();
+		return _markdownBuilder.ToString();
 	}
 
 	[GeneratedRegex(@"\\u([0-9A-Fa-f]{4})")]
 	private static partial Regex UnicodeIdentifierRegex();
-
-	[GeneratedRegex(@"\\(b|f|n|r|t|""|\\)")]
-	private static partial Regex EscapeCharacterRegex();
 }

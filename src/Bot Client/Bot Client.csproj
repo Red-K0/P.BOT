@@ -21,11 +21,12 @@
 	<PropertyGroup>
 		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
 		<IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
-		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+		<StackTraceSupport>false</StackTraceSupport>
 		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<SelfContained>true</SelfContained>
 		<LangVersion>preview</LangVersion>
+
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -58,23 +59,23 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="BitFaster.Caching" Version="2.5.2" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
-		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.1" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.162">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NetCord" Version="1.0.0-alpha.331" />
-		<PackageReference Include="NetCord.Services" Version="1.0.0-alpha.232" />
-		<PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
+		<PackageReference Include="NetCord" Version="1.0.0-alpha.341" />
+		<PackageReference Include="NetCord.Services" Version="1.0.0-alpha.341" />
+		<PackageReference Include="Roslynator.Analyzers" Version="4.12.10">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Roslynator.CodeFixes" Version="4.12.9">
+		<PackageReference Include="Roslynator.CodeFixes" Version="4.12.10">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
+		<PackageReference Include="System.Private.Uri" Version="4.3.2" />
 	</ItemGroup>
 
 	<ItemGroup>

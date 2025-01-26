@@ -1,54 +1,58 @@
 ﻿using System.Collections.Frozen;
 using System.Text;
+
 namespace Bot.Backend;
 
 /// <summary>
-/// Contains the cached members list, role list, and their relevant methods. This class possesses a static constructor not shipped in the GitHub repo for privacy reasons.
+/// Contains the member list, accolade list, and founder lists.
 /// </summary>
 internal static class Members
 {
 	/// <summary>
-	/// Represents a <see cref="GuildUserInfo"/> object with additional bot-related fields.
+	/// Populates the <see cref="Accolades"/> and <see cref="FounderRoles"/> lists from their respective files.
 	/// </summary>
-	/// <param name="info">The <see cref="GuildUserInfo"/> to base the object on.</param>
-	public sealed class Member(GuildUserInfo info)
+	static Members()
 	{
-		public GuildUserInfo Info = info;
+		Accolades = new Dictionary<ulong, string>(Files.GetDictionary(Files.Names.Accoaldes).Result
+			.Select(static p => new KeyValuePair<ulong, string>(ulong.Parse(p.Key), p.Value.Trim())))
+			.ToFrozenDictionary();
 
-		public bool IsFounder = FounderRoles.ContainsKey(info.User.Id);
-
-		public string DisplayName => (Info.User.Nickname ?? Info.User.GlobalName ?? Info.User.Username).FromEscapedUnicode().ToEscapedMarkdown();
-		public Role? PersonalRole => FounderRoles.TryGetValue(Info.User.Id, out Role? role) ? role : null;
-
-		// Spam Filter
-		public bool SpamLastMessageHeading { get; set; }
-
-		public int SpamSameMessageCount { get; set; }
-		public int SpamLastAttachmentSize { get; set; }
-		public string SpamLastMessage { get; set; } = "";
+		Dictionary<ulong, Role> founderRoles = [];
+		foreach (KeyValuePair<string, string> pair in Files.GetDictionary(Files.Names.FounderRoles).Result)
+		{
+			ulong RoleID = Convert.ToUInt64(pair.Value);
+			founderRoles.Add(Convert.ToUInt64(pair.Key), Core.Guild.Roles[RoleID != 0 ? RoleID : Files.GetCounter(Files.CounterLines.FounderID).Result]);
+		}
+		FounderRoles = founderRoles.ToFrozenDictionary();
 	}
 
 	/// <summary>
-	/// The bot's internal member list, generated from the <c>members-search</c> endpoint.
+	/// Used for creating event role accolade strings efficiently.
 	/// </summary>
-	public static Dictionary<ulong, Member> MemberList { get; set; } = [];
+	private static readonly StringBuilder _accoladeBuilder = new(512);
 
 	/// <summary>
-	/// The bot's internal list of event roles, and their appropriate descriptions.
+	/// The event role description list, indexed by role ID.
 	/// </summary>
-	public static FrozenDictionary<ulong, string> Accolades { get; private set; } = null!;
+	public static FrozenDictionary<ulong, string> Accolades { get; }
 
 	/// <summary>
-	/// The bot's internal list of founder roles, alongside their owners' user IDs.
+	/// The founder role list, indexed by owner ID.
 	/// </summary>
-	public static FrozenDictionary<ulong, Role> FounderRoles { get; private set; } = null!;
+	public static FrozenDictionary<ulong, Role> FounderRoles { get; }
 
 	/// <summary>
-	/// Returns a string summarizing a user's accolades and other important roles.
+	/// The member list, generated with <see cref="RestClient.SearchGuildUsersAsync(ulong, GuildUsersSearchPaginationProperties?, RestRequestProperties?)"/>.
 	/// </summary>
-	public static async Task<string> GetUserAccolades(Member member)
+	public static OrderedDictionary<ulong, Member> MemberList = [];
+
+	/// <summary>
+	/// Returns a string summarizing a member's accolades and other important roles.
+	/// </summary>
+	/// <param name="member">The member to return accolades for.</param>
+	public static async Task<string> GetAccolades(Member member)
 	{
-		string index = (Array.IndexOf([.. MemberList.Keys], member.Info.User.Id) + 1).ToString();
+		string index = (MemberList.IndexOf(member.Info.User.Id) + 1).ToString();
 
 		if (index.Length == 2 && index[^2] == '1')
 		{
@@ -59,41 +63,77 @@ internal static class Members
 			index += index[^1] switch { '1' => "st", '2' => "nd", '3' => "rd", _ => "th" };
 		}
 
-		StringBuilder AccoladeString = new($">>> <@&{(member.IsFounder
+		_accoladeBuilder.Clear();
+
+		_accoladeBuilder.Append($">>> <@&{(member.IsFounder
 			? member.PersonalRole!.Id
 			: await Files.GetCounter(Files.CounterLines.CultistID))}>\n- The {index} member.");
 
-		foreach (ulong role in member.Info.User.RoleIds.Where(Accolades.ContainsKey)) AccoladeString.Append($"\n<@&{role}>\n- {Accolades[role]}");
-		return AccoladeString.ToString();
+		foreach (ulong role in member.Info.User.RoleIds.Where(Accolades.ContainsKey)) _accoladeBuilder.Append($"\n<@&{role}>\n- {Accolades[role]}");
+
+		return _accoladeBuilder.ToString();
 	}
 
 	/// <summary>
-	/// Initializes the class with data from the <c>members-search</c> endpoint.
+	/// Initializes the class' member list using <see cref="RestClient.SearchGuildUsersAsync(ulong, GuildUsersSearchPaginationProperties?, RestRequestProperties?)"/>.
 	/// </summary>
-	/// <summary>
-	/// Initializes the class with data from the <c>members-search</c> endpoint.
-	/// </summary>
-	public static async Task LoadDictionaries()
+	public static async Task LoadMemberList()
 	{
-		Dictionary<ulong, Role> FounderRolesSurrogate = [];
-		foreach (KeyValuePair<string, string> pair in await Files.GetDictionary(Files.Names.FounderRoles))
-		{
-			ulong RoleID = Convert.ToUInt64(pair.Value);
-			FounderRolesSurrogate.Add(Convert.ToUInt64(pair.Key), Core.Guild.Roles[RoleID != 0 ? RoleID : (await Files.GetCounter(Files.CounterLines.FounderID))]);
-		}
-		FounderRoles = FounderRolesSurrogate.ToFrozenDictionary();
+		List<GuildUserInfo?> memberList = new(100);
 
-		Dictionary<ulong, string> AccoladesSurrogate = [];
-		foreach (KeyValuePair<string, string> pair in await Files.GetDictionary(Files.Names.Accoaldes))
-		{
-			AccoladesSurrogate.Add(Convert.ToUInt64(pair.Key), pair.Value.Trim());
-		}
-		Accolades = AccoladesSurrogate.ToFrozenDictionary();
+		await foreach (GuildUserInfo? item in Client.Rest.SearchGuildUsersAsync(GuildID)) memberList.Add(item);
 
-		await foreach (GuildUserInfo? item in Client.Rest.SearchGuildUsersAsync(GuildID))
-		{
-			MemberList.Add(item.User.Id, new(item));
-		}
-		MemberList = MemberList.Reverse().ToDictionary();
+		memberList.Reverse();
+		MemberList.EnsureCapacity(memberList.Count);
+
+		MemberList.Clear();
+		foreach (GuildUserInfo? info in memberList) if (info != null) MemberList.Add(info.User.Id, new(info));
+	}
+
+	/// <summary>
+	/// Represents a server member, consists of a <see cref="GuildUserInfo"/> object with additional bot-related fields.
+	/// </summary>
+	/// <param name="info">The <see cref="GuildUserInfo"/> to construct the object around.</param>
+	public sealed class Member(GuildUserInfo info)
+	{
+		/// <summary>
+		/// The member's guild information.
+		/// </summary>
+		public GuildUserInfo Info = info;
+
+		/// <summary>
+		/// Whether the member is considered a server founder.
+		/// </summary>
+		public bool IsFounder = FounderRoles.ContainsKey(info.User.Id);
+
+		/// <summary>
+		/// The member's display name.
+		/// </summary>
+		public string DisplayName => (Info.User.Nickname ?? Info.User.GlobalName ?? Info.User.Username).FromEscapedUnicode().ToEscapedMarkdown();
+
+		/// <summary>
+		/// The member's personal role, if they have one.
+		/// </summary>
+		public Role? PersonalRole => IsFounder ? FounderRoles[Info.User.Id] : null;
+
+		/// <summary>
+		/// Whether the member's last message started with a markdown heading modifier '<c>#</c>'.
+		/// </summary>
+		public bool SpamLastMessageHeading { get; set; }
+
+		/// <summary>
+		/// How many times in a row the member's sent the same message.
+		/// </summary>
+		public int SpamSameMessageCount { get; set; }
+
+		/// <summary>
+		/// The size of the member's last sent attachment.
+		/// </summary>
+		public int LastAttachmentSize { get; set; }
+
+		/// <summary>
+		/// The member's last sent message.
+		/// </summary>
+		public string LastMessage { get; set; } = "";
 	}
 }

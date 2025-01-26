@@ -1,5 +1,4 @@
-﻿using Bot.Interactions.Helpers;
-using Bot.Interactions;
+﻿using Bot.Interactions;
 
 namespace Bot.Messages;
 
@@ -9,37 +8,34 @@ namespace Bot.Messages;
 internal static class Functions
 {
 	/// <summary> Parses the contents of a given <see cref="MessageReactionAddEventArgs"/> and adds the result to the starboard. </summary>
-	/// <param name="message"> The <see cref="MessageReactionAddEventArgs"/> containing the message to add to the starboard. </param>
-	public static async Task AddToStarBoard(MessageReactionAddEventArgs message)
+	/// <param name="args"> The <see cref="MessageReactionAddEventArgs"/> containing the message to add to the starboard. </param>
+	public static async Task AddToStarBoard(MessageReactionAddEventArgs args)
 	{
-		RestMessage Message = await Client.Rest.GetMessageAsync(message.ChannelId, message.MessageId);
-		MessageProperties StarMessage = new();
-		RestMessage? RepliedTo = Message.ReferencedMessage;
+		RestMessage message = await Client.Rest.GetMessageAsync(args.ChannelId, args.MessageId);
+		MessageProperties starMessage = new();
 
-		if (RepliedTo != null)
+		if (message.ReferencedMessage != null)
 		{
-			StarMessage.AddEmbeds(Client.Rest.GetMessageAsync(RepliedTo.ChannelId, RepliedTo.Id).Result.ToEmbedSet($"{GuildURL}{RepliedTo.ChannelId}/{RepliedTo.Id}")
-			.First().WithAuthor(new()
-			{
-				IconUrl = RepliedTo.Author.GetAvatar(),
-				Name = $"Replying to: {RepliedTo.Author.GetDisplayName()}"
-			}));
+			starMessage.AddEmbeds(Client.Rest.GetMessageAsync(message.ReferencedMessage.ChannelId, message.ReferencedMessage.Id).Result
+			.ToEmbedSet($"{GuildURL}{message.ReferencedMessage.ChannelId}/{message.ReferencedMessage.Id}")
+			.First()
+			.WithAuthor(new() { IconUrl = message.ReferencedMessage.Author.GetAvatar(), Name = $"Replying to: {message.ReferencedMessage.Author.GetDisplayName()}"}));
 		}
 
-		StarMessage.AddEmbeds(Message.ToEmbedSet(
-			$"{GuildURL}{message.ChannelId}/{message.MessageId}",
-			new() { IconUrl = message.User!.GetAvatar(), Text = $"Message starred by {message.User!.GetDisplayName()}" },
-			title: $"Starboard Entry #{await Files.GetCounter(Files.CounterLines.Starboard, 1)}"
-		));
+		starMessage.AddEmbeds(message.ToEmbedSet(
+			$"{GuildURL}{args.ChannelId}/{args.MessageId}",
+			new() { IconUrl = args.User!.GetAvatar(), Text = $"Message starred by {args.User!.GetDisplayName()}" },
+			title: $"Starboard Entry #{await Files.GetCounter(Files.CounterLines.Starboard, 1)}"));
 
 		// Starboard Channel
-		await Client.Rest.SendMessageAsync(1133836713194696744, StarMessage);
+		await Client.Rest.SendMessageAsync(1133836713194696744, starMessage);
 	}
 
 	/// <summary>
 	/// Gets the relevant <see cref="Message"/> object from a Discord message URL.
 	/// </summary>
-	public static async Task<RestMessage?> GetMessageFromLink(string link)
+	/// <param name="link">The URL to find a message object from.</param>
+	public static async Task<(RestMessage? Message, bool Restricted)> GetMessageFromLink(string link)
 	{
 		if (link.Contains(GuildURL) && link.Length > (link.IndexOf(GuildURL) + GuildURL.Length))
 		{
@@ -50,11 +46,11 @@ internal static class Functions
 
 			if (ulong.TryParse(link.Remove(link.LastIndexOf('/')), out ulong Channel) && ulong.TryParse(link[(link.LastIndexOf('/') + 1)..], out ulong Message))
 			{
-				return await Client.Rest.GetMessageAsync(Channel, Message);
+				return (await Client.Rest.GetMessageAsync(Channel, Message), ((TextGuildChannel)await Client.Rest.GetChannelAsync(Channel)).ParentId == 1165525787580051526);
 			}
 		}
 
-		return null;
+		return (null, false);
 	}
 
 	/// <summary>
@@ -63,17 +59,17 @@ internal static class Functions
 	/// <param name="message"> The <see cref="Message"/> object to check for and parse links in. </param>
 	public static async Task ParseLinks(Message message)
 	{
-		string Scan = message.Content.Replace("https://", " https://"); RestMessage? LinkedMessage; int i = 0;
-		ulong LastAuthorID = 0; int LinkCount = (Scan.Length - Scan.Replace(GuildURL, "").Length) / GuildURL.Length;
-		ulong[] ParsedLinks = new ulong[LinkCount];
+		string scan = message.Content.Replace("https://", " https://"); (RestMessage? Message, bool Restricted) linkedMessage; int i = 0;
+		ulong lastAuthorID = 0; int linkCount = (scan.Length - scan.Replace(GuildURL, "").Length) / GuildURL.Length;
+		ulong[] parsedLinks = new ulong[linkCount];
 		do
 		{
 			i++;
-			if ((LinkedMessage = await GetMessageFromLink(Scan)) != null && !ParsedLinks.Contains(LinkedMessage.Id))
+			if ((linkedMessage = await GetMessageFromLink(scan)).Message != null && !parsedLinks.Contains(linkedMessage.Message.Id))
 			{
-				EmbedProperties embed = LinkedMessage.ToEmbedSet().First().WithUrl($"{GuildURL}{message.ChannelId}/{message.Id}");
+				EmbedProperties embed = linkedMessage.Message.ToEmbedSet(url: $"{GuildURL}{message.ChannelId}/{message.Id}", censor: linkedMessage.Restricted).First();
 
-				embed = i == LinkCount
+				embed = i == linkCount
 					? embed.WithFooter(new() { Text = $"Message linked by {message.Author.GetDisplayName()}", IconUrl = message.Author.GetAvatar() })
 					: embed.WithTimestamp(null);
 
@@ -81,18 +77,18 @@ internal static class Functions
 					message.ChannelId,
 					new()
 					{
-						Embeds = Embeds.CreateImageSet((embed.Url, LinkedMessage.Attachments.GetImageURLs()))
-						.Prepend(LastAuthorID == LinkedMessage.Author.Id ? embed.WithAuthor(null) : embed)
+						Embeds = Embeds.CreateImageSet(embed.Url, linkedMessage.Message.Attachments.GetImageURLs().Skip(1))
+						.Prepend(lastAuthorID == linkedMessage.Message.Author.Id ? embed.WithAuthor(null) : embed)
 					}
 				);
 
-				ParsedLinks[i - 1] = LinkedMessage.Id;
-				LastAuthorID = LinkedMessage.Author.Id;
+				parsedLinks[i - 1] = linkedMessage.Message.Id;
+				lastAuthorID = linkedMessage.Message.Author.Id;
 			}
 
-			if (i != LinkCount) Scan = Scan[(Scan.IndexOf(GuildURL) + GuildURL.Length)..];
+			if (i != linkCount) scan = scan[(scan.IndexOf(GuildURL) + GuildURL.Length)..];
 		}
-		while (i < LinkCount);
+		while (i < linkCount);
 	}
 
 	/// <summary>
@@ -101,39 +97,39 @@ internal static class Functions
 	/// <param name="message">The <see cref="Message"/> object to perform comparison on.</param>
 	public static async Task<bool> Filter(Message message)
 	{
-		Members.Member Member = Members.MemberList[message.Author.Id];
+		Members.Member member = Members.MemberList[message.Author.Id];
 
-		ReadOnlySpan<char> Content = message.Content.AsSpan();
+		ReadOnlySpan<char> content = message.Content.AsSpan();
 
-		if (Content.StartsWith("# "))
+		if (content.StartsWith("# "))
 		{
-			if (Member.SpamLastMessageHeading)
+			if (member.SpamLastMessageHeading)
 			{
 				return await FilterHit();
 			}
 			else
 			{
-				Member.SpamLastMessageHeading = true;
+				member.SpamLastMessageHeading = true;
 			}
 		}
 		else
 		{
-			Member.SpamLastMessageHeading = false;
+			member.SpamLastMessageHeading = false;
 		}
 
-		if (Content == Member.SpamLastMessage)
+		if (content == member.LastMessage)
 		{
 			// Double penalize link spam.
-			if (Content.Contains("://", StringComparison.Ordinal)) Member.SpamSameMessageCount++;
-			if (Member.SpamSameMessageCount++ > 1) return await FilterHit();
+			if (content.Contains("://", StringComparison.Ordinal)) member.SpamSameMessageCount++;
+			if (member.SpamSameMessageCount++ > 1) return await FilterHit();
 		}
 		else
 		{
-			if (Member.SpamSameMessageCount != 0) Member.SpamSameMessageCount--;
-			Member.SpamLastMessage = message.Content;
+			if (member.SpamSameMessageCount != 0) member.SpamSameMessageCount--;
+			member.LastMessage = message.Content;
 		}
 
-		if (Content.Contains("lost", StringComparison.OrdinalIgnoreCase) && Content.Contains("game", StringComparison.OrdinalIgnoreCase))
+		if (content.Contains("lost", StringComparison.OrdinalIgnoreCase) && content.Contains("game", StringComparison.OrdinalIgnoreCase))
 		{
 			return await FilterHit(true);
 		}
@@ -141,18 +137,18 @@ internal static class Functions
 		// If there are no attachments, save state and exit early.
 		if (message.Attachments.Any())
 		{
-			if (message.Attachments[0].Size == Member.SpamLastAttachmentSize)
+			if (message.Attachments[0].Size == member.LastAttachmentSize)
 			{
-				if (Member.SpamSameMessageCount++ > 1) return await FilterHit();
+				if (member.SpamSameMessageCount++ > 1) return await FilterHit();
 			}
 			else
 			{
-				if (Member.SpamSameMessageCount != 0) Member.SpamSameMessageCount--;
-				Member.SpamLastAttachmentSize = message.Attachments[0].Size;
+				if (member.SpamSameMessageCount != 0) member.SpamSameMessageCount--;
+				member.LastAttachmentSize = message.Attachments[0].Size;
 			}
 		}
 
-		Members.MemberList[message.Author.Id] = Member;
+		Members.MemberList[message.Author.Id] = member;
 		return false;
 
 		async Task<bool> FilterHit(bool gameLost = false)
@@ -164,18 +160,18 @@ internal static class Functions
 
 			if (gameLost)
 			{
-				if ((ProbabilityStateMachine.Next() & 0b0110) == 0b0110) await Client.Rest.SendMessageAsync(message.ChannelId, $"<@{message.Author.Id}>, shame on you.");
+				if ((Interactions.Helpers.DiceRoller.Next() & 0b0110) == 0b0110) await Client.Rest.SendMessageAsync(message.ChannelId, $"<@{message.Author.Id}>, shame on you.");
 				return false;
 			}
 
-			if (Member.SpamSameMessageCount > 5)
+			if (member.SpamSameMessageCount > 5)
 			{
 				await Client.Rest.ModifyGuildUserAsync(GuildID, message.Author.Id, u => u.WithTimeOutUntil(new(DateTime.Now.AddMinutes(30))));
-				Member.SpamSameMessageCount = 0;
+				member.SpamSameMessageCount = 0;
 			}
 			else
 			{
-				await Client.Rest.SendMessageAsync(message.ChannelId, Member.SpamSameMessageCount switch
+				await Client.Rest.SendMessageAsync(message.ChannelId, member.SpamSameMessageCount switch
 				{
 					3 => $"<@{message.Author.Id}> please avoid spamming.",
 					4 => $"<@{message.Author.Id}> spamming interrupts others and the flow of chat, please avoid doing so.",
@@ -184,7 +180,7 @@ internal static class Functions
 				});
 			}
 
-			Members.MemberList[message.Author.Id] = Member;
+			Members.MemberList[message.Author.Id] = member;
 			return true;
 		}
 	}
